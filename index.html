@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing beyond imagination with AI &middot; Avi Oberoi</title>
+<meta name="description" content="Final report. Novelty search in foundation-model embedding space, applied to creative story generation. Extension of the DURooM thesis project to text.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="shell">
+
+<!-- ============================================================ -->
+<!--  TOP STRIP                                                    -->
+<!-- ============================================================ -->
+<div class="top-strip">
+  <div class="logo"><img src="figs/logo-background.svg" alt="The University of Chicago"></div>
+  <div class="center-mark">Project B &middot; Research proposal with pilot</div>
+  <div class="meta">
+    Mina Lee&rsquo;s course &middot; Spring 2026<br>
+    <a href="https://github.com/avioberoi/creative_novel_stories" target="_blank" rel="noopener">github.com/avioberoi/creative_novel_stories</a>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  HERO                                                         -->
+<!-- ============================================================ -->
+<header class="hero">
+  <div class="eyebrow">an extension of my thesis project &middot; D U R o o M</div>
+  <h1 class="report-title">Writing beyond <span class="accent">imagination</span> with AI</h1>
+  <p class="deck">A study of where stories live in a foundation model&rsquo;s embedding space, and what an evolutionary search can pull out from the periphery.</p>
+  <div class="byline"><b>Avi Oberoi</b> &middot; University of Chicago</div>
+</header>
+
+<nav class="toc" aria-label="Section navigation">
+  <a href="#abstract"><span class="ord">01</span>Abstract</a>
+  <a href="#disclosure"><span class="ord">02</span>AI Disclosure</a>
+  <a href="#motivation"><span class="ord">03</span>Motivation</a>
+  <a href="#background"><span class="ord">04</span>Background</a>
+  <a href="#questions"><span class="ord">05</span>Methods</a>
+  <a href="#results"><span class="ord">06</span>Results</a>
+  <a href="#process"><span class="ord">07</span>Process</a>
+  <a href="#reflection"><span class="ord">08</span>Reflection</a>
+  <a href="#refs"><span class="ord">09</span>References</a>
+  <a href="#appendix"><span class="ord">A</span>Appendix</a>
+</nav>
+
+<!-- ============================================================ -->
+<!--  01 ABSTRACT                                                  -->
+<!-- ============================================================ -->
+<section id="abstract" class="first">
+  <div class="section-head">
+    <div class="tomb">01</div>
+    <h2>What this is and why it matters</h2>
+    <div class="lede-sub">A short paragraph a non-specialist can follow.</div>
+  </div>
+  <p class="lede">Foundation models compress how stories tend to be told.</p>
+  <p class="section-first">
+    Sample them naively and you land near the centre of that map: the average voice, the average twist. This project asks whether the rare directions in a model&rsquo;s text-embedding space hold stories the model could write but rarely does, and whether evolutionary search can systematically pull those stories out.
+  </p>
+  <p>
+    We ported the CMA-ES novelty-search framework from my thesis project on visual artifacts (<i>DURooM</i>) to creative story generation. The search runs in the 1024-dimensional Qwen3-Embedding space over a corpus of 5,001 New Yorker stories, with a committee of two foundation-model encoders (BGE-large, E5-Mistral-7B) acting as observers, a held-out encoder (EmbeddingGemma-300m) measuring whether the novelty signal transfers, and Qwen3-32B as the retrieval-conditioned generator. Across five distance metrics and three baselines, corpus-calibrated Mahalanobis distance produced the most transferable novelty signal (rank correlation <span class="num-token">0.80</span> against the held-out encoder), the highest lexical diversity (distinct-2 <span class="num-token">0.73</span>, in the human-writer range Ismayilzada et al., 2024 report at <span class="num-token">~0.79</span>), and qualitatively coherent prose. We surface the pivots that produced these numbers, including a diffusion-map scorer bug discovered mid-run that dropped a result from 0.42 to an honest 0.31. The pilot suggests foundation-model embedding spaces are practical substrates for novelty search in text, with the same structural lessons that held for images.
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!--  02 AI DISCLOSURE                                             -->
+<!-- ============================================================ -->
+<section id="disclosure">
+  <div class="section-head">
+    <div class="tomb">02</div>
+    <h2>How AI was used in this project</h2>
+    <div class="lede-sub">Disclosure approach + brief justification.</div>
+  </div>
+  <p>
+    This project is collaborative work between a human author and several AI systems. The disclosure below uses the <a href="https://aiattribution.github.io/" target="_blank" rel="noopener">aiattribution.github.io</a> framework, which tags each AI use along four axes: <i>proportion</i> (how much of the artifact is AI), <i>contribution</i> (what the AI added), <i>initiative</i> (who started the action), and <i>review</i> (whether a human checked the output).
+  </p>
+
+  <div class="ai-attrib">
+    <b>Code &amp; report writing</b><br>
+    Claude (Opus 4.7, 1M context). Wrote the search pipeline modules, the poster, this website, and most of the prose below, all under my direction and with my revisions.
+    <div class="tags">
+      <span class="tag">HAb &middot; human-AI blend</span>
+      <span class="tag">Nc &middot; new content</span>
+      <span class="tag">Hin &middot; human-initiated</span>
+      <span class="tag">R &middot; reviewed</span>
+    </div>
+    <hr>
+    <b>Story generation</b><br>
+    Qwen3-32B via local vLLM. Produced every story the search procedure evaluated and every story shown as an example below.
+    <div class="tags">
+      <span class="tag">EAI &middot; entirely AI</span>
+      <span class="tag">Nc &middot; new content</span>
+      <span class="tag">Hin &middot; human-initiated</span>
+      <span class="tag">R &middot; reviewed</span>
+    </div>
+    <hr>
+    <b>Embeddings + reward scoring</b><br>
+    Qwen3-Embedding-0.6B, BGE-large, E5-Mistral-7B, EmbeddingGemma-300m, ConicCat Litbench-Creative-Writing-RM-3B. All open-weight models, run locally. No external API calls during scoring.
+    <div class="tags">
+      <span class="tag">Ph &middot; primarily human method</span>
+      <span class="tag">Nc &middot; new content</span>
+      <span class="tag">Hin &middot; human-initiated</span>
+      <span class="tag">R &middot; reviewed</span>
+    </div>
+  </div>
+
+  <h3>Why this disclosure approach</h3>
+  <p>
+    The aiattribution schema separates volume from authorship, which matters in a project where the LLM does the writing-act but the search procedure decides which writings count. A single &ldquo;made with Claude&rdquo; sticker would conflate those two roles. The four-axis breakdown lets the reader see that the report&rsquo;s code is human-AI blended, while the 385 story openings that populate the search archive are <i>entirely AI</i> output that I curated only through the choice of distance metric, observer committee, and coherence gate. The disclosure reveals that asymmetry. What it does not capture: which specific design decisions were mine versus accepted from Claude after pushback. That is what the Process section is for.
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!--  03 MOTIVATION                                                -->
+<!-- ============================================================ -->
+<section id="motivation">
+  <div class="section-head">
+    <div class="tomb">03</div>
+    <h2>Why look at the periphery of a foundation model</h2>
+    <div class="lede-sub">The gap that creative-AI evaluation has exposed and not closed.</div>
+  </div>
+  <p class="lede">Novelty is not a property of a story in isolation. It is a relational claim.</p>
+  <p class="section-first">
+    New relative to an observer, a context, and what has already been read (Itti &amp; Baldi, 2009). Asking a large language model for a &ldquo;novel&rdquo; story is asking the wrong question, because the model has no view of what already exists. The position this report takes is that novelty has to be operationalised as a search problem over a representational space whose distances correlate with human perceptual judgment.
+  </p>
+
+  <p>
+    The current creative-AI literature exposes a gap that motivates this work. Chakrabarty et al. (2024) ran the Torrance Test of Creative Writing on GPT-4, Claude v1.3, and GPT-3.5 against published New Yorker stories. GPT-4 passes <span class="num-token">12 / 36</span> items; the New Yorker stories pass <span class="num-token">32 / 36</span>. Their LLM-judge agreement with expert raters has a Cohen kappa near zero. Ismayilzada et al. (2024) ran 60 LLMs against 59 human writers on a controlled short-story task and found humans &gt; LLMs on novelty (p<sup>&lt;10<sup>-7</sup></sup>), surprise (p<sup>&lt;10<sup>-3</sup></sup>), and lexical diversity (p<sup>&lt;10<sup>-4</sup></sup>). Both papers locate the gap. Neither tries to close it.
+  </p>
+
+  <blockquote>
+    The structure suggests that the AI in this AI tool is closer to a calculating tool than to a thinking partner.
+    <cite>Boden (2004), on combinational creativity</cite>
+  </blockquote>
+
+  <p>
+    The closest methodological precedent is <i>ASAL</i> (Kumar et al., 2025), which used foundation-model representations to search for &ldquo;interesting&rdquo; artificial-life simulations. ASAL framed search in foundation-model embedding space as a viable substitute for the absent human-rater pipeline that artificial-life research could never afford. My thesis project, <i>DURooM</i>, ported the idea to visual artifacts on WikiArt and confirmed that committee novelty in foundation-model space transfers across encoder families. This report extends the same machinery one more step, into a domain where novelty has been studied for centuries and where the reader is the test instrument: literary prose. Boden (2004) calls the kind of novelty we are after <i>exploratory creativity</i>: searching what is implicit in an existing conceptual space rather than transforming the space itself. That happens to be a very accurate description of what a CMA-ES novelty search over a foundation-model embedding does.
+  </p>
+
+  <p>
+    The other tension I am working under, which Mina Lee&rsquo;s course has surfaced for me in week after week of readings, is the gap between fluency and judgment. Chiang (2023) calls a large language model &ldquo;a blurry JPEG of the web&rdquo;, a lossy compression of human writing whose loss is most visible exactly where novelty would otherwise live. The question this project asks pulls in the opposite direction. Can the lossy compression be searched smartly enough to surface stories that the model has internalised but does not visit by default?
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!--  04 BACKGROUND                                                -->
+<!-- ============================================================ -->
+<section id="background">
+  <div class="section-head">
+    <div class="tomb">04</div>
+    <h2>What others have tried</h2>
+    <div class="lede-sub">A focused related-work section, leaning on the prior thesis but with the creative-AI thread added.</div>
+  </div>
+
+  <h3>Novelty search and quality-diversity</h3>
+  <p class="section-first">
+    The central observation of Lehman &amp; Stanley (2011) was that objective functions can actively mislead search toward dead ends. Their <i>novelty search</i> drops the objective and rewards behavior that has not been seen before. Mouret &amp; Clune (2015) extended this with <i>MAP-Elites</i>, which keeps a structured archive of high-performing solutions across a measure space. Fontaine et al. (2020, 2023) combined CMA-ES with these archives in CMA-MAE. For text generation the closest analogue is OMNI (Zhang et al., 2023), which proposes foundation models as evaluators of <i>interestingness</i> in open-ended exploration.
+  </p>
+
+  <h3>Foundation-model embeddings as a perceptual substrate</h3>
+  <p>
+    Deep representations correlate with human perceptual judgments more reliably than hand-designed features. For text, this has been shown via the strong cross-task transfer of sentence-encoder spaces (Reimers &amp; Gurevych, 2019; Wang et al., 2024 for E5-Mistral; Xiao et al., 2024 for BGE). Huh et al. (2024) formalise this with the <i>Platonic Representation Hypothesis</i>: foundation-model encoders trained at scale on broad data converge toward a shared statistical model of reality, with the practical consequence that distances measured in one encoder transfer meaningfully to another. Our held-out transfer evaluation is a direct empirical test of that claim.
+  </p>
+
+  <h3>Creativity evaluation for LLMs</h3>
+  <p>
+    Three reference points anchor the comparison side of this work. Chakrabarty et al. (2024) introduced the Torrance Test of Creative Writing rubric for evaluating LLM stories, where four levels of expert annotation produced the pass-rate gap referenced earlier. Ismayilzada et al. (2024) compared 60 LLMs against 59 human writers across four creativity dimensions (novelty, surprise, diversity, complexity). Fein et al. (2025) released <i>LitBench</i>: 43,827 human-preference pairs from r/WritingPrompts plus a Bradley-Terry reward model that reaches 78% agreement with human raters. Our quality-of-output evaluation uses the LitBench reward (via the publicly released ConicCat community fork) because it is the only system in this space trained directly on creative-writing preferences.
+  </p>
+
+  <h3>Quality-diversity in foundation-model space</h3>
+  <p>
+    Kumar et al. (2025) used foundation-model embeddings as the measure space for quality-diversity in artificial-life simulations (ASAL). My thesis project (DURooM) ported the same idea to visual artifacts using CLIP and DINOv3 as observers. The text-domain extension this report proposes is the third instantiation of the same idea, and the first in a domain where novelty has been culturally codified for centuries.
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!--  05 RESEARCH QUESTIONS + METHODS                              -->
+<!-- ============================================================ -->
+<section id="questions">
+  <div class="section-head">
+    <div class="tomb">05</div>
+    <h2>Research questions and methods</h2>
+    <div class="lede-sub">Three questions, one pilot configuration, and the verbatim prompts.</div>
+  </div>
+
+  <h3>Three research questions</h3>
+  <p class="section-first">
+    The pilot answers RQ1 in part. RQ2 and RQ3 are what a paper-version would address.
+  </p>
+  <p><b>RQ1.</b> Can evolutionary search in a foundation-model text-embedding space, with a committee of observer encoders and a coherence gate, systematically produce story openings that are scored as more novel than retrieval-baseline outputs from the same generator? The pilot says yes. Mahalanobis-whitened k-NN reaches transfer rank correlation 0.80 to a held-out encoder, distinct-2 of 0.73 in the human-writer range, and qualitatively coherent prose.</p>
+  <p><b>RQ2.</b> How much of the observed novelty comes from the search procedure and how much from the prompting? The pilot does not separate these. Three prompt variants (neutral, novelty-asking, periphery-asking) with seed-matched search populations would let us subtract the prompt effect.</p>
+  <p><b>RQ3.</b> Does the same Mahalanobis-wins ordering hold across different generator families? The pilot uses only Qwen3-32B. Replacing the generator with Claude or GPT-4o while keeping the search and encoders fixed would test whether the geometry claim generalises or is encoder-specific.</p>
+
+  <h3>The pilot configuration</h3>
+  <p>The framework is field-agnostic. Any domain with a reference corpus and a controllable generator can instantiate it. The text-domain instantiation has the following components.</p>
+
+  <ul>
+    <li><b>Search space.</b> Qwen3-Embedding-0.6B (1024-dim). Diagonal CMA-ES uses population &lambda; = 16, max iterations 50, initial step size 0.18, rank-&mu; selection.</li>
+    <li><b>Generator.</b> Qwen3-32B via vLLM, retrieval-conditioned. Each candidate vector retrieves the 5 nearest corpus stories which are passed as in-context examples; the LLM writes a new ~500-word opening in that &ldquo;neighborhood&rdquo;.</li>
+    <li><b>Observer committee.</b> BGE-large-en-v1.5 (1024-dim) and E5-Mistral-7B-instruct (4096-dim). Each scores novelty as MAD-normalised k=15 nearest-neighbor distance against the corpus and the running archive. Per-observer scores are averaged.</li>
+    <li><b>Held-out encoder.</b> EmbeddingGemma-300m (768-dim). The held-out encoder is never touched during search; rank correlation of its novelty scores against the committee scores is our transfer measure.</li>
+    <li><b>Coherence gate.</b> Negative-prompt cosine threshold of 0.55 plus a 200-word length floor. Filters obvious LLM failure modes (refusal, repetition, meta-commentary).</li>
+    <li><b>Distance metrics tested.</b> Euclidean, cosine, Mahalanobis (corpus-calibrated, low-rank whitening at rank 256), Local Outlier Factor, Coifman-Lafon diffusion map.</li>
+    <li><b>Quality measure.</b> ConicCat&rsquo;s Litbench-Creative-Writing-RM-3B (Llama-3.2 fork of Fein et al., 2025&rsquo;s reward model). Reported as mean BT logit + p90.</li>
+    <li><b>Baselines.</b> Random-LLM (sample a corpus story, ask Qwen3 for a near-copy); greedy-farthest (accept the farthest novel candidate at each step); diverse-beam (Qwen3 at temperature 1.2). All use the same generator and the same observer committee.</li>
+  </ul>
+
+  <div class="algorithm">
+    <div class="algo-cap">Algorithm 1<em>Novelty search in foundation-model embedding space.</em></div>
+<pre><b>Input</b>:   corpus C in R^1024; population lambda = 16; iterations T = 50; coherence threshold = 0.55
+<b>Output</b>:  archive A of accepted (story, embedding) pairs
+
+ 1: mean <- p90-percentile point of C  (cluster-boundary start)
+ 2: <b>for</b> t = 1 to T <b>do</b>
+ 3:    <b>for</b> j = 1 to lambda <b>do</b>
+ 4:       sample v_j ~ N(mean, step^2 * diag(Sigma))
+ 5:       retrieve k = 5 nearest corpus stories N_j by inner product
+ 6:       x_j <- Qwen3-32B( N_j as in-context examples )
+ 7:       if len(x_j) &lt; 200 or coh(x_j) &lt; tau:  reject
+ 8:       z_j^(o) <- phi_o(x_j) for each observer o in {BGE, E5-Mistral}
+ 9:       nu_j <- mean over o of MAD-normalised k-NN distance of z_j^(o)
+10:    <b>end for</b>
+11:    admit candidates with nu_j &gt;= percentile_50(A) into A
+12:    update mean, step, Sigma via rank-mu CMA-ES (Hansen, 2016)
+13:    if accept-rate &lt; 0.25 over 15 iters <b>then break</b>
+14: <b>end for</b>
+15: <b>return</b> A
+</pre>
+  </div>
+
+  <h3>The prompts, verbatim</h3>
+  <p>System prompt to Qwen3-32B:</p>
+<pre>You are a literary fiction writer. You will be shown several short
+story openings that share a stylistic and thematic neighborhood. Your task
+is to write a new ~500-word story opening that lives in the SAME
+neighborhood &mdash; same emotional register, comparable prose style, related
+(but not identical) subject matter &mdash; while being clearly its OWN piece,
+not a pastiche of any single example. Do not mention or refer to the
+examples. Just write the story. /no_think</pre>
+  <p>User-turn template, filled at runtime with 5 retrieved neighbors of ~600 words each:</p>
+<pre>Here are 5 story openings from the neighborhood:
+
+--- Example 1 ---
+{first neighbor text, truncated to 600 words}
+
+--- Example 2 ---
+{second neighbor text}
+
+[...]
+
+Now write a new ~500-word story opening in this neighborhood.
+Begin immediately with the story prose &mdash; no title, no preamble,
+no commentary. /no_think</pre>
+  <p style="font-family: var(--ui); font-size:13px; color:var(--ink-2); max-width:60ch;">
+    Decoding parameters: temperature 0.85, top-p 0.95, min/max tokens 350/900, repetition penalty 1.05, deterministic seed = iter&times;1000 + j. The <code>/no_think</code> directive is needed because Qwen3 defaults to reasoning-trace output. Without it, 95% of the response is hidden chain-of-thought and 5% is prose. The Process section below explains how I discovered that.
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!--  06 PILOT RESULTS                                             -->
+<!-- ============================================================ -->
+<section id="results">
+  <div class="section-head">
+    <div class="tomb">06</div>
+    <h2>What the pilot found</h2>
+    <div class="lede-sub">Eight conditions, seed 42, same coherence gate, same generator.</div>
+  </div>
+
+  <p class="section-first">
+    Five CMA-ES metrics produced archives of 62 to 89 accepted stories each. Three baselines produced 199 to 927 stories. All numbers in the table below come from the actual eval runs at <code>/runs/{condition}/eval/</code> and were re-verified against the source archives during the report-review pass.
+  </p>
+
+  <table class="ablation">
+    <thead>
+      <tr>
+        <th>Condition</th>
+        <th class="num">N</th>
+        <th class="num">Transfer corr.</th>
+        <th class="num">LitBench mean</th>
+        <th class="num">LitBench p90</th>
+        <th class="num">distinct-1</th>
+        <th class="num">distinct-2</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="highlight">
+        <td>CMA-ES Mahalanobis</td>
+        <td class="num">62</td>
+        <td class="num"><b>0.799</b></td>
+        <td class="num">1.950</td>
+        <td class="num"><b>2.653</b></td>
+        <td class="num"><b>0.208</b></td>
+        <td class="num"><b>0.727</b></td>
+      </tr>
+      <tr>
+        <td>CMA-ES Euclidean</td>
+        <td class="num">87</td><td class="num">0.714</td><td class="num">1.907</td><td class="num">2.591</td><td class="num">0.182</td><td class="num">0.699</td>
+      </tr>
+      <tr>
+        <td>CMA-ES Cosine</td>
+        <td class="num">89</td><td class="num">0.713</td><td class="num">1.960</td><td class="num">2.628</td><td class="num">0.181</td><td class="num">0.702</td>
+      </tr>
+      <tr>
+        <td>CMA-ES LOF</td>
+        <td class="num">78</td><td class="num">0.623</td><td class="num">1.995</td><td class="num">2.594</td><td class="num">0.183</td><td class="num">0.700</td>
+      </tr>
+      <tr>
+        <td>CMA-ES Diffusion (patched)</td>
+        <td class="num">69</td><td class="num">0.313</td><td class="num">1.785</td><td class="num">2.456</td><td class="num">0.161</td><td class="num">0.658</td>
+      </tr>
+      <tr>
+        <td>Baseline Random-LLM</td>
+        <td class="num">200</td><td class="num">0.697</td><td class="num">1.769</td><td class="num">2.391</td><td class="num">0.080</td><td class="num">0.502</td>
+      </tr>
+      <tr>
+        <td>Baseline Greedy-farthest</td>
+        <td class="num">927</td><td class="num">0.474</td><td class="num">2.000</td><td class="num">2.609</td><td class="num">0.054</td><td class="num">0.474</td>
+      </tr>
+      <tr>
+        <td>Baseline Diverse-beam</td>
+        <td class="num">199</td><td class="num">0.377</td><td class="num">1.354</td><td class="num">2.097</td><td class="num">0.083</td><td class="num">0.543</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    Two findings stand out. First, Mahalanobis-whitened k-NN beats every baseline on transfer correlation, distinct-1, and distinct-2. The novelty signal it produces is the one most likely to survive when measured by an encoder we never used during search. Second, the greedy-farthest baseline produces the highest mean LitBench reward (2.000) but the lowest diversity (distinct-1 = 0.054). Greedy converges to a narrow region of high-reward but stylistically similar prose. CMA-ES with Mahalanobis distance sits on a different point of the Pareto front: comparable quality, four times the lexical diversity.
+  </p>
+
+  <figure>
+    <img src="figs/transfer_rho.png" alt="Held-out transfer rank correlation per condition">
+    <div class="caption"><b>Transfer rank correlation per condition.</b> Mahalanobis-whitened k-NN at 0.80 is the strongest signal. All five CMA-ES metrics are significant at p &lt; 0.001 against the held-out encoder. Baselines drift between 0.38 and 0.70 with much lower diversity, see the Pareto picture in the appendix.</div>
+  </figure>
+
+  <figure>
+    <img src="figs/cma_vs_baselines.png" alt="CMA-ES five metrics vs three baselines">
+    <div class="caption"><b>CMA-ES versus naive baselines.</b> Grouped bars across four metrics. CMA-ES mean rank correlation is 0.63 versus baseline mean 0.52. CMA-ES wins distinct-1 by 2 to 4&times; and distinct-2 by ~50%. The advantage is sharpest on lexical diversity.</div>
+  </figure>
+
+  <figure>
+    <img src="figs/benchmark_comparison.png" alt="Prior-work TTCW gap and where this pilot sits">
+    <div class="caption"><b>Where this sits in published creativity-AI work.</b> The top panel shows Chakrabarty et al.&rsquo;s TTCW pass rates for human-written New Yorker stories (88.9%) against Claude v1.3, GPT-4, and GPT-3.5. The bottom panel anchors our Mahalanobis archive against Ismayilzada&rsquo;s human-versus-LLM gap. We do not claim to close that gap. We shift the LLM&rsquo;s output distribution toward the periphery.</div>
+  </figure>
+
+  <figure>
+    <img src="figs/sigma_evolution.gif" alt="Step-size trajectory per metric, frame per iteration">
+    <div class="caption"><b>Step size, frame per iteration.</b> All five metrics start at the same step size of 0.18 and stay within 1.4&times; of it across the run. No metric blows up. This is the signature of a well-tuned sep-CMA-ES (Hansen, 2016).</div>
+  </figure>
+
+  <figure>
+    <img src="figs/archive_growth.gif" alt="Archive growth per metric, frame per iteration">
+    <div class="caption"><b>Archive grows then saturates.</b> Mahalanobis stays the smallest archive (62), because it is the most selective. Cosine grows largest (89). The plateau in every metric is the early-stop trigger firing at 25% acceptance over 15 iters.</div>
+  </figure>
+
+  <h3>Explore the search yourself</h3>
+  <p>
+    The UMAP below shows the 5,001-story corpus (light gray) with the accepted archive points colored by metric. Hover any corpus point to see the opening of that story. Click an archive point to read the full generated story.
+  </p>
+  <p>
+    <a href="umap_explorer.html"><b>Open the interactive UMAP &rarr;</b></a>
+  </p>
+  <figure>
+    <img src="figs/pipeline_visual.png" alt="UMAP with search trajectory and example story">
+    <div class="caption"><b>Static preview.</b> Light gray dots are the corpus. Orange dots are the 87 openings the Euclidean search accepted. The maroon line follows the CMA-ES mean across 18 iterations. On the right is the top-novelty story produced from the marked point and the 5 corpus stories the search retrieved as in-context examples.</div>
+  </figure>
+
+  <h3>Three openings the search picked</h3>
+  <p>Curated, one per metric. Full versions of the top 10 are in the appendix.</p>
+
+  <div class="story-block">
+    <div class="story-tag">No. 01 &middot; civic satire &middot; euclidean</div>
+    <div class="story-title">Mandatory Laughter Policy</div>
+    <div class="story-meta">novelty 3.70 &middot; LitBench 2.80 &middot; iter 02 &middot; j 11 &middot; archive idx 43</div>
+    <div class="story-prose">On the morning of April 23rd, Mayor Eleanor Voss read the headline twice before the meaning fully settled in: &ldquo;City Hall Adopts Mandatory Laughter Policy.&rdquo; It was the kind of phrase that should have been set off with italics, or perhaps a note in parentheses explaining that, yes, it was entirely in earnest. She sat back in her chair, her fingers tapping the armrest in slow, deliberate rhythm. The headline had been accompanied by a photo of the council room&hellip;</div>
+  </div>
+
+  <div class="story-block">
+    <div class="story-tag">No. 02 &middot; deadpan dystopia &middot; mahalanobis</div>
+    <div class="story-title">The Devereaux Family, 1985</div>
+    <div class="story-meta">novelty 5.83 &middot; LitBench 2.50 &middot; iter 01 &middot; j 03 &middot; archive idx 19</div>
+    <div class="story-prose">IN THE MATTER of the Annual Survey of Humanoid Utility Vehicles, the Board of Civic Oversight has issued preliminary ratings on the 1985 model year of the Devereaux Family. The Devereaux line, originally developed as part of the postwar initiative to replace aging domestic staff, continues to be marketed primarily for household management, though recent modifications suggest a shift toward companionship and ceremonial functions. Below are selected findings from the evaluation. Mr. Devereaux Senior (Full-Size Adult): Rated &ldquo;Moderately Acceptable.&rdquo; Tested&hellip;</div>
+  </div>
+
+  <div class="story-block">
+    <div class="story-tag">No. 03 &middot; essay-as-fiction &middot; LOF</div>
+    <div class="story-title">Mrs. Lathrop</div>
+    <div class="story-meta">novelty 6.91 &middot; LitBench 2.34 &middot; iter 03 &middot; j 09 &middot; archive idx 25</div>
+    <div class="story-prose">THE THING about punctuation, I&rsquo;ve always felt, is that it&rsquo;s the only kind of violence people accept without blinking. A period drops the curtain on a sentence like a guillotine. A comma drags the reader into suspense with the grace of a manacle. I&rsquo;ve spent my life watching the quiet havoc commas and semicolons wreak, and I still don&rsquo;t entirely trust either. Take Mrs. Lathrop, for example. Mrs. Lathrop, never to be written with a lowercase &ldquo;l,&rdquo; was the chair of the&hellip;</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--  07 PROCESS AND ITERATIONS                                    -->
+<!-- ============================================================ -->
+<section id="process">
+  <div class="section-head">
+    <div class="tomb">07</div>
+    <h2>The pivots, in order</h2>
+    <div class="lede-sub">The heart of the report. Six course-corrections during the project window, with what each one cost and what each one taught.</div>
+  </div>
+
+  <p class="section-first">
+    The numbers in the results table are the ones I kept. The numbers in this section are the ones I did not.
+  </p>
+
+  <div class="pivot">
+    <div class="pivot-head">
+      <div class="pivot-num">01<small>Week 1</small></div>
+      <h3>Thinking-mode trap</h3>
+    </div>
+    <div class="pivot-body">
+      <p>
+        The first run of Qwen3-32B produced 1,800-word responses that looked like the model talking to itself. About 95% of each response was a <code>&lt;think&gt;...&lt;/think&gt;</code> chain-of-thought block. About 5% was actual prose. The coherence gate rejected almost every candidate because the prose was too short. The novelty scorer was looking at the wrong text.
+      </p>
+      <div class="pivot-grid">
+        <div>
+          <h4>First diagnosis</h4>
+          <p>Qwen3 defaults to reasoning-trace output. The system prompt did not say otherwise.</p>
+        </div>
+        <div>
+          <h4>Fix</h4>
+          <p>Add <code>/no_think</code> to both system and user prompts; strip any residual <code>&lt;think&gt;</code> blocks with a regex in the generator.</p>
+        </div>
+      </div>
+<pre>SYS = ("You are a literary fiction writer. [...] /no_think")
+_THINK = re.compile(r'&lt;think&gt;.*?&lt;/think&gt;', re.DOTALL)
+def _clean(txt): return _THINK.sub('', txt).strip()</pre>
+      <p>After the fix, prose length jumped from 50&plusmn;20 words to 510&plusmn;90 words. Acceptance rate jumped from ~5% to ~45%. The pipeline could actually run.</p>
+    </div>
+  </div>
+
+  <div class="pivot">
+    <div class="pivot-head">
+      <div class="pivot-num">02<small>Week 1</small></div>
+      <h3>Length-regime parity</h3>
+    </div>
+    <div class="pivot-body">
+      <p>
+        The first archives had a strange property. The most novel stories were the longest stories, with novelty scores that grew almost linearly with word count. The distance metric was secretly measuring text length. The corpus was 5,001 stories averaging ~3,200 words each, but our generations were ~500 words. The same encoder produces different variance regimes for those two lengths.
+      </p>
+      <div class="pivot-grid">
+        <div>
+          <h4>The bug</h4>
+          <p>Embedded full-corpus stories versus short generations. The distance metric secretly measured length.</p>
+        </div>
+        <div>
+          <h4>Fix</h4>
+          <p>Switch to <code>first_chunk_embeddings</code>. Each corpus story is encoded using only its first ~500 words. Same variance regime as our generations. Bug disappears.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pivot">
+    <div class="pivot-head">
+      <div class="pivot-num">03<small>Week 2</small></div>
+      <h3>Committee independence</h3>
+    </div>
+    <div class="pivot-body">
+      <p>
+        Before the full run, I checked whether the committee was decorative. If BGE and Qwen3-Embedding were measuring the same geometry, the committee would just average two copies of the same signal. I sampled 500 corpus pairs and computed the rank correlation of pairwise distances under each encoder. The number came out to 0.39.
+      </p>
+      <p>
+        Low enough that the observers actually disagree. High enough that they are not adversarial. The committee is doing real work.
+      </p>
+    </div>
+  </div>
+
+  <div class="pivot">
+    <div class="pivot-head">
+      <div class="pivot-num">04<small>Week 3 &middot; the big one</small></div>
+      <h3>Diffusion-map bug caught mid-run</h3>
+    </div>
+    <div class="pivot-body">
+      <p>
+        The original diffusion-map scorer produced a transfer rank correlation of 0.42, which I almost wrote up. Then an audit agent I had set up flagged that out-of-distribution queries to the Nystr&ouml;m extension were collapsing to a near-constant embedding. The novelty score for any story far from the corpus came out to exactly 0.087988. The variance in the &ldquo;novelty&rdquo; signal was real, but the correlation with the held-out encoder was a confound. Both quantities were dominated by a constant.
+      </p>
+<pre>def _embed(self, x):
+    d, ii = self._nn.kneighbors(x.reshape(1, -1).astype('f4'))
+    d2 = d[0] ** 2
+    # adaptive bandwidth: OOD queries widen the kernel so weights
+    # don't collapse around zero. Audit bug fix 2026-05-20.
+    epsx = max(self.epsilon, float(np.median(d2)))
+    w = np.exp(-d2 / epsx)
+    w /= w.sum() + 1e-9
+    return (w @ self.psi[ii[0]]) * self.lam</pre>
+      <p>
+        Re-ran the search with the patch. The honest transfer correlation dropped from 0.42 to 0.31. Diffusion-map is now the weakest of the five metrics on transfer. I report the patched number and surface the bug in the ablation footnote rather than hiding it. This is the moment in the project I am most glad I had an auditor agent in the loop.
+      </p>
+      <figure>
+        <img src="figs/acceptance_dropoff.gif" alt="Animated acceptance rate per metric with early-stop threshold">
+        <div class="caption"><b>Acceptance rate, 5-iteration moving average.</b> The dashed maroon line is the early-stop threshold at 25%. Diffusion-map (orange) crosses below threshold first and contributes the fewest accepted candidates. This pattern showed up only during the patched re-run.</div>
+      </figure>
+    </div>
+  </div>
+
+  <div class="pivot">
+    <div class="pivot-head">
+      <div class="pivot-num">05<small>Week 3</small></div>
+      <h3>LitBench&rsquo;s reward model is not yet public</h3>
+    </div>
+    <div class="pivot-body">
+      <p>
+        The LitBench paper (Fein et al., 2025) reports 78% human agreement for a trained Bradley-Terry model on r/WritingPrompts preferences. I was going to use that model. The Huggingface listing showed it as gated and unreleased. After contacting the corresponding author and waiting two days, I switched to ConicCat&rsquo;s 3B Llama-3.2 community fork, which trains on the same LitBench preference pairs but reaches lower agreement on a different held-out split.
+      </p>
+      <p>
+        I report the absolute reward numbers but anchor them only to within-pipeline comparisons. The LitBench paper does not publish per-generator scores for GPT-4o or Claude, so I cannot honestly write &ldquo;we beat GPT-4o by X&rdquo;. I write &ldquo;our archive&rsquo;s reward distribution sits at mean 1.95, p90 2.65, in the top quartile of the BT score range&rdquo; and stop there.
+      </p>
+    </div>
+  </div>
+
+  <div class="pivot">
+    <div class="pivot-head">
+      <div class="pivot-num">06<small>Week 3</small></div>
+      <h3>NV-Embed-v2 &rarr; EmbeddingGemma-300m</h3>
+    </div>
+    <div class="pivot-body">
+      <p>
+        The original plan put NV-Embed-v2 (4096-dim) as the held-out encoder. It would have been the strongest test of transfer because it is the largest text encoder I had access to. On the day of the main run, NV-Embed-v2&rsquo;s transformers API broke against the local environment&rsquo;s DynamicCache implementation. I swapped to EmbeddingGemma-300m. Trade-off: smaller model, structurally distinct from BERT, Mistral, and Qwen, more stable. The 0.80 number reported in the results would likely be slightly different with NV-Embed-v2 as the held-out encoder. I cannot tell whether higher or lower without rerunning.
+      </p>
+    </div>
+  </div>
+
+  <h3>What did not make it into a pivot</h3>
+  <p>
+    A long list of paper-fragment ideas I sketched for the poster, including a TTCW-style expert-rater study and a Gemma-2-27B CoT judge as a quality sanity check, neither of which I ran inside the project window. The Gemma judge needed flash-attention with logit softcapping that vLLM in this environment did not support. I left it as a TODO. The expert-rater study needs humans, and humans were not in scope for week 4. Both go into RQ2 and RQ3 of the follow-up.
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!--  08 REFLECTION + LIMITATIONS                                  -->
+<!-- ============================================================ -->
+<section id="reflection">
+  <div class="section-head">
+    <div class="tomb">08</div>
+    <h2>Reflection, limits, and continuation</h2>
+    <div class="lede-sub">What I learned, where the pilot stops, and what a paper-version would do.</div>
+  </div>
+
+  <h3>What I learned about the task</h3>
+  <p class="section-first">
+    Two things. First, &ldquo;novelty&rdquo; in text is a more layered concept than I gave it credit for. Linguistic-surface novelty (distinct-n) and semantic-direction novelty (k-NN in foundation-model space) are not the same thing, but they correlate strongly under Mahalanobis whitening. The Mahalanobis archive has both the highest distinct-2 and the highest transfer rank correlation. This is a more cooperative relationship than my image-domain thesis found between perceptual novelty and pixel-level distance, where the two often conflicted. I suspect this is because text encoders are trained on objectives that themselves operate at the meaning level, while image encoders inherit a lot of low-level signal structure.
+  </p>
+  <p>
+    Second, the generator is the bottleneck. Search picks among what Qwen3-32B already proposes. Three of the most striking accepted stories (the &ldquo;Mandatory Laughter Policy&rdquo; bureaucratic-satire piece, the &ldquo;Devereaux Family 1985&rdquo; humanoid-product-review piece, the &ldquo;Mrs. Lathrop&rdquo; punctuation-meditation piece) are tonally different from each other, but they all share a Qwen3 fingerprint: a slightly arch, dry, set-piece-aware voice. I would expect Claude or GPT-4o to give the same search procedure a different set of fingerprints. That is RQ3.
+  </p>
+
+  <h3>What I learned about AI</h3>
+  <p>
+    The audit agent that caught the diffusion-map bug paid for itself ten times over. Without it I would have shipped a 0.42 result that was secretly noise. I have started thinking of agentic AI more like a junior collaborator who asks &ldquo;wait, are you sure?&rdquo; at random intervals and less like a calculator. The class&rsquo;s emphasis on critical engagement, on pushing back rather than just generating, has been the most operationally useful thing this term.
+  </p>
+
+  <h3>What I learned about myself as a designer</h3>
+  <p>
+    I am bad at trimming. The poster went through 14 revisions before it stopped having em-dashes everywhere, mostly because em-dashes are how I talk and how I draft. Reading the prior DURooM draft alongside this report, the difference is visible. The prior paper has them on every page. This report tries not to. The cost of that discipline is that some of the connective tissue I would have used em-dashes for now sits in separate short sentences, which is closer to how the user-tone feedback wanted the prose to read.
+  </p>
+
+  <h3>Limits of what was produced</h3>
+  <ul>
+    <li>No human ratings. The top-20 expanded stories are ready for raters but no humans rated them inside the project window.</li>
+    <li>One seed (42). The numbers I report are point estimates from a single CMA-ES run per condition. The relative ordering of the five metrics is robust under spot-checks but I did not run the full multi-seed study.</li>
+    <li>One generator (Qwen3-32B). RQ3 is unanswered.</li>
+    <li>One language (English). The encoders are multilingual; the corpus is not.</li>
+    <li>LitBench reward is a community fork (ConicCat) of an unreleased paper-authored model. Absolute reward numbers are not cross-comparable to the LitBench paper&rsquo;s numbers, only within this pipeline.</li>
+    <li>Mid-run patched scorer (diffusion-map). Disclosed in the pivot above and in the ablation footnote.</li>
+  </ul>
+
+  <h3>What I would do with another month</h3>
+  <p>
+    The prompt-versus-search disentanglement (RQ2) is the most tractable next thing. One week to set up three prompt variants with seed-matched search populations. One week to run all five metrics under each prompt. One week to analyse. That gives a clean experimental cell. The TTCW expert-rater study is bigger and depends on finding raters, but a small (n=3) pilot on the curated top 10 would be a meaningful start.
+  </p>
+
+  <h3>Where I am genuinely uncertain</h3>
+  <p>
+    I do not know if the 0.80 transfer correlation is a feature of foundation-model text-space geometry (in which case it would replicate with any reasonable encoder triple), a feature of Mahalanobis whitening (in which case it would replicate across domains), or an artefact of EmbeddingGemma in particular as the held-out encoder. The image-domain version (DURooM) got 0.34 to 0.63 across four conditions with SigLIP-SO400M as held-out. The text-domain headline number is well above that range. Either text-space geometry is genuinely more &ldquo;Platonic&rdquo; (Huh et al., 2024) than image-space, or the chosen encoder happens to align unusually well with BGE and E5-Mistral. RQ3 would clarify this.
+  </p>
+
+  <h3>Closing</h3>
+  <p>
+    This project is the text-domain extension of my thesis (DURooM, 2026), and it is the one I have found more interesting because the discoveries live in language and a non-specialist reader can read them directly. If Professor Lee finds the direction worth pursuing, I would be honored to collaborate on a paper-version with appropriate revisions, additional experiments (RQ2 and RQ3 above), and a TTCW human-rater study. Anything that helps move from a course pilot toward a paper that could go to EMNLP, CHI, or a similar venue for creative-AI work, I am here for.
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!--  09 REFERENCES                                                -->
+<!-- ============================================================ -->
+<section id="refs">
+  <div class="section-head">
+    <div class="tomb">09</div>
+    <h2>References</h2>
+    <div class="lede-sub">APA-style, verified against arxiv and DOI sources. Machine-readable bibliography at <code>data/references.json</code>.</div>
+  </div>
+  <ol class="references" id="refs-list">
+  <li id="ref-oberoi2026">Oberoi, A. (2026). Discovering unexplored regions: On/off the manifold (DURooM). <em>Course project, University of Chicago</em>.</li>
+  <li id="ref-bengio2013representation">Bengio, Y., Courville, A., &amp; Vincent, P. (2013). Representation learning: A review and new perspectives. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, <em>35</em>(8), 1798&ndash;1828. <a href="https://arxiv.org/abs/1206.5538">https://arxiv.org/abs/1206.5538</a></li>
+
+  <li id="ref-boden2004creative">Boden, M. A. (2004). <em>The creative mind: Myths and mechanisms</em> (2nd ed.). Routledge. <a href="https://www.routledge.com/The-Creative-Mind-Myths-and-Mechanisms/Boden/p/book/9780415314534">https://www.routledge.com/The-Creative-Mind-Myths-and-Mechanisms/Boden/p/book/9780415314534</a></li>
+
+  <li id="ref-bommasani2021opportunities">Bommasani, R., Hudson, D. A., Adeli, E., Altman, R., Arora, S., von Arx, S., et al. (2021). On the opportunities and risks of foundation models. <em>arXiv preprint arXiv:2108.07258</em>. <a href="https://arxiv.org/abs/2108.07258">https://arxiv.org/abs/2108.07258</a></li>
+
+  <li id="ref-bradley2023quality">Bradley, H., Dai, A., Teufel, H., Zhang, J., Oostermeijer, K., Bellagente, M., Clune, J., Stanley, K., Schott, G., &amp; Lehman, J. (2023). Quality-diversity through AI feedback. <em>arXiv preprint arXiv:2310.13032</em>. <a href="https://arxiv.org/abs/2310.13032">https://arxiv.org/abs/2310.13032</a></li>
+
+  <li id="ref-brown2020language">Brown, T. B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P., et al. (2020). Language models are few-shot learners. In <em>Advances in Neural Information Processing Systems</em> (Vol. 33). <a href="https://arxiv.org/abs/2005.14165">https://arxiv.org/abs/2005.14165</a></li>
+
+  <li id="ref-burda2018exploration">Burda, Y., Edwards, H., Storkey, A., &amp; Klimov, O. (2018). Exploration by random network distillation. <em>arXiv preprint arXiv:1810.12894</em>. <a href="https://arxiv.org/abs/1810.12894">https://arxiv.org/abs/1810.12894</a></li>
+
+  <li id="ref-caron2021dino">Caron, M., Touvron, H., Misra, I., J&eacute;gou, H., Mairal, J., Bojanowski, P., &amp; Joulin, A. (2021). Emerging properties in self-supervised vision transformers. In <em>Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)</em>. <a href="https://arxiv.org/abs/2104.14294">https://arxiv.org/abs/2104.14294</a></li>
+
+  <li id="ref-chakrabarty2024art">Chakrabarty, T., Laban, P., Agarwal, D., Muresan, S., &amp; Wu, C.-S. (2024). Art or artifice? Large language models and the false promise of creativity. In <em>Proceedings of the 2024 CHI Conference on Human Factors in Computing Systems</em>. <a href="https://arxiv.org/abs/2309.14556">https://arxiv.org/abs/2309.14556</a></li>
+
+  <li id="ref-cherti2023openclip">Cherti, M., Beaumont, R., Wightman, R., Wortsman, M., Ilharco, G., Gordon, C., Schuhmann, C., Schmidt, L., &amp; Jitsev, J. (2023). Reproducible scaling laws for contrastive language-image learning. In <em>Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)</em>. <a href="https://arxiv.org/abs/2212.07143">https://arxiv.org/abs/2212.07143</a></li>
+
+  <li id="ref-chiang2023blurry">Chiang, T. (2023, February 9). ChatGPT is a blurry JPEG of the web. <em>The New Yorker</em>. <a href="https://www.newyorker.com/tech/annals-of-technology/chatgpt-is-a-blurry-jpeg-of-the-web">https://www.newyorker.com/tech/annals-of-technology/chatgpt-is-a-blurry-jpeg-of-the-web</a></li>
+
+  <li id="ref-clune2019ai">Clune, J. (2019). AI-GAs: AI-generating algorithms, an alternate paradigm for producing general artificial intelligence. <em>arXiv preprint arXiv:1905.10985</em>. <a href="https://arxiv.org/abs/1905.10985">https://arxiv.org/abs/1905.10985</a></li>
+
+  <li id="ref-coifman2006diffusion">Coifman, R. R., &amp; Lafon, S. (2006). Diffusion maps. <em>Applied and Computational Harmonic Analysis</em>, <em>21</em>(1), 5&ndash;30. <a href="https://doi.org/10.1016/j.acha.2006.04.006">https://doi.org/10.1016/j.acha.2006.04.006</a></li>
+
+  <li id="ref-davis2023memory">Davis, T. M., &amp; Bainbridge, W. A. (2023). The memorability of artwork is intrinsic and predicted by a neural network. <em>Cognitive Research: Principles and Implications</em>. <a href="https://wilmabainbridge.com/publications.html">https://wilmabainbridge.com/publications.html</a></li>
+
+  <li id="ref-devlin2018bert">Devlin, J., Chang, M.-W., Lee, K., &amp; Toutanova, K. (2019). BERT: Pre-training of deep bidirectional transformers for language understanding. In <em>Proceedings of NAACL-HLT 2019</em> (pp. 4171&ndash;4186). <a href="https://arxiv.org/abs/1810.04805">https://arxiv.org/abs/1810.04805</a></li>
+
+  <li id="ref-faldor2024omni">Faldor, M., Zhang, J., Cully, A., &amp; Clune, J. (2024). OMNI-EPIC: Open-endedness via models of human notions of interestingness with environments programmed in code. <em>arXiv preprint arXiv:2405.15568</em>. <a href="https://arxiv.org/abs/2405.15568">https://arxiv.org/abs/2405.15568</a></li>
+
+  <li id="ref-fein2025litbench">Fein, D., Russo, S., Xiang, V., Jolly, K., Rafailov, R., &amp; Haber, N. (2025). LitBench: A benchmark and dataset for reliable evaluation of creative writing. <em>arXiv preprint arXiv:2507.00769</em>. <a href="https://arxiv.org/abs/2507.00769">https://arxiv.org/abs/2507.00769</a></li>
+
+  <li id="ref-fontaine2020covariance">Fontaine, M. C., Togelius, J., Nikolaidis, S., &amp; Hoover, A. K. (2020). Covariance matrix adaptation for the rapid illumination of behavior space. In <em>Proceedings of the 2020 Genetic and Evolutionary Computation Conference (GECCO '20)</em> (pp. 94&ndash;102). <a href="https://arxiv.org/abs/1912.02400">https://arxiv.org/abs/1912.02400</a></li>
+
+  <li id="ref-fontaine2023cmamae">Fontaine, M. C., &amp; Nikolaidis, S. (2023). Covariance matrix adaptation MAP-annealing. In <em>Proceedings of the Genetic and Evolutionary Computation Conference (GECCO '23)</em>. <a href="https://arxiv.org/abs/2205.10752">https://arxiv.org/abs/2205.10752</a></li>
+
+  <li id="ref-halko2011svd">Halko, N., Martinsson, P.-G., &amp; Tropp, J. A. (2011). Finding structure with randomness: Probabilistic algorithms for constructing approximate matrix decompositions. <em>SIAM Review</em>, <em>53</em>(2), 217&ndash;288. <a href="https://arxiv.org/abs/0909.4061">https://arxiv.org/abs/0909.4061</a></li>
+
+  <li id="ref-hansen2001completely">Hansen, N., &amp; Ostermeier, A. (2001). Completely derandomized self-adaptation in evolution strategies. <em>Evolutionary Computation</em>, <em>9</em>(2), 159&ndash;195. <a href="https://doi.org/10.1162/106365601750190398">https://doi.org/10.1162/106365601750190398</a></li>
+
+  <li id="ref-hansen2003cmaes">Hansen, N., M&uuml;ller, S. D., &amp; Koumoutsakos, P. (2003). Reducing the time complexity of the derandomized evolution strategy with covariance matrix adaptation (CMA-ES). <em>Evolutionary Computation</em>, <em>11</em>(1), 1&ndash;18. <a href="https://doi.org/10.1162/106365603321828970">https://doi.org/10.1162/106365603321828970</a></li>
+
+  <li id="ref-hansen2016cmatutorial">Hansen, N. (2016). The CMA evolution strategy: A tutorial. <em>arXiv preprint arXiv:1604.00772</em>. <a href="https://arxiv.org/abs/1604.00772">https://arxiv.org/abs/1604.00772</a></li>
+
+  <li id="ref-hansen2020fastcma">Hansen, N., Akimoto, Y., &amp; Baudis, P. (2019). <em>CMA-ES/pycma on GitHub</em> [Computer software]. Zenodo. <a href="https://github.com/CMA-ES/pycma">https://github.com/CMA-ES/pycma</a></li>
+
+  <li id="ref-hart1968formal">Hart, P. E., Nilsson, N. J., &amp; Raphael, B. (1968). A formal basis for the heuristic determination of minimum cost paths. <em>IEEE Transactions on Systems Science and Cybernetics</em>, <em>4</em>(2), 100&ndash;107. <a href="https://doi.org/10.1109/TSSC.1968.300136">https://doi.org/10.1109/TSSC.1968.300136</a></li>
+
+  <li id="ref-hertz2022prompt">Hertz, A., Mokady, R., Tenenbaum, J., Aberman, K., Pritch, Y., &amp; Cohen-Or, D. (2022). Prompt-to-prompt image editing with cross attention control. <em>arXiv preprint arXiv:2208.01626</em>. <a href="https://arxiv.org/abs/2208.01626">https://arxiv.org/abs/2208.01626</a></li>
+
+  <li id="ref-hintze2019openendedness">Hintze, A. (2019). Open-endedness for the sake of open-endedness. <em>Artificial Life</em>, <em>25</em>(2), 198&ndash;206. <a href="https://doi.org/10.1162/artl_a_00294">https://doi.org/10.1162/artl_a_00294</a></li>
+
+  <li id="ref-huh2024platonic">Huh, M., Cheung, B., Wang, T., &amp; Isola, P. (2024). The platonic representation hypothesis. <em>arXiv preprint arXiv:2405.07987</em>. <a href="https://arxiv.org/abs/2405.07987">https://arxiv.org/abs/2405.07987</a></li>
+
+  <li id="ref-ismayilzada2024evaluating">Ismayilzada, M., Stevenson, C., &amp; van der Plas, L. (2024). Evaluating creative short story generation in humans and large language models. <em>arXiv preprint arXiv:2411.02316</em>. <a href="https://arxiv.org/abs/2411.02316">https://arxiv.org/abs/2411.02316</a></li>
+
+  <li id="ref-itti2009bayesian">Itti, L., &amp; Baldi, P. (2009). Bayesian surprise attracts human attention. <em>Vision Research</em>, <em>49</em>(10), 1295&ndash;1306. <a href="https://doi.org/10.1016/j.visres.2008.09.007">https://doi.org/10.1016/j.visres.2008.09.007</a></li>
+
+  <li id="ref-jacob2021qualitative">Jacob, G., Pramod, R. T., Katti, H., &amp; Arun, S. P. (2021). Qualitative similarities and differences in visual object representations between brains and deep networks. <em>Nature Communications</em>, <em>12</em>, 1872. <a href="https://doi.org/10.1038/s41467-021-22078-3">https://doi.org/10.1038/s41467-021-22078-3</a></li>
+
+  <li id="ref-johnson2019faiss">Johnson, J., Douze, M., &amp; J&eacute;gou, H. (2019). Billion-scale similarity search with GPUs. <em>IEEE Transactions on Big Data</em>, <em>7</em>(3), 535&ndash;547. <a href="https://arxiv.org/abs/1702.08734">https://arxiv.org/abs/1702.08734</a></li>
+
+  <li id="ref-jumper2021highly">Jumper, J., Evans, R., Pritzel, A., Green, T., Figurnov, M., Ronneberger, O., et al. (2021). Highly accurate protein structure prediction with AlphaFold. <em>Nature</em>, <em>596</em>(7873), 583&ndash;589. <a href="https://doi.org/10.1038/s41586-021-03819-2">https://doi.org/10.1038/s41586-021-03819-2</a></li>
+
+  <li id="ref-kozlowski2019geometry">Kozlowski, A. C., Taddy, M., &amp; Evans, J. A. (2019). The geometry of culture: Analyzing the meanings of class through word embeddings. <em>American Sociological Review</em>, <em>84</em>(5), 905&ndash;949. <a href="https://doi.org/10.1177/0003122419877135">https://doi.org/10.1177/0003122419877135</a></li>
+
+  <li id="ref-kumar2025asal">Kumar, A., Lu, C., Kirsch, L., Tang, Y., Stanley, K. O., Isola, P., &amp; Ha, D. (2025). Automating the search for artificial life with foundation models. <em>arXiv preprint arXiv:2412.17799</em>. <a href="https://arxiv.org/abs/2412.17799">https://arxiv.org/abs/2412.17799</a></li>
+
+  <li id="ref-lecun2015deep">LeCun, Y., Bengio, Y., &amp; Hinton, G. (2015). Deep learning. <em>Nature</em>, <em>521</em>(7553), 436&ndash;444. <a href="https://doi.org/10.1038/nature14539">https://doi.org/10.1038/nature14539</a></li>
+
+  <li id="ref-lehman2010revising">Lehman, J., &amp; Stanley, K. O. (2010). Revising the evolutionary computation abstraction: Minimal criteria novelty search. In <em>Proceedings of the 12th Annual Conference on Genetic and Evolutionary Computation (GECCO '10)</em> (pp. 103&ndash;110). <a href="https://doi.org/10.1145/1830483.1830503">https://doi.org/10.1145/1830483.1830503</a></li>
+
+  <li id="ref-lehman2011abandoning">Lehman, J., &amp; Stanley, K. O. (2011). Abandoning objectives: Evolution through the search for novelty alone. <em>Evolutionary Computation</em>, <em>19</em>(2), 189&ndash;223. <a href="https://doi.org/10.1162/EVCO_a_00025">https://doi.org/10.1162/EVCO_a_00025</a></li>
+
+  <li id="ref-li2016diversity">Li, J., Galley, M., Brockett, C., Gao, J., &amp; Dolan, B. (2016). A diversity-promoting objective function for neural conversation models. In <em>Proceedings of NAACL-HLT 2016</em> (pp. 110&ndash;119). <a href="https://aclanthology.org/N16-1014/">https://aclanthology.org/N16-1014/</a></li>
+
+  <li id="ref-loshchilov2014lmcma">Loshchilov, I. (2014). A computationally efficient limited memory CMA-ES for large scale optimization. In <em>Proceedings of the 2014 Annual Conference on Genetic and Evolutionary Computation (GECCO '14)</em>. <a href="https://arxiv.org/abs/1404.5520">https://arxiv.org/abs/1404.5520</a></li>
+
+  <li id="ref-ma2023eureka">Ma, Y. J., Liang, W., Wang, G., Huang, D.-A., Bastani, O., Jayaraman, D., Zhu, Y., Fan, L., &amp; Anandkumar, A. (2023). Eureka: Human-level reward design via coding large language models. <em>arXiv preprint arXiv:2310.12931</em>. <a href="https://arxiv.org/abs/2310.12931">https://arxiv.org/abs/2310.12931</a></li>
+
+  <li id="ref-ma2025scflow">Ma, P., et al. (2025). SCFlow: Implicitly learning style and content disentanglement with flow models. In <em>Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)</em> (pp. 14919&ndash;14929). <a href="https://arxiv.org/abs/2508.03402">https://arxiv.org/abs/2508.03402</a></li>
+
+  <li id="ref-meng2022sdedit">Meng, C., He, Y., Song, Y., Song, J., Wu, J., Zhu, J.-Y., &amp; Ermon, S. (2022). SDEdit: Guided image synthesis and editing with stochastic differential equations. In <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/2108.01073">https://arxiv.org/abs/2108.01073</a></li>
+
+  <li id="ref-mouret2015illuminating">Mouret, J.-B., &amp; Clune, J. (2015). Illuminating search spaces by mapping elites. <em>arXiv preprint arXiv:1504.04909</em>. <a href="https://arxiv.org/abs/1504.04909">https://arxiv.org/abs/1504.04909</a></li>
+
+  <li id="ref-needell2022embracing">Needell, C. D., &amp; Bainbridge, W. A. (2022). Embracing new techniques in deep learning for estimating image memorability. <em>Computational Brain &amp; Behavior</em>, <em>5</em>, 168&ndash;184. <a href="https://doi.org/10.1007/s42113-022-00126-5">https://doi.org/10.1007/s42113-022-00126-5</a></li>
+
+  <li id="ref-newell1959report">Newell, A., Shaw, J. C., &amp; Simon, H. A. (1959). Report on a general problem-solving program. In <em>Proceedings of the International Conference on Information Processing</em> (pp. 256&ndash;264). UNESCO. <a href="https://findingaids.library.cmu.edu/repositories/2/archival_objects/22561">https://findingaids.library.cmu.edu/repositories/2/archival_objects/22561</a></li>
+
+  <li id="ref-oquab2023dinov2">Oquab, M., Darcet, T., Moutakanni, T., Vo, H., Szafraniec, M., Khalidov, V., et al. (2023). DINOv2: Learning robust visual features without supervision. <em>arXiv preprint arXiv:2304.07193</em>. <a href="https://arxiv.org/abs/2304.07193">https://arxiv.org/abs/2304.07193</a></li>
+
+  <li id="ref-pan2021dgp">Pan, X., Zhan, X., Dai, B., Lin, D., Loy, C. C., &amp; Luo, P. (2022). Exploiting deep generative prior for versatile image restoration and manipulation. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, <em>44</em>(11), 7474&ndash;7489. <a href="https://arxiv.org/abs/2003.13659">https://arxiv.org/abs/2003.13659</a></li>
+
+  <li id="ref-pathak2017curiosity">Pathak, D., Agrawal, P., Efros, A. A., &amp; Darrell, T. (2017). Curiosity-driven exploration by self-supervised prediction. In <em>Proceedings of the 34th International Conference on Machine Learning (ICML)</em> (pp. 2778&ndash;2787). <a href="https://arxiv.org/abs/1705.05363">https://arxiv.org/abs/1705.05363</a></li>
+
+  <li id="ref-pugh2016quality">Pugh, J. K., Soros, L. B., &amp; Stanley, K. O. (2016). Quality diversity: A new frontier for evolutionary computation. <em>Frontiers in Robotics and AI</em>, <em>3</em>, 40. <a href="https://doi.org/10.3389/frobt.2016.00040">https://doi.org/10.3389/frobt.2016.00040</a></li>
+
+  <li id="ref-qwen2024qwen25">Qwen Team. (2024). Qwen2.5 technical report. <em>arXiv preprint arXiv:2412.15115</em>. <a href="https://arxiv.org/abs/2412.15115">https://arxiv.org/abs/2412.15115</a></li>
+
+  <li id="ref-qwen2025qwen3embedding">Zhang, Y., et al. (Qwen Team). (2025). Qwen3 embedding: Advancing text embedding and reranking through foundation models. <em>arXiv preprint arXiv:2506.05176</em>. <a href="https://arxiv.org/abs/2506.05176">https://arxiv.org/abs/2506.05176</a></li>
+
+  <li id="ref-radford2021clip">Radford, A., Kim, J. W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., et al. (2021). Learning transferable visual models from natural language supervision. In <em>Proceedings of the 38th International Conference on Machine Learning (ICML)</em> (pp. 8748&ndash;8763). <a href="https://arxiv.org/abs/2103.00020">https://arxiv.org/abs/2103.00020</a></li>
+
+  <li id="ref-reimers2019sentencebert">Reimers, N., &amp; Gurevych, I. (2019). Sentence-BERT: Sentence embeddings using siamese BERT-networks. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing (EMNLP)</em>. <a href="https://arxiv.org/abs/1908.10084">https://arxiv.org/abs/1908.10084</a></li>
+
+  <li id="ref-rombach2022latent">Rombach, R., Blattmann, A., Lorenz, D., Esser, P., &amp; Ommer, B. (2022). High-resolution image synthesis with latent diffusion models. In <em>Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)</em> (pp. 10684&ndash;10695). <a href="https://arxiv.org/abs/2112.10752">https://arxiv.org/abs/2112.10752</a></li>
+
+  <li id="ref-ros2008sepcma">Ros, R., &amp; Hansen, N. (2008). A simple modification in CMA-ES achieving linear time and space complexity. In <em>Parallel Problem Solving from Nature (PPSN X)</em> (Lecture Notes in Computer Science, Vol. 5199, pp. 296&ndash;305). Springer. <a href="https://doi.org/10.1007/978-3-540-87700-4_30">https://doi.org/10.1007/978-3-540-87700-4_30</a></li>
+
+  <li id="ref-simeoni2025dinov3">Sim&eacute;oni, O., et al. (2025). DINOv3. <em>arXiv preprint arXiv:2508.10104</em>. <a href="https://arxiv.org/abs/2508.10104">https://arxiv.org/abs/2508.10104</a></li>
+
+  <li id="ref-stanley2015greatness">Stanley, K. O., &amp; Lehman, J. (2015). <em>Why greatness cannot be planned: The myth of the objective</em>. Springer International Publishing. <a href="https://doi.org/10.1007/978-3-319-15524-1">https://doi.org/10.1007/978-3-319-15524-1</a></li>
+
+  <li id="ref-stanley2017openendedness">Stanley, K. O., Lehman, J., &amp; Soros, L. (2017, December 19). Open-endedness: The last grand challenge you've never heard of. <em>O'Reilly Radar</em>. <a href="https://www.oreilly.com/radar/open-endedness-the-last-grand-challenge-youve-never-heard-of/">https://www.oreilly.com/radar/open-endedness-the-last-grand-challenge-youve-never-heard-of/</a></li>
+
+  <li id="ref-stoinski2024thingsplus">Stoinski, L. M., Perkuhn, J., &amp; Hebart, M. N. (2024). THINGSplus: New norms and metadata for the THINGS database of 1854 object concepts and 26,107 natural object images. <em>Behavior Research Methods</em>, <em>56</em>(3), 1583&ndash;1603. <a href="https://doi.org/10.3758/s13428-023-02110-8">https://doi.org/10.3758/s13428-023-02110-8</a></li>
+
+  <li id="ref-tjanaka2026dms">Tjanaka, B., Chen, H., Fontaine, M. C., &amp; Nikolaidis, S. (2026). Discount model search for quality diversity optimization in high-dimensional measure spaces. In <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://discount-models.github.io/">https://discount-models.github.io/</a></li>
+
+  <li id="ref-tumanyan2023plug">Tumanyan, N., Geyer, M., Bagon, S., &amp; Dekel, T. (2023). Plug-and-play diffusion features for text-driven image-to-image translation. In <em>Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)</em> (pp. 1921&ndash;1930). <a href="https://arxiv.org/abs/2211.12572">https://arxiv.org/abs/2211.12572</a></li>
+
+  <li id="ref-turing1936computable">Turing, A. M. (1936). On computable numbers, with an application to the Entscheidungsproblem. <em>Proceedings of the London Mathematical Society</em>, <em>s2-42</em>(1), 230&ndash;265. <a href="https://doi.org/10.1112/plms/s2-42.1.230">https://doi.org/10.1112/plms/s2-42.1.230</a></li>
+
+  <li id="ref-vaswani2017attention">Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, &Lstrok;., &amp; Polosukhin, I. (2017). Attention is all you need. In <em>Advances in Neural Information Processing Systems</em> (Vol. 30). <a href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a></li>
+
+  <li id="ref-wang2024e5mistral">Wang, L., Yang, N., Huang, X., Yang, L., Majumder, R., &amp; Wei, F. (2024). Improving text embeddings with large language models. In <em>Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (ACL)</em>. <a href="https://arxiv.org/abs/2401.00368">https://arxiv.org/abs/2401.00368</a></li>
+
+  <li id="ref-wu2023goya">Wu, Y., Nakashima, Y., &amp; Garcia, N. (2023). Not only generative art: Stable diffusion for content-style disentanglement in art analysis. In <em>Proceedings of the 2023 ACM International Conference on Multimedia Retrieval (ICMR '23)</em>. <a href="https://arxiv.org/abs/2304.10278">https://arxiv.org/abs/2304.10278</a></li>
+
+  <li id="ref-xiao2024cpack">Xiao, S., Liu, Z., Zhang, P., Muennighoff, N., Lian, D., &amp; Nie, J.-Y. (2024). C-Pack: Packed resources for general Chinese embeddings. In <em>Proceedings of the 47th International ACM SIGIR Conference on Research and Development in Information Retrieval</em>. <a href="https://arxiv.org/abs/2309.07597">https://arxiv.org/abs/2309.07597</a></li>
+
+  <li id="ref-zhai2023siglip">Zhai, X., Mustafa, B., Kolesnikov, A., &amp; Beyer, L. (2023). Sigmoid loss for language image pre-training. In <em>Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)</em> (pp. 11975&ndash;11986). <a href="https://arxiv.org/abs/2303.15343">https://arxiv.org/abs/2303.15343</a></li>
+
+  <li id="ref-zhang2018unreasonable">Zhang, R., Isola, P., Efros, A. A., Shechtman, E., &amp; Wang, O. (2018). The unreasonable effectiveness of deep features as a perceptual metric. In <em>Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)</em> (pp. 586&ndash;595). <a href="https://arxiv.org/abs/1801.03924">https://arxiv.org/abs/1801.03924</a></li>
+
+  <li id="ref-zhang2023omni">Zhang, J., Lehman, J., Stanley, K. O., &amp; Clune, J. (2023). OMNI: Open-endedness via models of human notions of interestingness. <em>arXiv preprint arXiv:2306.01711</em>. <a href="https://arxiv.org/abs/2306.01711">https://arxiv.org/abs/2306.01711</a></li>
+
+  <li id="ref-zhu2016manifold">Zhu, J.-Y., Kr&auml;henb&uuml;hl, P., Shechtman, E., &amp; Efros, A. A. (2016). Generative visual manipulation on the natural image manifold. In <em>European Conference on Computer Vision (ECCV)</em> (pp. 597&ndash;613). <a href="https://arxiv.org/abs/1609.03552">https://arxiv.org/abs/1609.03552</a></li>
+
+  </ol>
+</section>
+
+<!-- ============================================================ -->
+<!--  A APPENDIX                                                   -->
+<!-- ============================================================ -->
+<section id="appendix">
+  <div class="section-head">
+    <div class="tomb">A</div>
+    <h2>Appendix</h2>
+    <div class="lede-sub">Supporting material, full stories, prompts, geometry.</div>
+  </div>
+
+  <h3>A. Curated top stories</h3>
+  <p class="section-first">
+    All 10 curated stories sit at <a href="https://github.com/avioberoi/creative_novel_stories/tree/main/expanded" target="_blank" rel="noopener">/expanded/</a> in the project repo, with metadata for each (which metric, which iteration, novelty and LitBench scores). Three are excerpted in the Results section above.
+  </p>
+
+  <h3>B. Generation prompts</h3>
+  <p>System and user prompts shown verbatim in <a href="#questions">Section 05 (Methods)</a>. The full generator script is at <a href="https://github.com/avioberoi/creative_novel_stories/blob/main/generator.py" target="_blank" rel="noopener">generator.py</a>.</p>
+
+  <h3>C. Full per-condition ablation</h3>
+  <p>The table in <a href="#results">Section 06</a> is the complete ablation. No extra columns hidden.</p>
+
+  <h3>D. Topology panel</h3>
+  <p>This figure helped me build intuition for why Mahalanobis whitening helps. The four sub-panels show effective dimensionality of the corpus, pairwise rank-correlation of the four encoders, distance distributions before and after whitening, and a diffusion-map projection of the search trajectory.</p>
+  <figure>
+    <img src="figs/topology_panel.png" alt="Topology panel: effective dim, encoder correlation, whitening, diffusion projection">
+    <div class="caption"><b>Geometry of the search.</b> Top-left: singular values of the corpus matrix in BGE space show effective dimensionality around 50 against the nominal 1024. Top-right: pairwise rank correlation of distance matrices across four encoders (0.7 to 0.83). Bottom-left: distance distribution before versus after Mahalanobis whitening. Bottom-right: diffusion-map projection with archive trajectory.</div>
+  </figure>
+
+  <h3>E. Pareto picture</h3>
+  <figure>
+    <img src="figs/pareto_litbench.png" alt="Pareto picture: novelty versus LitBench reward">
+    <div class="caption"><b>Novelty versus LitBench reward.</b> 385 search-archive stories (across the five CMA-ES conditions) plus 1,326 baseline stories. CMA-ES archives populate the upper-right (high novelty and high reward). Greedy-farthest crowds the lower-right (medium reward, low novelty).</div>
+  </figure>
+</section>
+
+<footer class="report-footer">
+  <div class="colophon-line">
+    Set in Crimson Pro, Bricolage Grotesque, Inter, and JetBrains Mono. UChicago Maroon as the single signal accent. Built with Claude (Opus 4.7) and shipped from <code><REPO_ROOT>/report/</code>.
+  </div>
+  <div class="colophon-line">
+    Code: Claude (Opus 4.7). Generation: Qwen3-32B. Embeddings: Qwen3-Embedding-0.6B, BGE-large-en-v1.5, E5-Mistral-7B-instruct (search committee); EmbeddingGemma-300m (held-out). Quality scoring: ConicCat Litbench BT (3B Llama-3.2 fork of Fein et al., 2025).
+  </div>
+  <div class="colophon-line">
+    Render &middot; 2026-05-20 &middot; <a href="https://github.com/avioberoi/creative_novel_stories" target="_blank" rel="noopener">github.com/avioberoi/creative_novel_stories</a>
+  </div>
+</footer>
+
+</main>
+</body>
+</html>
