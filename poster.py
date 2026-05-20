@@ -300,8 +300,11 @@ def main(args):
         reflection='The method ports cleanly but the LLM does the heavy lifting; CMA-ES selects '
                    'across observer axes rather than generating novelty itself. A subject for '
                    'planned ablations.',
-        ai_disclosure='Code authored with Claude Code (Opus 4.7); generation uses Qwen3-32B; '
-                      'embeddings use Qwen3-Emb-0.6B, BGE-large, E5-Mistral-7B, EmbeddingGemma.',
+        ai_disclosure='Code authored with Claude Code (Opus 4.7); generation by Qwen3-32B; '
+                      'embeddings by Qwen3-Emb-0.6B, BGE-large, E5-Mistral-7B (search), '
+                      'EmbeddingGemma-300m (held-out transfer); quality by Gemma-2-27B CoT judge + '
+                      'ConicCat/Litbench-Creative-Writing-RM-3B (community BT RM on LitBench data — '
+                      'paper-authored RM not yet publicly released).',
         qr_path=args.qr,
     )
 
