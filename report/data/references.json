@@ -1,0 +1,712 @@
+[
+  {
+    "key": "bai2023goya",
+    "authors": ["Wu, Y.", "Nakashima, Y.", "Garcia, N."],
+    "year": 2023,
+    "title": "Not only generative art: Stable diffusion for content-style disentanglement in art analysis",
+    "venue": "Proceedings of the 2023 ACM International Conference on Multimedia Retrieval (ICMR '23)",
+    "url": "https://arxiv.org/abs/2304.10278",
+    "verified": true,
+    "notes": "DURooM bib key 'bai2023goya' is misleading; the canonical GOYA paper this likely refers to has Wu, Nakashima, Garcia as authors. There is no Bai-led 'Goya' paper from 2023 that matches the WikiArt benchmark context."
+  },
+  {
+    "key": "bengio2013representation",
+    "authors": ["Bengio, Y.", "Courville, A.", "Vincent, P."],
+    "year": 2013,
+    "title": "Representation learning: A review and new perspectives",
+    "venue": "IEEE Transactions on Pattern Analysis and Machine Intelligence, 35(8), 1798-1828",
+    "url": "https://arxiv.org/abs/1206.5538",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "boden2004creative",
+    "authors": ["Boden, M. A."],
+    "year": 2004,
+    "title": "The creative mind: Myths and mechanisms (2nd ed.)",
+    "venue": "Routledge, London",
+    "url": "https://www.routledge.com/The-Creative-Mind-Myths-and-Mechanisms/Boden/p/book/9780415314534",
+    "verified": true,
+    "notes": "Famous for the three-fold typology of creativity: combinational, exploratory, transformational."
+  },
+  {
+    "key": "bommasani2021opportunities",
+    "authors": ["Bommasani, R.", "Hudson, D. A.", "Adeli, E.", "Altman, R.", "Arora, S.", "von Arx, S.", "et al."],
+    "year": 2021,
+    "title": "On the opportunities and risks of foundation models",
+    "venue": "arXiv preprint arXiv:2108.07258",
+    "url": "https://arxiv.org/abs/2108.07258",
+    "verified": true,
+    "notes": "Stanford CRFM technical report with 100+ co-authors."
+  },
+  {
+    "key": "bradley2023quality",
+    "authors": ["Bradley, H.", "Dai, A.", "Teufel, H.", "Zhang, J.", "Oostermeijer, K.", "Bellagente, M.", "Clune, J.", "Stanley, K.", "Schott, G.", "Lehman, J."],
+    "year": 2023,
+    "title": "Quality-diversity through AI feedback",
+    "venue": "arXiv preprint arXiv:2310.13032",
+    "url": "https://arxiv.org/abs/2310.13032",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "brown2020language",
+    "authors": ["Brown, T. B.", "Mann, B.", "Ryder, N.", "Subbiah, M.", "Kaplan, J.", "Dhariwal, P.", "et al."],
+    "year": 2020,
+    "title": "Language models are few-shot learners",
+    "venue": "Advances in Neural Information Processing Systems (NeurIPS) 33",
+    "url": "https://arxiv.org/abs/2005.14165",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "burda2018exploration",
+    "authors": ["Burda, Y.", "Edwards, H.", "Storkey, A.", "Klimov, O."],
+    "year": 2018,
+    "title": "Exploration by random network distillation",
+    "venue": "arXiv preprint arXiv:1810.12894 (later ICLR 2019)",
+    "url": "https://arxiv.org/abs/1810.12894",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "caron2021dino",
+    "authors": ["Caron, M.", "Touvron, H.", "Misra, I.", "Jégou, H.", "Mairal, J.", "Bojanowski, P.", "Joulin, A."],
+    "year": 2021,
+    "title": "Emerging properties in self-supervised vision transformers",
+    "venue": "Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)",
+    "url": "https://arxiv.org/abs/2104.14294",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "chakrabarty2024art",
+    "authors": ["Chakrabarty, T.", "Laban, P.", "Agarwal, D.", "Muresan, S.", "Wu, C.-S."],
+    "year": 2024,
+    "title": "Art or artifice? Large language models and the false promise of creativity",
+    "venue": "Proceedings of the 2024 CHI Conference on Human Factors in Computing Systems (CHI '24)",
+    "url": "https://arxiv.org/abs/2309.14556",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "cherti2023openclip",
+    "authors": ["Cherti, M.", "Beaumont, R.", "Wightman, R.", "Wortsman, M.", "Ilharco, G.", "Gordon, C.", "Schuhmann, C.", "Schmidt, L.", "Jitsev, J."],
+    "year": 2023,
+    "title": "Reproducible scaling laws for contrastive language-image learning",
+    "venue": "Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)",
+    "url": "https://arxiv.org/abs/2212.07143",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "chiang2023blurry",
+    "authors": ["Chiang, T."],
+    "year": 2023,
+    "title": "ChatGPT is a blurry JPEG of the web",
+    "venue": "The New Yorker, February 9, 2023",
+    "url": "https://www.newyorker.com/tech/annals-of-technology/chatgpt-is-a-blurry-jpeg-of-the-web",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "clune2019ai",
+    "authors": ["Clune, J."],
+    "year": 2019,
+    "title": "AI-GAs: AI-generating algorithms, an alternate paradigm for producing general artificial intelligence",
+    "venue": "arXiv preprint arXiv:1905.10985",
+    "url": "https://arxiv.org/abs/1905.10985",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "coifman2006diffusion",
+    "authors": ["Coifman, R. R.", "Lafon, S."],
+    "year": 2006,
+    "title": "Diffusion maps",
+    "venue": "Applied and Computational Harmonic Analysis, 21(1), 5-30",
+    "url": "https://doi.org/10.1016/j.acha.2006.04.006",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "davis2023memory",
+    "authors": ["Davis, T. M.", "Bainbridge, W. A."],
+    "year": 2023,
+    "title": "The memorability of artwork is intrinsic and predicted by a neural network",
+    "venue": "Cognitive Research: Principles and Implications (cited via prior DURooM draft)",
+    "url": "https://wilmabainbridge.com/publications.html",
+    "verified": false,
+    "notes": "DURooM cite key 'davis2023memory' refers to work by Davis and Bainbridge on art-memorability prediction using ResMem. Exact publication venue could not be confirmed from web search; multiple candidate Davis & Bainbridge memorability-of-art papers exist from 2022-2024. Recommend confirming the specific publication before final submission."
+  },
+  {
+    "key": "devlin2018bert",
+    "authors": ["Devlin, J.", "Chang, M.-W.", "Lee, K.", "Toutanova, K."],
+    "year": 2019,
+    "title": "BERT: Pre-training of deep bidirectional transformers for language understanding",
+    "venue": "Proceedings of NAACL-HLT 2019, 4171-4186",
+    "url": "https://arxiv.org/abs/1810.04805",
+    "verified": true,
+    "notes": "arXiv preprint posted 2018; NAACL publication 2019."
+  },
+  {
+    "key": "faldor2024omni",
+    "authors": ["Faldor, M.", "Zhang, J.", "Cully, A.", "Clune, J."],
+    "year": 2024,
+    "title": "OMNI-EPIC: Open-endedness via models of human notions of interestingness with environments programmed in code",
+    "venue": "arXiv preprint arXiv:2405.15568 (ICLR 2025)",
+    "url": "https://arxiv.org/abs/2405.15568",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "fein2025litbench",
+    "authors": ["Fein, D.", "Russo, S.", "Xiang, V.", "Jolly, K.", "Rafailov, R.", "Haber, N."],
+    "year": 2025,
+    "title": "LitBench: A benchmark and dataset for reliable evaluation of creative writing",
+    "venue": "arXiv preprint arXiv:2507.00769",
+    "url": "https://arxiv.org/abs/2507.00769",
+    "verified": true,
+    "notes": "User-provided author list (Fein, Khanapur, Kim, Kim, Murphy, Sabbaghi, Sarkar, Tukker) did NOT match arXiv. Verified arXiv authors are: Fein, Russo, Xiang, Jolly, Rafailov, Haber. Used the verified list."
+  },
+  {
+    "key": "fontaine2020covariance",
+    "authors": ["Fontaine, M. C.", "Togelius, J.", "Nikolaidis, S.", "Hoover, A. K."],
+    "year": 2020,
+    "title": "Covariance matrix adaptation for the rapid illumination of behavior space",
+    "venue": "Proceedings of the 2020 Genetic and Evolutionary Computation Conference (GECCO '20), 94-102",
+    "url": "https://arxiv.org/abs/1912.02400",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "fontaine2023cmamae",
+    "authors": ["Fontaine, M. C.", "Nikolaidis, S."],
+    "year": 2023,
+    "title": "Covariance matrix adaptation MAP-annealing",
+    "venue": "Proceedings of the Genetic and Evolutionary Computation Conference (GECCO '23)",
+    "url": "https://arxiv.org/abs/2205.10752",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "fontaine2023covariance",
+    "authors": ["Fontaine, M. C.", "Nikolaidis, S."],
+    "year": 2023,
+    "title": "Covariance matrix adaptation MAP-annealing",
+    "venue": "Proceedings of the Genetic and Evolutionary Computation Conference (GECCO '23)",
+    "url": "https://arxiv.org/abs/2205.10752",
+    "verified": true,
+    "notes": "DURooM uses two cite keys (fontaine2023cmamae and fontaine2023covariance) which appear to refer to the same paper. They are deduplicated to the same entry in the HTML."
+  },
+  {
+    "key": "halko2011svd",
+    "authors": ["Halko, N.", "Martinsson, P.-G.", "Tropp, J. A."],
+    "year": 2011,
+    "title": "Finding structure with randomness: Probabilistic algorithms for constructing approximate matrix decompositions",
+    "venue": "SIAM Review, 53(2), 217-288",
+    "url": "https://arxiv.org/abs/0909.4061",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "hansen2001completely",
+    "authors": ["Hansen, N.", "Ostermeier, A."],
+    "year": 2001,
+    "title": "Completely derandomized self-adaptation in evolution strategies",
+    "venue": "Evolutionary Computation, 9(2), 159-195",
+    "url": "https://doi.org/10.1162/106365601750190398",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "hansen2003cmaes",
+    "authors": ["Hansen, N.", "Müller, S. D.", "Koumoutsakos, P."],
+    "year": 2003,
+    "title": "Reducing the time complexity of the derandomized evolution strategy with covariance matrix adaptation (CMA-ES)",
+    "venue": "Evolutionary Computation, 11(1), 1-18",
+    "url": "https://doi.org/10.1162/106365603321828970",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "hansen2016cmatutorial",
+    "authors": ["Hansen, N."],
+    "year": 2016,
+    "title": "The CMA evolution strategy: A tutorial",
+    "venue": "arXiv preprint arXiv:1604.00772",
+    "url": "https://arxiv.org/abs/1604.00772",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "hansen2020fastcma",
+    "authors": ["Hansen, N.", "Akimoto, Y.", "Baudis, P."],
+    "year": 2019,
+    "title": "CMA-ES/pycma on Github (Zenodo, DOI:10.5281/zenodo.2559634)",
+    "venue": "Software, Zenodo",
+    "url": "https://github.com/CMA-ES/pycma",
+    "verified": false,
+    "notes": "DURooM cite key 'hansen2020fastcma' likely refers to the pycma software release or a related fast CMA-ES paper. The label '2020' could not be matched to a single canonical publication; the standard citation in CMA-ES literature is the pycma Zenodo release (Hansen, Akimoto, Baudis, 2019, DOI:10.5281/zenodo.2559634). Recommend confirming the intended reference before final submission."
+  },
+  {
+    "key": "hart1968formal",
+    "authors": ["Hart, P. E.", "Nilsson, N. J.", "Raphael, B."],
+    "year": 1968,
+    "title": "A formal basis for the heuristic determination of minimum cost paths",
+    "venue": "IEEE Transactions on Systems Science and Cybernetics, 4(2), 100-107",
+    "url": "https://doi.org/10.1109/TSSC.1968.300136",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "hertz2022prompt",
+    "authors": ["Hertz, A.", "Mokady, R.", "Tenenbaum, J.", "Aberman, K.", "Pritch, Y.", "Cohen-Or, D."],
+    "year": 2022,
+    "title": "Prompt-to-prompt image editing with cross attention control",
+    "venue": "arXiv preprint arXiv:2208.01626 (ICLR 2023)",
+    "url": "https://arxiv.org/abs/2208.01626",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "hintze2019openendedness",
+    "authors": ["Hintze, A."],
+    "year": 2019,
+    "title": "Open-endedness for the sake of open-endedness",
+    "venue": "Artificial Life, 25(2), 198-206",
+    "url": "https://doi.org/10.1162/artl_a_00294",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "huh2024platonic",
+    "authors": ["Huh, M.", "Cheung, B.", "Wang, T.", "Isola, P."],
+    "year": 2024,
+    "title": "The platonic representation hypothesis",
+    "venue": "arXiv preprint arXiv:2405.07987",
+    "url": "https://arxiv.org/abs/2405.07987",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "ismayilzada2024evaluating",
+    "authors": ["Ismayilzada, M.", "Stevenson, C.", "van der Plas, L."],
+    "year": 2024,
+    "title": "Evaluating creative short story generation in humans and large language models",
+    "venue": "arXiv preprint arXiv:2411.02316 (accepted ICCC 2025)",
+    "url": "https://arxiv.org/abs/2411.02316",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "itti2009bayesian",
+    "authors": ["Itti, L.", "Baldi, P."],
+    "year": 2009,
+    "title": "Bayesian surprise attracts human attention",
+    "venue": "Vision Research, 49(10), 1295-1306",
+    "url": "https://doi.org/10.1016/j.visres.2008.09.007",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "jacob2021qualitative",
+    "authors": ["Jacob, G.", "Pramod, R. T.", "Katti, H.", "Arun, S. P."],
+    "year": 2021,
+    "title": "Qualitative similarities and differences in visual object representations between brains and deep networks",
+    "venue": "Nature Communications, 12, 1872",
+    "url": "https://doi.org/10.1038/s41467-021-22078-3",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "johnson2019faiss",
+    "authors": ["Johnson, J.", "Douze, M.", "Jégou, H."],
+    "year": 2019,
+    "title": "Billion-scale similarity search with GPUs",
+    "venue": "IEEE Transactions on Big Data, 7(3), 535-547",
+    "url": "https://arxiv.org/abs/1702.08734",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "jumper2021highly",
+    "authors": ["Jumper, J.", "Evans, R.", "Pritzel, A.", "Green, T.", "Figurnov, M.", "Ronneberger, O.", "et al."],
+    "year": 2021,
+    "title": "Highly accurate protein structure prediction with AlphaFold",
+    "venue": "Nature, 596(7873), 583-589",
+    "url": "https://doi.org/10.1038/s41586-021-03819-2",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "kozlowski2019geometry",
+    "authors": ["Kozlowski, A. C.", "Taddy, M.", "Evans, J. A."],
+    "year": 2019,
+    "title": "The geometry of culture: Analyzing the meanings of class through word embeddings",
+    "venue": "American Sociological Review, 84(5), 905-949",
+    "url": "https://doi.org/10.1177/0003122419877135",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "kumar2025asal",
+    "authors": ["Kumar, A.", "Lu, C.", "Kirsch, L.", "Tang, Y.", "Stanley, K. O.", "Isola, P.", "Ha, D."],
+    "year": 2025,
+    "title": "Automating the search for artificial life with foundation models",
+    "venue": "arXiv preprint arXiv:2412.17799",
+    "url": "https://arxiv.org/abs/2412.17799",
+    "verified": true,
+    "notes": "User brief listed authors as 'Kumar, Lu, Faldor, Sudhakaran, Clune.' arXiv author list is actually Kumar, Lu, Kirsch, Tang, Stanley, Isola, Ha. The user list does not match - corrected to verified arXiv author list."
+  },
+  {
+    "key": "lecun2015deep",
+    "authors": ["LeCun, Y.", "Bengio, Y.", "Hinton, G."],
+    "year": 2015,
+    "title": "Deep learning",
+    "venue": "Nature, 521(7553), 436-444",
+    "url": "https://doi.org/10.1038/nature14539",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "lehman2010revising",
+    "authors": ["Lehman, J.", "Stanley, K. O."],
+    "year": 2010,
+    "title": "Revising the evolutionary computation abstraction: Minimal criteria novelty search",
+    "venue": "Proceedings of the 12th Annual Conference on Genetic and Evolutionary Computation (GECCO '10), 103-110",
+    "url": "https://doi.org/10.1145/1830483.1830503",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "lehman2011abandoning",
+    "authors": ["Lehman, J.", "Stanley, K. O."],
+    "year": 2011,
+    "title": "Abandoning objectives: Evolution through the search for novelty alone",
+    "venue": "Evolutionary Computation, 19(2), 189-223",
+    "url": "https://doi.org/10.1162/EVCO_a_00025",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "li2016diversity",
+    "authors": ["Li, J.", "Galley, M.", "Brockett, C.", "Gao, J.", "Dolan, B."],
+    "year": 2016,
+    "title": "A diversity-promoting objective function for neural conversation models",
+    "venue": "Proceedings of NAACL-HLT 2016, 110-119",
+    "url": "https://aclanthology.org/N16-1014/",
+    "verified": true,
+    "notes": "Introduces the distinct-n metric."
+  },
+  {
+    "key": "loshchilov2014lmcma",
+    "authors": ["Loshchilov, I."],
+    "year": 2014,
+    "title": "A computationally efficient limited memory CMA-ES for large scale optimization",
+    "venue": "Proceedings of the 2014 Annual Conference on Genetic and Evolutionary Computation (GECCO '14)",
+    "url": "https://arxiv.org/abs/1404.5520",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "ma2023eureka",
+    "authors": ["Ma, Y. J.", "Liang, W.", "Wang, G.", "Huang, D.-A.", "Bastani, O.", "Jayaraman, D.", "Zhu, Y.", "Fan, L.", "Anandkumar, A."],
+    "year": 2023,
+    "title": "Eureka: Human-level reward design via coding large language models",
+    "venue": "arXiv preprint arXiv:2310.12931 (ICLR 2024)",
+    "url": "https://arxiv.org/abs/2310.12931",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "ma2025scflow",
+    "authors": ["Ma, P.", "et al."],
+    "year": 2025,
+    "title": "SCFlow: Implicitly learning style and content disentanglement with flow models",
+    "venue": "Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) 2025, 14919-14929",
+    "url": "https://arxiv.org/abs/2508.03402",
+    "verified": true,
+    "notes": "First author is Pingchuan Ma; full author list is on the ICCV 2025 paper page."
+  },
+  {
+    "key": "meng2022sdedit",
+    "authors": ["Meng, C.", "He, Y.", "Song, Y.", "Song, J.", "Wu, J.", "Zhu, J.-Y.", "Ermon, S."],
+    "year": 2022,
+    "title": "SDEdit: Guided image synthesis and editing with stochastic differential equations",
+    "venue": "International Conference on Learning Representations (ICLR)",
+    "url": "https://arxiv.org/abs/2108.01073",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "mouret2015illuminating",
+    "authors": ["Mouret, J.-B.", "Clune, J."],
+    "year": 2015,
+    "title": "Illuminating search spaces by mapping elites",
+    "venue": "arXiv preprint arXiv:1504.04909",
+    "url": "https://arxiv.org/abs/1504.04909",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "needell2022embracing",
+    "authors": ["Needell, C. D.", "Bainbridge, W. A."],
+    "year": 2022,
+    "title": "Embracing new techniques in deep learning for estimating image memorability",
+    "venue": "Computational Brain & Behavior, 5, 168-184",
+    "url": "https://doi.org/10.1007/s42113-022-00126-5",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "newell1959report",
+    "authors": ["Newell, A.", "Shaw, J. C.", "Simon, H. A."],
+    "year": 1959,
+    "title": "Report on a general problem-solving program",
+    "venue": "Proceedings of the International Conference on Information Processing, UNESCO, Paris, 256-264",
+    "url": "https://findingaids.library.cmu.edu/repositories/2/archival_objects/22561",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "oquab2023dinov2",
+    "authors": ["Oquab, M.", "Darcet, T.", "Moutakanni, T.", "Vo, H.", "Szafraniec, M.", "Khalidov, V.", "et al."],
+    "year": 2023,
+    "title": "DINOv2: Learning robust visual features without supervision",
+    "venue": "arXiv preprint arXiv:2304.07193",
+    "url": "https://arxiv.org/abs/2304.07193",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "pan2021dgp",
+    "authors": ["Pan, X.", "Zhan, X.", "Dai, B.", "Lin, D.", "Loy, C. C.", "Luo, P."],
+    "year": 2022,
+    "title": "Exploiting deep generative prior for versatile image restoration and manipulation",
+    "venue": "IEEE Transactions on Pattern Analysis and Machine Intelligence, 44(11), 7474-7489",
+    "url": "https://arxiv.org/abs/2003.13659",
+    "verified": true,
+    "notes": "Originally ECCV 2020 (oral); TPAMI extended version published 2022."
+  },
+  {
+    "key": "pathak2017curiosity",
+    "authors": ["Pathak, D.", "Agrawal, P.", "Efros, A. A.", "Darrell, T."],
+    "year": 2017,
+    "title": "Curiosity-driven exploration by self-supervised prediction",
+    "venue": "Proceedings of the 34th International Conference on Machine Learning (ICML), 2778-2787",
+    "url": "https://arxiv.org/abs/1705.05363",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "pugh2016quality",
+    "authors": ["Pugh, J. K.", "Soros, L. B.", "Stanley, K. O."],
+    "year": 2016,
+    "title": "Quality diversity: A new frontier for evolutionary computation",
+    "venue": "Frontiers in Robotics and AI, 3, 40",
+    "url": "https://doi.org/10.3389/frobt.2016.00040",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "qwen2024qwen25",
+    "authors": ["Qwen Team"],
+    "year": 2024,
+    "title": "Qwen2.5 technical report",
+    "venue": "arXiv preprint arXiv:2412.15115",
+    "url": "https://arxiv.org/abs/2412.15115",
+    "verified": true,
+    "notes": "Cited as 'Qwen Team' as is standard practice; full author list (40+) is on arXiv."
+  },
+  {
+    "key": "qwen2025qwen3embedding",
+    "authors": ["Zhang, Y.", "et al. (Qwen Team)"],
+    "year": 2025,
+    "title": "Qwen3 embedding: Advancing text embedding and reranking through foundation models",
+    "venue": "arXiv preprint arXiv:2506.05176",
+    "url": "https://arxiv.org/abs/2506.05176",
+    "verified": true,
+    "notes": "Published June 2025; first author Yanzhao Zhang plus 11 co-authors."
+  },
+  {
+    "key": "radford2021clip",
+    "authors": ["Radford, A.", "Kim, J. W.", "Hallacy, C.", "Ramesh, A.", "Goh, G.", "Agarwal, S.", "et al."],
+    "year": 2021,
+    "title": "Learning transferable visual models from natural language supervision",
+    "venue": "Proceedings of the 38th International Conference on Machine Learning (ICML), 8748-8763",
+    "url": "https://arxiv.org/abs/2103.00020",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "reimers2019sentencebert",
+    "authors": ["Reimers, N.", "Gurevych, I."],
+    "year": 2019,
+    "title": "Sentence-BERT: Sentence embeddings using siamese BERT-networks",
+    "venue": "Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing (EMNLP)",
+    "url": "https://arxiv.org/abs/1908.10084",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "rombach2022latent",
+    "authors": ["Rombach, R.", "Blattmann, A.", "Lorenz, D.", "Esser, P.", "Ommer, B."],
+    "year": 2022,
+    "title": "High-resolution image synthesis with latent diffusion models",
+    "venue": "Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 10684-10695",
+    "url": "https://arxiv.org/abs/2112.10752",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "ros2008sepcma",
+    "authors": ["Ros, R.", "Hansen, N."],
+    "year": 2008,
+    "title": "A simple modification in CMA-ES achieving linear time and space complexity",
+    "venue": "Parallel Problem Solving from Nature (PPSN X), Lecture Notes in Computer Science vol. 5199, 296-305",
+    "url": "https://doi.org/10.1007/978-3-540-87700-4_30",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "simeoni2025dinov3",
+    "authors": ["Siméoni, O.", "et al."],
+    "year": 2025,
+    "title": "DINOv3",
+    "venue": "arXiv preprint arXiv:2508.10104",
+    "url": "https://arxiv.org/abs/2508.10104",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "stanley2015greatness",
+    "authors": ["Stanley, K. O.", "Lehman, J."],
+    "year": 2015,
+    "title": "Why greatness cannot be planned: The myth of the objective",
+    "venue": "Springer International Publishing",
+    "url": "https://doi.org/10.1007/978-3-319-15524-1",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "stanley2017openendedness",
+    "authors": ["Stanley, K. O.", "Lehman, J.", "Soros, L."],
+    "year": 2017,
+    "title": "Open-endedness: The last grand challenge you've never heard of",
+    "venue": "O'Reilly Radar (online essay), December 19, 2017",
+    "url": "https://www.oreilly.com/radar/open-endedness-the-last-grand-challenge-youve-never-heard-of/",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "stoinski2024thingsplus",
+    "authors": ["Stoinski, L. M.", "Perkuhn, J.", "Hebart, M. N."],
+    "year": 2024,
+    "title": "THINGSplus: New norms and metadata for the THINGS database of 1854 object concepts and 26,107 natural object images",
+    "venue": "Behavior Research Methods, 56(3), 1583-1603",
+    "url": "https://doi.org/10.3758/s13428-023-02110-8",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "tjanaka2026dms",
+    "authors": ["Tjanaka, B.", "Chen, H.", "Fontaine, M. C.", "Nikolaidis, S."],
+    "year": 2026,
+    "title": "Discount model search for quality diversity optimization in high-dimensional measure spaces",
+    "venue": "International Conference on Learning Representations (ICLR 2026), Oral",
+    "url": "https://discount-models.github.io/",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "tumanyan2023plug",
+    "authors": ["Tumanyan, N.", "Geyer, M.", "Bagon, S.", "Dekel, T."],
+    "year": 2023,
+    "title": "Plug-and-play diffusion features for text-driven image-to-image translation",
+    "venue": "Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 1921-1930",
+    "url": "https://arxiv.org/abs/2211.12572",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "turing1936computable",
+    "authors": ["Turing, A. M."],
+    "year": 1936,
+    "title": "On computable numbers, with an application to the Entscheidungsproblem",
+    "venue": "Proceedings of the London Mathematical Society, s2-42(1), 230-265",
+    "url": "https://doi.org/10.1112/plms/s2-42.1.230",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "vaswani2017attention",
+    "authors": ["Vaswani, A.", "Shazeer, N.", "Parmar, N.", "Uszkoreit, J.", "Jones, L.", "Gomez, A. N.", "Kaiser, Ł.", "Polosukhin, I."],
+    "year": 2017,
+    "title": "Attention is all you need",
+    "venue": "Advances in Neural Information Processing Systems (NeurIPS) 30",
+    "url": "https://arxiv.org/abs/1706.03762",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "wang2024e5mistral",
+    "authors": ["Wang, L.", "Yang, N.", "Huang, X.", "Yang, L.", "Majumder, R.", "Wei, F."],
+    "year": 2024,
+    "title": "Improving text embeddings with large language models",
+    "venue": "Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (ACL)",
+    "url": "https://arxiv.org/abs/2401.00368",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "xiao2024cpack",
+    "authors": ["Xiao, S.", "Liu, Z.", "Zhang, P.", "Muennighoff, N.", "Lian, D.", "Nie, J.-Y."],
+    "year": 2024,
+    "title": "C-Pack: Packed resources for general Chinese embeddings",
+    "venue": "Proceedings of the 47th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR '24)",
+    "url": "https://arxiv.org/abs/2309.07597",
+    "verified": true,
+    "notes": "BGE embedding model paper."
+  },
+  {
+    "key": "zhai2023siglip",
+    "authors": ["Zhai, X.", "Mustafa, B.", "Kolesnikov, A.", "Beyer, L."],
+    "year": 2023,
+    "title": "Sigmoid loss for language image pre-training",
+    "venue": "Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV), 11975-11986",
+    "url": "https://arxiv.org/abs/2303.15343",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "zhang2018unreasonable",
+    "authors": ["Zhang, R.", "Isola, P.", "Efros, A. A.", "Shechtman, E.", "Wang, O."],
+    "year": 2018,
+    "title": "The unreasonable effectiveness of deep features as a perceptual metric",
+    "venue": "Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 586-595",
+    "url": "https://arxiv.org/abs/1801.03924",
+    "verified": true,
+    "notes": "LPIPS."
+  },
+  {
+    "key": "zhang2023omni",
+    "authors": ["Zhang, J.", "Lehman, J.", "Stanley, K. O.", "Clune, J."],
+    "year": 2023,
+    "title": "OMNI: Open-endedness via models of human notions of interestingness",
+    "venue": "arXiv preprint arXiv:2306.01711",
+    "url": "https://arxiv.org/abs/2306.01711",
+    "verified": true,
+    "notes": ""
+  },
+  {
+    "key": "zhu2016manifold",
+    "authors": ["Zhu, J.-Y.", "Krähenbühl, P.", "Shechtman, E.", "Efros, A. A."],
+    "year": 2016,
+    "title": "Generative visual manipulation on the natural image manifold",
+    "venue": "European Conference on Computer Vision (ECCV), 597-613",
+    "url": "https://arxiv.org/abs/1609.03552",
+    "verified": true,
+    "notes": ""
+  }
+]

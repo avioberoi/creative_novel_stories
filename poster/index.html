@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Writing Beyond Imagination — Novelty Search for Stories</title>
+<title>Writing Beyond Imagination · Novelty Search for Stories</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -25,7 +25,7 @@
     --rule:      #E5E7EB;   /* hairline */
     --bg:        #FFFFFF;   /* paper (pure white) */
     --panel:     #F9FAFB;   /* soft panel for hero stories */
-    --accent:    #1E40AF;   /* single signal accent (deep blue) */
+    --accent:    #800000;   /* single signal accent (UChicago Maroon) */
     /* Okabe–Ito (chart-only) */
     --ok-blue:   #0072B2;   /* mahalanobis (winner) */
     --ok-verm:   #D55E00;   /* euclidean */
@@ -57,14 +57,14 @@
     overflow: hidden;
     transform-origin: top left;
   }
-  #root { width: 100%; height: 100%; display: grid; grid-template-rows: 84mm 1fr 18mm; }
+  #root { width: 100%; height: 100%; display: grid; grid-template-rows: 60mm 1fr 18mm; }
   @media screen { html { background:#888; overflow:hidden; width:100vw; height:100vh; } body { position:absolute; box-shadow:0 4px 30px rgba(0,0,0,.25); } }
   @media print { html { background:none; } body { position:static; transform:none!important; box-shadow:none; } .toolbar,.divider,.swap-handle,.drop-zone{display:none!important;} }
   body.preview .divider, body.preview .swap-handle, body.preview .drop-zone { display:none!important; }
 
   /* === HEADER STRIP — hairlines + typography, not a banner === */
   .header {
-    padding: 12mm var(--pad) 4mm;
+    padding: 6mm var(--pad) 3mm;
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -73,39 +73,49 @@
     position: relative;
   }
   .header-top {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     gap: 14mm;
-    margin-top: 2mm;
+    align-items: center;
+    margin-top: 1mm;
   }
-  .header-bottom {
+  .header-left {
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 14mm;
-    padding-top: 3mm;
-    border-top: .14mm solid var(--rule);
-    margin-top: 4mm;
+    align-items: center;
+    justify-content: flex-start;
+    flex-shrink: 0;
+  }
+  .header-left img {
+    height: 30mm;
+    width: auto;
+    display: block;
+  }
+  .header-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-width: 0;
   }
   .header .eyebrow {
     font-family: 'JetBrains Mono', monospace;
-    font-size: calc(10pt * var(--font-scale));
+    font-size: calc(9pt * var(--font-scale));
     color: var(--ink-2);
     letter-spacing: .18em;
     text-transform: uppercase;
     font-weight: 500;
-    margin-bottom: 2mm;
+    margin-bottom: 1.5mm;
   }
   .header h1 {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
-    font-size: calc(72pt * var(--font-scale));
+    font-size: calc(54pt * var(--font-scale));
     line-height: 0.95;
     letter-spacing: -.028em;
     color: var(--ink);
     margin: 0;
-    flex: 1;
+    text-align: center;
   }
   .header h1 .accent {
     font-style: italic;
@@ -115,51 +125,58 @@
   .header .subtitle {
     font-family: 'Inter', sans-serif;
     font-weight: 400;
-    font-size: calc(22pt * var(--font-scale));
-    line-height: 1.22;
+    font-size: calc(16pt * var(--font-scale));
+    line-height: 1.2;
     color: var(--ink-2);
-    flex: 1;
-    max-width: 620mm;
+    text-align: center;
+    margin-top: 2mm;
   }
-  .header .byline {
+
+  /* === BRIEF — right side of header, replaces tldr card === */
+  .brief {
+    width: 200mm;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5mm;
+    border-left: .35mm solid var(--accent);
+    padding-left: 5mm;
+  }
+  .brief .brief-eyebrow {
     font-family: 'JetBrains Mono', monospace;
-    font-size: calc(8pt * var(--font-scale));
+    font-size: calc(7.5pt * var(--font-scale));
+    color: var(--ink-2);
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .brief p {
+    font-family: 'Inter', sans-serif;
+    font-size: calc(9.5pt * var(--font-scale));
+    line-height: 1.35;
     color: var(--ink);
+    font-weight: 400;
+    margin: 0;
+  }
+  .brief p sup { font-size: 0.75em; }
+  .brief .big {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: calc(16pt * var(--font-scale));
+    letter-spacing: -.01em;
+    line-height: 1;
+  }
+  .brief .brief-byline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(7pt * var(--font-scale));
+    color: var(--ink-2);
     font-weight: 500;
     letter-spacing: .12em;
     text-transform: uppercase;
-    text-align: right;
-    flex-shrink: 0;
+    margin-top: 1mm;
   }
-  .header .byline .sep { color: var(--rule); margin: 0 2.5mm; }
-  .header .affil { font-size: calc(8pt * var(--font-scale)); color: var(--ink-2); font-weight: 400; letter-spacing: .12em; text-transform: uppercase; }
-
-  .header-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2mm;
-    flex-shrink: 0;
-  }
-  .qr {
-    width: 24mm; height: 24mm;
-    border: .2mm solid var(--rule);
-    background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--ink-2);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 6pt;
-    text-align: center;
-    padding: 1mm;
-  }
-  .qr img { width: 100%; height: 100%; object-fit: contain; }
-  .qr-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: calc(6.5pt * var(--font-scale));
-    color: var(--ink-2);
-    text-transform: uppercase;
-    letter-spacing: .14em;
-  }
+  .brief .brief-byline b { color: var(--ink); font-weight: 600; }
 
   /* === POSTER BODY — magazine spread, 3 asymmetric columns === */
   .poster {
@@ -185,7 +202,7 @@
     min-height: 0;
     flex: 0 0 auto;
     position: relative;
-    margin-bottom: 10mm;
+    margin-bottom: 7mm;
   }
   .card:last-child { margin-bottom: 0; }
   .card.grow { flex: 1 1 0; }
@@ -203,14 +220,14 @@
     display: block;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 500;
-    font-size: calc(42pt * var(--font-scale));
+    font-size: calc(28pt * var(--font-scale));
     line-height: 0.85;
     color: var(--accent);
     opacity: 0.92;
     letter-spacing: -.04em;
     user-select: none;
     pointer-events: none;
-    margin-bottom: 2mm;
+    margin-bottom: 1.5mm;
   }
 
   /* eyebrow + section header */
@@ -226,24 +243,24 @@
   .card h2 {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
-    font-size: calc(34pt * var(--font-scale));
+    font-size: calc(24pt * var(--font-scale));
     line-height: 1.02;
     color: var(--ink);
-    margin-bottom: 2.5mm;
+    margin-bottom: 2mm;
     letter-spacing: -.022em;
     flex-shrink: 0;
   }
   .card .accent-rule {
-    width: 16mm;
+    width: 14mm;
     height: .5mm;
     background: var(--accent);
-    margin-bottom: 5mm;
+    margin-bottom: 3.5mm;
     flex-shrink: 0;
   }
   .card p, .card li {
     font-family: 'Inter', sans-serif;
-    font-size: calc(10.5pt * var(--font-scale));
-    line-height: 1.5;
+    font-size: calc(9.5pt * var(--font-scale));
+    line-height: 1.45;
     color: var(--ink);
   }
   .card ul, .card ol { padding-left: 5mm; flex-shrink: 0; }
@@ -346,15 +363,15 @@
   /* ============================================================
      Hero qualitative card — magazine spread, drop caps, pull-quotes
      ============================================================ */
-  .card.hero { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+  .card.hero { display: flex; flex-direction: column; min-height: 0; }
   .card.hero .hero-lede {
     font-family: 'Inter', sans-serif;
     font-style: italic;
     font-weight: 300;
-    font-size: calc(13pt * var(--font-scale));
-    line-height: 1.42;
+    font-size: calc(11pt * var(--font-scale));
+    line-height: 1.4;
     color: var(--ink-2);
-    margin-bottom: 6mm;
+    margin-bottom: 4mm;
     flex-shrink: 0;
     max-width: 230mm;
   }
@@ -363,18 +380,18 @@
   .story-grid {
     display: flex;
     flex-direction: column;
-    gap: 8mm;
-    flex: 1;
+    gap: 5mm;
+    flex: 0 0 auto;
     min-height: 0;
   }
   .story {
     background: transparent;
     border: none;
-    padding: 6mm 0 0 0;
+    padding: 4mm 0 0 0;
     border-top: .14mm solid var(--rule);
     display: flex;
     flex-direction: column;
-    flex: 0 1 auto;
+    flex: 0 0 auto;
     min-height: 0;
   }
   .story:first-child { border-top: none; padding-top: 0; }
@@ -398,25 +415,25 @@
     font-family: 'Bricolage Grotesque', 'Space Grotesk', sans-serif;
     font-style: italic;
     font-weight: 500;
-    font-size: calc(18pt * var(--font-scale));
+    font-size: calc(19pt * var(--font-scale));
     line-height: 1.05;
     color: var(--ink);
     letter-spacing: -.01em;
   }
   .story .prose {
     font-family: 'Inter', sans-serif;
-    font-size: calc(11pt * var(--font-scale));
-    line-height: 1.5;
+    font-size: calc(12pt * var(--font-scale));
+    line-height: 1.45;
     color: var(--ink);
     font-weight: 400;
-    margin-bottom: 4mm;
+    margin-bottom: 3.5mm;
   }
   /* clearfix for drop-cap float */
   .story .prose::after { content: ''; display: block; clear: both; }
   .story .prose .drop {
     font-family: 'Bricolage Grotesque', 'Space Grotesk', serif;
     font-weight: 700;
-    font-size: calc(56pt * var(--font-scale));
+    font-size: calc(58pt * var(--font-scale));
     line-height: .82;
     float: left;
     margin: 1mm 3mm -1mm 0;
@@ -437,7 +454,7 @@
     font-family: 'Inter', sans-serif;
     font-style: italic;
     font-weight: 300;
-    font-size: calc(11pt * var(--font-scale));
+    font-size: calc(9pt * var(--font-scale));
     letter-spacing: .005em;
     background: transparent;
     color: var(--ink-2);
@@ -457,7 +474,7 @@
      Vignette list (hard lessons)
      ============================================================ */
   .vignette {
-    padding: 4mm 0;
+    padding: 2.5mm 0;
     border-bottom: .14mm solid var(--rule);
   }
   .vignette:last-child { border-bottom: none; padding-bottom: 0; }
@@ -465,15 +482,15 @@
   .vignette .vlead {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 600;
-    font-size: calc(12pt * var(--font-scale));
+    font-size: calc(10.5pt * var(--font-scale));
     color: var(--ink);
-    margin-bottom: 1.5mm;
+    margin-bottom: 1mm;
     letter-spacing: -.01em;
   }
   .vignette .vbody {
     font-family: 'Inter', sans-serif;
-    font-size: calc(10pt * var(--font-scale));
-    line-height: 1.48;
+    font-size: calc(9pt * var(--font-scale));
+    line-height: 1.42;
     color: var(--ink);
   }
   .vignette .vbody .mono {
@@ -500,27 +517,89 @@
   /* Math */
   .katex { font-size: calc(10pt * var(--font-scale))!important; }
 
-  /* === FOOTER STRIP (20mm tall) === */
+  /* === LaTeX-algorithm-style block === */
+  .algo {
+    margin: 0 4mm 4mm 4mm;
+    padding: 0;
+    background: transparent;
+  }
+  .algo .algo-rule-top {
+    border-top: .35mm solid var(--ink);
+    margin: 0;
+  }
+  .algo .algo-rule-bot {
+    border-top: .35mm solid var(--ink);
+    margin: 0;
+  }
+  .algo .algo-caption {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: calc(9.5pt * var(--font-scale));
+    color: var(--ink);
+    padding: 1.5mm 0 1mm 0;
+    border-bottom: .14mm solid var(--ink);
+    letter-spacing: .01em;
+  }
+  .algo .algo-caption b { color: var(--accent); font-weight: 700; margin-right: 2mm; }
+  .algo pre.algo-body {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(7.8pt * var(--font-scale));
+    line-height: 1.4;
+    color: var(--ink);
+    padding: 2mm 0 2mm 0;
+    margin: 0;
+    background: transparent;
+    border: none;
+    white-space: pre;
+    overflow: hidden;
+  }
+  .algo pre.algo-body .ln {
+    display: inline-block;
+    width: 7mm;
+    color: var(--ink-2);
+    text-align: right;
+    padding-right: 2mm;
+  }
+  .algo pre.algo-body .kw { color: var(--accent); font-weight: 600; }
+  .algo pre.algo-body .io {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* === FOOTER STRIP (16mm tall) — AI disclosure, schema form === */
   .footer {
     padding: 0 var(--pad);
     border-top: .25mm solid var(--rule);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: calc(8pt * var(--font-scale));
-    color: var(--ink-2);
-    line-height: 1.55;
-    letter-spacing: .02em;
     background: var(--bg);
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 1.5mm;
+    align-items: center;
+    gap: 4mm;
   }
-  .footer .row { display: flex; gap: 8mm; align-items: baseline; }
-  .footer b { color: var(--ink); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-right: 2mm; }
-  .footer .reflection { font-size: calc(9pt * var(--font-scale)); color: var(--ink); font-family: 'JetBrains Mono', monospace; }
+  .ai-attrib {
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: calc(7.5pt * var(--font-scale));
+    line-height: 1.4;
+    color: #6B7280;
+    max-width: 100%;
+  }
+  .ai-attrib .ai-attrib-lede { font-weight: 600; color: var(--ink); }
+  .ai-attrib a { color: inherit; text-decoration: underline dotted; }
+  .ai-attrib .ai-item { white-space: nowrap; }
+  .ai-attrib .tags {
+    margin: 0 0.35em;
+    padding: 0 0.35em;
+    border: 1px solid currentColor;
+    border-radius: 1mm;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+  }
+  .ai-attrib .role-label { font-style: italic; color: #9CA3AF; }
 
-  /* === TOOLBAR (screen only) === */
-  .toolbar { position: fixed; top: 8px; right: 8px; z-index: 1000; display: flex; gap: 6px; align-items: center; }
+  /* === EDIT UI — HIDDEN in all modes for final render/print === */
+  .toolbar, .swap-handle, .divider, .drop-zone, .col-divider, .row-divider { display: none !important; }
+  ._toolbar_old { position: fixed; top: 8px; right: 8px; z-index: 1000; display: flex; gap: 6px; align-items: center; }
   .toolbar button {
     font-family: 'Inter', sans-serif;
     font-size: 11px; font-weight: 600;
@@ -544,8 +623,8 @@
   .card.swap-selected { outline: .7mm solid var(--accent); outline-offset: -.3mm; }
   .card.swap-selected .swap-handle { opacity: 1; transform: scale(1.15); }
   .divider { position: relative; z-index: 50; flex-shrink: 0; }
-  .divider::after { content: ''; position: absolute; background: rgba(30,64,175,.10); border-radius: 1mm; transition: background .15s; }
-  .divider:hover::after, .divider.active::after { background: rgba(30,64,175,.4); }
+  .divider::after { content: ''; position: absolute; background: rgba(128,0,0,.10); border-radius: 1mm; transition: background .15s; }
+  .divider:hover::after, .divider.active::after { background: rgba(128,0,0,.4); }
   .col-resize { width: 6mm; cursor: col-resize; margin: 0 -3mm; }
   .col-resize::after { top: 0; bottom: 0; left: 1.5mm; width: 3mm; }
   .row-resize { height: 6mm; cursor: row-resize; margin: -3mm 0; }
@@ -555,11 +634,11 @@
   .drop-zone-inner {
     position: absolute; left: 2mm; right: 2mm; top: 0; bottom: 0;
     border-radius: 1mm;
-    background: rgba(30,64,175,.12);
+    background: rgba(128,0,0,.12);
     border: .35mm dashed var(--accent);
     transition: background .15s; cursor: pointer;
   }
-  .drop-zone-inner:hover { background: rgba(30,64,175,.3); }
+  .drop-zone-inner:hover { background: rgba(128,0,0,.3); }
 </style>
 </head>
 <body>
@@ -576,153 +655,165 @@ const POSTER_H_MM = 610;
    Cards
    ============================================================ */
 const CARD_REGISTRY = {
-  tldr: {
-    title: 'In brief',
+  intro: {
+    title: 'The question',
     sectionNum: '01',
-    eyebrow: 'TL;DR',
+    eyebrow: 'Introduction',
     grow: false,
     body: (
       <>
-        <div className="hl">
-          <p>
-            <b>Mahalanobis-whitened k-NN</b> in a text-embedding space gives
-            the most encoder-robust novelty signal —{' '}
-            <span className="big">transfer rank correlation = 0.80</span>{' '}
-            to a held-out EmbeddingGemma, vs the image-paper's best 0.63.
-          </p>
+        <p style={{fontSize:'calc(13pt * var(--font-scale))', lineHeight:1.45, marginBottom:'3mm'}}>
+          <b>Foundation models compress how stories tend to be told.</b> Sample naively, you get the
+          average voice, the average twist.
+        </p>
+        <p style={{fontSize:'calc(11pt * var(--font-scale))', lineHeight:1.4, color:'var(--ink-2)', marginBottom:'3mm'}}>
+          But the rare directions in the model's embedding space hold stories it could write but rarely does.
+        </p>
+        <p style={{fontSize:'calc(13pt * var(--font-scale))', lineHeight:1.4}}>
+          <b>Search the periphery.</b> Pull the unsaid.
+        </p>
+      </>
+    ),
+  },
+
+  background: {
+    title: 'What’s been tried',
+    sectionNum: '02',
+    eyebrow: 'Background',
+    grow: false,
+    body: (
+      <>
+        <p style={{fontSize:'calc(10.5pt * var(--font-scale))', lineHeight:1.4, marginBottom:'2.5mm'}}>
+          <b>Creativity scoring is contested.</b> Chakrabarty 2024: GPT-4 passes <b>12 / 36</b> TTCW
+          items; human writers pass <b>32 / 36</b>. LLM judges agree with experts at Cohen κ ≈ 0.
+        </p>
+        <p style={{fontSize:'calc(10.5pt * var(--font-scale))', lineHeight:1.4, marginBottom:'2.5mm'}}>
+          <b>Ismayilzada 2024</b> (60 LLMs vs 59 humans): humans beat LLMs on <b>novelty</b>
+          (p&lt;10<sup>−7</sup>), <b>surprise</b> (p&lt;10<sup>−3</sup>), <b>diversity</b>
+          (p&lt;10<sup>−4</sup>).
+        </p>
+        <p style={{fontSize:'calc(10.5pt * var(--font-scale))', lineHeight:1.4, marginBottom:'2.5mm'}}>
+          <b>LitBench (Fein 2025).</b> 43,827 WritingPrompts preference pairs. Trained Bradley-Terry
+          reaches <b>78%</b> human agreement. We score with their model.
+        </p>
+        <p style={{fontSize:'calc(10.5pt * var(--font-scale))', lineHeight:1.4}}>
+          <b>Quality-diversity</b> mostly lives in robotics and images (Lehman &amp; Stanley 2011;
+          Mouret &amp; Clune 2015). Kumar 2024 ported it to FM embeddings for artificial life. We
+          port it to text.
+        </p>
+      </>
+    ),
+  },
+
+  method: {
+    title: 'The algorithm',
+    sectionNum: '04',
+    eyebrow: 'Method',
+    grow: false,
+    body: (
+      <>
+        <p style={{marginBottom:'2.5mm', fontSize:'calc(9.5pt * var(--font-scale))', lineHeight:1.4}}>
+          <b>sep-CMA-ES</b> (Ros &amp; Hansen 2008) on a 768d Qwen3-Embedding space. A diagonal
+          covariance scales linearly with dimension.
+        </p>
+        <div className="algo">
+          <div className="algo-rule-top" />
+          <div className="algo-caption"><b>Algorithm 1</b> Novelty search in FM embedding space.</div>
+          <pre className="algo-body" style={{fontSize:'calc(9pt * var(--font-scale))', lineHeight:1.25}}>{`     Input:  corpus C in R^768, lambda=16, T=50, committee {phi_o}
+     Output: archive A of accepted (story, embedding) pairs
+
+`}<span className="ln"> 1:</span>{` mean <- p90 point in C, step <- 0.18
+`}<span className="ln"> 2:</span>{` `}<span className="kw">for</span>{` t = 1 `}<span className="kw">to</span>{` T `}<span className="kw">do</span>{`
+`}<span className="ln"> 3:</span>{`    `}<span className="kw">for</span>{` j = 1 `}<span className="kw">to</span>{` lambda `}<span className="kw">do</span>{`
+`}<span className="ln"> 4:</span>{`       v_j ~ N(mean, step^2 * diag(Sigma))
+`}<span className="ln"> 5:</span>{`       retrieve k=5 nearest corpus stories N_j around v_j
+`}<span className="ln"> 6:</span>{`       x_j <- Qwen3-32B(N_j as in-context)   // ~500 words
+`}<span className="ln"> 7:</span>{`       z_j^(o) <- phi_o(x_j) for o in {BGE, E5-Mistral}
+`}<span className="ln"> 8:</span>{`       nu_j <- mean_o MAD-normalised kNN-dist of z_j^(o)
+`}<span className="ln"> 9:</span>{`    `}<span className="kw">end for</span>{`
+`}<span className="ln">10:</span>{`    admit candidates with nu_j >= percentile_50(A) into A
+`}<span className="ln">11:</span>{`    update mean, step, Sigma via rank-mu sep-CMA-ES
+`}<span className="ln">12:</span>{`    `}<span className="kw">if</span>{` accept-rate < 0.25 over last 15 iters `}<span className="kw">then break</span>{`
+`}<span className="ln">13:</span>{` `}<span className="kw">end for</span></pre>
+          <div className="algo-rule-bot" />
         </div>
-        <ul>
-          <li><b>382 stories generated</b> across 5 distance metrics in CMA-ES + archive geometry, ported from image-domain novelty search.</li>
-        </ul>
       </>
     ),
   },
 
   pipeline: {
-    title: 'The search',
-    sectionNum: '02',
-    eyebrow: 'Pipeline',
-    grow: true,
-    cardClass: 'pipeline-card fullbleed',
-    body: (
-      <div className="fig">
-        <div className="fig-wrap"><img src="figs/pipeline_visual.png" alt="What the search actually does — UMAP + trajectory + annotated story" /></div>
-        <div className="cap"><b>What the search actually does.</b> Light dots are the 5,001-story corpus; orange dots are the 87 stories Euclidean accepted into its archive; the blue line traces the CMA-ES trajectory. On the right: the actual top-novelty story from this trajectory.</div>
-      </div>
-    ),
-  },
-
-  process: {
-    title: 'Hard lessons',
+    title: 'What the search does',
     sectionNum: '03',
-    eyebrow: 'Process highlights',
+    eyebrow: 'Pipeline visualisation',
     grow: false,
     body: (
-      <>
-        <div className="vignette">
-          <div className="vlead">The thinking-mode trap.</div>
-          <div className="vbody">
-            Qwen3-32B initially produced <b>95% reasoning, 5% prose</b>.
-            Forcing <span className="mono">/no_think</span> in the system
-            prompt and stripping <span className="mono">&lt;think&gt;</span>{' '}
-            blocks at post-process recovered clean ~400-word openings.
-          </div>
+      <div className="fig" style={{margin:0}}>
+        <div className="fig-wrap" style={{height:'150mm', maxHeight:'150mm', overflow:'hidden'}}>
+          <img src="figs/pipeline_visual.png" alt="UMAP of corpus with accepted archive entries and CMA-ES trajectory, plus the top-novelty story and its retrieved neighbours" style={{width:'100%', height:'100%', objectFit:'contain'}} />
         </div>
-        <div className="vignette">
-          <div className="vlead">Length-regime parity matters.</div>
-          <div className="vbody">
-            Mean-pooled corpus embeddings versus single-chunk candidate
-            embeddings introduced a <b>2.1× variance bias</b>. Switching to
-            first-chunk encoding for <i>both</i> sides aligned the regimes
-            and the search stopped chasing artefacts.
-          </div>
+        <div className="cap" style={{marginTop:'2mm'}}>
+          Light gray dots are the 5,001 New Yorker stories. Orange dots are the 87 openings the
+          Euclidean search accepted. The maroon line follows the CMA-ES mean across iterations.
+          On the right is the top-novelty story this search produced and the 5 corpus stories
+          it retrieved as in-context examples.
         </div>
-        <div className="vignette">
-          <div className="vlead">The committee actually disagrees.</div>
-          <div className="vbody">
-            Pre-launch diagnostic: BGE ↔ Qwen3-Emb pairwise-distance Spearman ={' '}
-            <b>0.39</b>, well below the 0.85 redundancy threshold. Encoder
-            choice is a real degree of freedom — the disagreement is what
-            generalises.
-          </div>
-        </div>
-      </>
+      </div>
     ),
   },
 
   qualitative: {
     title: 'What it found',
-    sectionNum: '04',
+    sectionNum: '05',
     eyebrow: 'Qualitative results',
-    grow: true,
+    grow: false,
     cardClass: 'hero',
     body: (
       <>
         <div className="hero-lede">
-          The three openings below are the top-novelty entries from{' '}
-          <span className="mono">runs/euclidean_s42/archive.npz</span>. None
-          of them is the kind of opening a language model writes on its own —
-          they are the kind it writes when search asks it to listen instead.
+          Three openings the search picked, one from each metric. Different
+          registers, different topics, all from the same generator.
         </div>
 
         <div className="story-grid">
           <div className="story">
             <div className="story-head">
-              <span className="story-num">№ 01 · Top of archive</span>
-              <span className="story-title">The Horse Who Wanted to Sing</span>
+              <span className="story-num">№ 01 · Civic satire (euclidean)</span>
+              <span className="story-title">Mandatory Laughter Policy</span>
             </div>
             <p className="prose">
-              <span className="drop">T</span>here was a horse in a field not
-              far from the river who had grown tired of galloping. The others
-              pranced, kicked up dust, and snorted at passing clouds. But
-              this particular horse, whose name had been forgotten long ago,
-              stood still for hours at a time, ears perked, listening to the
-              wind. Not to the sound of it exactly, but to the silence behind
-              it — the space the wind left when it passed.
+              <span className="drop">O</span>n the morning of April 23rd, Mayor Eleanor Voss read the headline twice before the meaning fully settled in: "City Hall Adopts Mandatory Laughter Policy." It was the kind of phrase that should have been set off with italics, or perhaps a note in parentheses explaining that, yes, it was entirely in earnest. She sat back in her chair, her fingers tapping the armrest in slow, deliberate rhythm. The headline had been accompanied by a photo of the council room&hellip;
             </p>
             <div className="story-chip-row">
-              <span className="chip">euclidean&nbsp;·&nbsp;novelty&nbsp;6.70&nbsp;·&nbsp;LitBench&nbsp;q=2.14</span>
-              <span className="chip muted">iter 0 · idx 11 · seed 42</span>
+              <span className="chip">euclidean&nbsp;·&nbsp;novelty&nbsp;3.70&nbsp;·&nbsp;LitBench&nbsp;2.80</span>
+              <span className="chip muted">iter 02 · j 11 · seed 42 · archive idx 43</span>
             </div>
           </div>
 
           <div className="story">
             <div className="story-head">
-              <span className="story-num">№ 02 · Press-release voice</span>
-              <span className="story-title">The Continuous Obstacle</span>
+              <span className="story-num">№ 02 · Deadpan dystopia (mahalanobis)</span>
+              <span className="story-title">The Devereaux Family, 1985</span>
             </div>
             <p className="prose">
-              <span className="drop">T</span>he recent proposal by the
-              International Consortium of Historical Accuracy to rename the
-              Great Wall of China "The Continuous Obstacle," citing its
-              original purpose as a defensive barrier and not a tourist
-              attraction, has met with considerable resistance from the
-              Chinese Ministry of Culture, local tour guides, and historians
-              specializing in wall-related architecture.
+              <span className="drop">I</span>N THE MATTER of the Annual Survey of Humanoid Utility Vehicles, the Board of Civic Oversight has issued preliminary ratings on the 1985 model year of the Devereaux Family. The Devereaux line, originally developed as part of the postwar initiative to replace aging domestic staff, continues to be marketed primarily for household management, though recent modifications suggest a shift toward companionship and ceremonial functions. Below are selected findings from the evaluation. Mr. Devereaux Senior (Full-Size Adult): Rated "Moderately Acceptable." Tested&hellip;
             </p>
             <div className="story-chip-row">
-              <span className="chip">euclidean&nbsp;·&nbsp;novelty&nbsp;4.36&nbsp;·&nbsp;LitBench&nbsp;q=1.34</span>
-              <span className="chip muted">iter 13 · idx 76</span>
+              <span className="chip">mahalanobis&nbsp;·&nbsp;novelty&nbsp;5.83&nbsp;·&nbsp;LitBench&nbsp;2.50</span>
+              <span className="chip muted">iter 01 · j 03 · seed 42 · archive idx 19</span>
             </div>
           </div>
 
           <div className="story">
             <div className="story-head">
-              <span className="story-num">№ 03 · Civic essay voice</span>
-              <span className="story-title">Secretary of the Interior</span>
+              <span className="story-num">№ 03 · Essay-as-fiction (lof)</span>
+              <span className="story-title">Mrs. Lathrop</span>
             </div>
             <p className="prose">
-              <span className="drop">T</span>hough the President-elect has
-              already named his Commerce Secretary, his Surgeon General, and
-              his Director of the Bureau of Indian Affairs, the post of
-              Secretary of the Interior remains conspicuously unfilled. This
-              is not due to any lack of candidates — quite the opposite. The
-              sheer number of applicants has created an administrative
-              bottleneck.
+              <span className="drop">T</span>HE THING about punctuation, I've always felt, is that it's the only kind of violence people accept without blinking. A period drops the curtain on a sentence like a guillotine. A comma drags the reader into suspense with the grace of a manacle. I've spent my life watching the quiet havoc commas and semicolons wreak, and I still don't entirely trust either. Take Mrs. Lathrop, for example. Mrs. Lathrop, never to be written with a lowercase "l," was the chair of the&hellip;
             </p>
             <div className="story-chip-row">
-              <span className="chip">euclidean&nbsp;·&nbsp;novelty&nbsp;4.34&nbsp;·&nbsp;LitBench&nbsp;q=1.94</span>
-              <span className="chip muted">iter 11 · idx 69</span>
+              <span className="chip">lof&nbsp;·&nbsp;novelty&nbsp;6.91&nbsp;·&nbsp;LitBench&nbsp;2.34</span>
+              <span className="chip muted">iter 03 · j 09 · seed 42 · archive idx 25</span>
             </div>
           </div>
         </div>
@@ -732,24 +823,31 @@ const CARD_REGISTRY = {
 
   transfer: {
     title: 'Does it transfer?',
-    sectionNum: '05',
+    sectionNum: '08',
     eyebrow: 'Held-out eval',
     grow: true,
     body: (
       <>
-        <p style={{marginBottom:'3mm', fontSize:'calc(10pt * var(--font-scale))'}}>
-          Rank correlation between search-time committee novelty and rank under
-          EmbeddingGemma (an encoder the search never saw). All five metrics
-          significant (p &lt; 1e-3); Mahalanobis whitening clears the
-          image-paper's best (0.63) by a wide margin.
+        <div style={{
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontWeight: 700,
+          color: 'var(--accent)',
+          fontSize: 'calc(22pt * var(--font-scale))',
+          letterSpacing: '-.01em',
+          lineHeight: 1,
+          marginBottom: '2mm'
+        }}>rank-corr 0.80</div>
+        <p style={{marginBottom:'3mm', fontSize:'calc(10.5pt * var(--font-scale))'}}>
+          Five distance metrics, one held-out encoder (EmbeddingGemma) we never
+          touched during search. Mahalanobis-whitened k-NN reaches rank
+          correlation <b>0.80</b>. All five metrics are significant at
+          p &lt; 0.001. The Platonic Representation Hypothesis (Huh et al., 2024)
+          predicts the transfer should exist between foundation-model encoders;
+          the number quantifies how strong it is in our setting.
         </p>
         <div className="fig grow">
-          <div className="fig-wrap">
+          <div className="fig-wrap" style={{minHeight:'80mm'}}>
             <img src="figs/transfer_rho.png" alt="Held-out transfer rank correlation per metric" />
-          </div>
-          <div className="cap">
-            <b>Figure · transfer.</b> Per-metric rank correlation vs
-            EmbeddingGemma on archive entries.
           </div>
         </div>
       </>
@@ -758,30 +856,20 @@ const CARD_REGISTRY = {
 
   dynpareto: {
     title: 'Search dynamics',
-    sectionNum: '06',
+    sectionNum: '09',
     eyebrow: 'Search behavior',
     grow: true,
     body: (
       <>
-        <div style={{display:'flex', flexDirection:'column', gap:'3mm', flex:'1 1 0', minHeight:0}}>
-          <div className="fig" style={{flex:'1 1 0', minHeight:0}}>
-            <div className="fig-wrap" style={{aspectRatio:'8 / 3'}}>
-              <img src="figs/sigma_dashboard.png" alt="Step size trajectory and archive growth" />
-            </div>
-            <div className="cap">
-              <b>Dynamics.</b> Step size, archive growth, max novelty.
-              Final step size stays 1.0–1.4x the starting step size (no off-manifold drift).
-            </div>
+        <div className="fig grow">
+          <div className="fig-wrap" style={{minHeight:'80mm', maxHeight:'85mm', overflow:'hidden'}}>
+            <img src="figs/sigma_dashboard.png" alt="Step size trajectory and archive growth" style={{width:'100%', height:'100%', objectFit:'contain'}} />
           </div>
-          <div className="fig" style={{flex:'1 1 0', minHeight:0}}>
-            <div className="fig-wrap" style={{aspectRatio:'12 / 7'}}>
-              <img src="figs/pareto_litbench.png" alt="Novelty vs LitBench BT scatter" />
-            </div>
-            <div className="cap">
-              <b>Pareto.</b> x = committee novelty, y = LitBench BT reward.
-              LoF leads mean LitBench (1.995); Mahalanobis sits at the
-              high-novelty edge.
-            </div>
+          <div className="cap">
+            <b>Dynamics.</b> Step size stays bounded across all five metrics
+            (1.0 to 1.4x the starting value). Archive grows then saturates.
+            Max novelty per batch climbs then plateaus. Matches Hansen (2016)'s
+            prediction for a well-tuned sep-CMA-ES (Ros &amp; Hansen, 2008).
           </div>
         </div>
       </>
@@ -790,7 +878,7 @@ const CARD_REGISTRY = {
 
   ablation: {
     title: 'All five metrics',
-    sectionNum: '07',
+    sectionNum: '10',
     eyebrow: 'Ablation',
     grow: false,
     body: (
@@ -800,8 +888,8 @@ const CARD_REGISTRY = {
             <tr>
               <th>Metric</th>
               <th className="num">|A|</th>
-              <th className="num">Final step size</th>
-              <th className="num">Transfer correlation</th>
+              <th className="num">Transfer ρ</th>
+              <th className="num">LitBench μ</th>
               <th className="num">LitBench p90</th>
               <th className="num">d-1</th>
               <th className="num">d-2</th>
@@ -811,17 +899,17 @@ const CARD_REGISTRY = {
             <tr className="winner">
               <td className="metric"><span className="swatch" style={{background:'var(--ok-blue)'}}></span>mahalanobis</td>
               <td className="num">62</td>
-              <td className="num">0.204</td>
               <td className="num best"><b>0.799</b></td>
-              <td className="num">2.653</td>
+              <td className="num">1.950</td>
+              <td className="num best"><b>2.653</b></td>
               <td className="num best"><b>0.208</b></td>
               <td className="num best"><b>0.727</b></td>
             </tr>
             <tr>
               <td className="metric"><span className="swatch" style={{background:'var(--ok-verm)'}}></span>euclidean</td>
               <td className="num">87</td>
-              <td className="num">0.255</td>
               <td className="num">0.714</td>
+              <td className="num">1.907</td>
               <td className="num">2.591</td>
               <td className="num">0.182</td>
               <td className="num">0.699</td>
@@ -829,8 +917,8 @@ const CARD_REGISTRY = {
             <tr>
               <td className="metric"><span className="swatch" style={{background:'var(--ok-green)'}}></span>cosine</td>
               <td className="num">89</td>
-              <td className="num">0.225</td>
               <td className="num">0.713</td>
+              <td className="num">1.960</td>
               <td className="num">2.628</td>
               <td className="num">0.181</td>
               <td className="num">0.702</td>
@@ -838,27 +926,137 @@ const CARD_REGISTRY = {
             <tr>
               <td className="metric"><span className="swatch" style={{background:'var(--ok-purple)'}}></span>lof</td>
               <td className="num">78</td>
-              <td className="num">0.245</td>
               <td className="num">0.623</td>
-              <td className="num best"><b>2.594</b></td>
+              <td className="num best"><b>1.995</b></td>
+              <td className="num">2.594</td>
               <td className="num">0.183</td>
               <td className="num">0.700</td>
             </tr>
             <tr>
               <td className="metric"><span className="swatch" style={{background:'var(--ok-orange)'}}></span>diffusion-map</td>
-              <td className="num">65</td>
-              <td className="num">0.182</td>
-              <td className="num">0.424</td>
-              <td className="num">2.309</td>
-              <td className="num">0.150</td>
-              <td className="num">0.640</td>
+              <td className="num">69</td>
+              <td className="num">0.313</td>
+              <td className="num">1.785</td>
+              <td className="num">2.456</td>
+              <td className="num">0.161</td>
+              <td className="num">0.658</td>
             </tr>
           </tbody>
         </table>
         <p style={{marginTop:'2.5mm', fontSize:'calc(8.5pt * var(--font-scale))', color:'var(--ink-2)', lineHeight:1.45}}>
-          All runs: population size = 16, starting step size = 0.18, seed = 42,
-          K=5 retrieval, BGE + E5-Mistral committee. <b>Bold</b> = best per
-          column (mahalanobis on transfer/distinct; lof on LitBench mean = 1.995).
+          Mahalanobis takes 4 of 5 columns. LOF wins LitBench mean.
+          Diffusion-map is the worst on transfer correlation. All runs:
+          population size = 16, starting step size = 0.18, seed = 42, K=5
+          retrieval, BGE + E5-Mistral committee. <b>Diffusion-map footnote:</b>{' '}
+          our first version of the diffusion-map scorer overstated transfer at
+          0.42 because out-of-distribution queries collapsed onto the manifold
+          embedding (Coifman &amp; Lafon, 2006). The patched scorer drops it to
+          0.31.
+        </p>
+      </>
+    ),
+  },
+
+  topology: {
+    title: 'The geometry',
+    sectionNum: '06',
+    eyebrow: 'Why Mahalanobis works',
+    grow: true,
+    body: (
+      <div className="fig grow">
+        <div className="fig-wrap" style={{minHeight:'180mm'}}><img src="figs/topology_panel.png" alt="High-dimensional geometry of the corpus" style={{width:'100%', height:'auto'}} /></div>
+        <div className="cap">
+          <b>Why Mahalanobis works.</b> The corpus is 1024d on paper but its
+          effective dimensionality is about 50 (singular value decay). Four encoders
+          agree on most geometry (pairwise rank-correlation 0.7 to 0.83, Huh et al.
+          2024). Mahalanobis whitening uses corpus covariance to make rare directions
+          costlier in the distance metric.
+        </div>
+      </div>
+    ),
+  },
+
+  benchmark: {
+    title: 'Where this sits',
+    sectionNum: '07',
+    eyebrow: 'Benchmark context',
+    grow: false,
+    body: (
+      <div style={{display:'flex', gap:'5mm', alignItems:'flex-start'}}>
+        <div style={{flex:'0 0 62%', overflow:'hidden'}}>
+          <img src="figs/benchmark_comparison.png" alt="Benchmark gap and our position" style={{width:'100%', height:'auto', display:'block'}} />
+        </div>
+        <div style={{flex:'1', fontSize:'calc(9.5pt * var(--font-scale))', lineHeight:1.45, color:'var(--ink)'}}>
+          <p style={{marginBottom:'2mm'}}>
+            <b>Above.</b> Chakrabarty et al. (2024) TTCW pass rates by source. The gap between
+            human writers and the best LLMs is wide.
+          </p>
+          <p style={{marginBottom:'2mm'}}>
+            <b>Below.</b> Our Mahalanobis archive: <b>distinct-2 = 0.73</b> and
+            <b> transfer-corr = 0.80</b>. Baseline LLM samples in this pipeline land at 0.47 to 0.54.
+          </p>
+          <p>
+            <b>The honest claim.</b> Ismayilzada (2024) shows humans &gt; LLMs on novelty,
+            surprise, and diversity (p &lt; 10<sup>-3</sup>). We do not claim to close that gap.
+            We shift the LLM&#39;s output distribution toward the periphery.
+          </p>
+        </div>
+      </div>
+    ),
+  },
+
+  baselines: {
+    title: 'Vs. baselines',
+    sectionNum: '11',
+    eyebrow: 'Versus naive baselines',
+    grow: true,
+    body: (
+      <div className="fig grow">
+        <div className="fig-wrap" style={{minHeight:'85mm'}}>
+          <img src="figs/cma_vs_baselines.png" alt="CMA-ES versus naive baselines across four quality metrics" />
+        </div>
+        <div className="cap">
+          <b>Three baselines, same generator.</b> Random-LLM near-copies, greedy-farthest, and
+          diverse-beam at temperature 1.2. CMA-ES mean transfer correlation 0.63 vs baseline mean
+          0.52. CMA-ES wins distinct-1 by 2 to 4x and distinct-2 by about 50%.
+        </div>
+      </div>
+    ),
+  },
+  openwork: {
+    sectionNum: '05',
+    title: 'Where this goes next',
+    body: (
+      <>
+        <p style={{fontSize:'calc(10pt * var(--font-scale))', lineHeight:1.4, marginBottom:'2.5mm'}}>
+          <b>Disentangle search from prompting.</b> Run three prompt variants
+          (neutral, novelty-asking, periphery-asking) with seed-matched populations.
+          Subtract the prompt effect from the search effect. Tells us how much
+          of the 0.80 transfer comes from CMA-ES and how much from instruction.
+        </p>
+        <p style={{fontSize:'calc(10pt * var(--font-scale))', lineHeight:1.4, marginBottom:'2.5mm'}}>
+          <b>Bring in human raters.</b> Top-20 expanded stories already extracted.
+          Run the Torrance Test (Chakrabarty 2024 rubric) with 3 expert writers.
+          Measure inter-rater alpha, anchor our numbers to the same scale prior
+          work uses.
+        </p>
+        <p style={{fontSize:'calc(10pt * var(--font-scale))', lineHeight:1.4, marginBottom:'2.5mm'}}>
+          <b>Multi-objective Pareto search.</b> CMA-MAE (Fontaine 2023) instead of
+          plain CMA-ES. Maintains a quality-diversity archive over two objectives
+          (novelty AND LitBench reward), not novelty alone. Lets us trade off
+          explicitly instead of selecting for novelty and hoping quality follows.
+        </p>
+        <p style={{fontSize:'calc(10pt * var(--font-scale))', lineHeight:1.4, marginBottom:'2.5mm'}}>
+          <b>Other generators.</b> Replace Qwen3-32B with Claude or GPT-4o. The
+          search pipeline is generator-agnostic. Does the same Mahalanobis-wins
+          ordering hold across LLM families? If yes, the geometry claim
+          generalises. If no, the claim is encoder-specific.
+        </p>
+        <p style={{fontSize:'calc(10pt * var(--font-scale))', lineHeight:1.4}}>
+          <b>Longer form.</b> Move from 500-word openings to full ~4000-word New
+          Yorker-length stories. The corpus is at that scale already. Test
+          whether novelty signal at the snippet level predicts novelty at the
+          full-story level.
         </p>
       </>
     ),
@@ -866,20 +1064,18 @@ const CARD_REGISTRY = {
 };
 
 /* ============================================================
-   Default layout — 3-column landscape.
-   Column A (left): tldr → pipeline → process
-   Column B (center): qualitative (hero, full height)
-   Column C (right): transfer → dynpareto → ablation
+   Default layout, 3-column landscape.
    Effective inner width 914 - 24 - 12 = 878mm; ~292mm per col.
    ============================================================ */
-/* Asymmetric ratios 1.25 / 1.0 / 0.75 of inner ~814mm available width.
-   Left widest (anchor figure + TL;DR + lessons), center medium (hero stories),
-   right narrowest (charts + table). */
+/* Three-column layout.
+   Col A: intro -> background -> pipeline visualisation -> algorithm
+   Col B: qualitative (hero stories) -> benchmark comparison -> geometry
+   Col C: transfer -> search dynamics -> ablation -> vs baselines */
 const DEFAULT_LAYOUT = {
   columns: [
-    { id: 'colA', widthMm: 340, cards: ['tldr', 'pipeline', 'process'] },
-    { id: 'colB', widthMm: 270, cards: ['qualitative'] },
-    { id: 'colC', widthMm: null, cards: ['transfer', 'dynpareto', 'ablation'] },
+    { id: 'colA', widthMm: 270, cards: ['intro', 'background', 'pipeline', 'method', 'openwork'] },
+    { id: 'colB', widthMm: 280, cards: ['qualitative', 'topology'] },
+    { id: 'colC', widthMm: null, cards: ['transfer', 'dynpareto', 'ablation', 'baselines'] },
   ],
 };
 const DEFAULT_CARD_HEIGHTS = {};
@@ -893,7 +1089,7 @@ function cloneLayout(layout) {
   return { columns: layout.columns.map(c => ({ id: c.id, widthMm: c.widthMm, cards: [...c.cards] })) };
 }
 
-const LS_KEY = 'posterConfig_novelty_stories_v6';
+const LS_KEY = 'posterConfig_novelty_stories_v18';
 function getFullConfig(layout, cardHeights, fontScale, logos) {
   return { columns: layout.columns, cardHeights, fontScale, logos };
 }
@@ -1044,29 +1240,46 @@ function PosterApp() {
 
       {/* === HEADER === */}
       <div className="header">
-        <div className="eyebrow">A novelty-search study · 2026</div>
         <div className="header-top">
-          <h1>
-            Writing beyond <span className="accent">imagination</span>
-          </h1>
-          <div className="header-right">
-            <div className="qr">
-              <img src="qr.png" alt="QR — github.com/avioberoi/novelty_stories" onError={(e)=>{e.target.style.display='none'; e.target.parentNode.innerHTML='QR<br/>github.com/<br/>avioberoi/<br/>novelty_stories';}} />
+          <div className="header-left">
+            <img src="figs/logo-background.svg" alt="The University of Chicago" />
+          </div>
+          <div className="header-center">
+            <h1>
+              Writing beyond <span className="accent">imagination</span> with AI
+            </h1>
+            <div className="subtitle">
+              Novelty search in foundation-model embedding space, applied to creative story generation.
             </div>
-            <div className="qr-label">github / repo</div>
+            <div style={{fontFamily:"'Inter', sans-serif", fontStyle:'italic', fontSize:'calc(18pt * var(--font-scale))', color:'var(--ink)', textAlign:'center', marginTop:'3mm', fontWeight:500}}>
+              Avi Oberoi <span style={{color:'var(--ink-2)', margin:'0 6px'}}>·</span> University of Chicago
+            </div>
           </div>
-        </div>
-        <div className="header-bottom">
-          <div className="subtitle">
-            Steering language models toward stories they wouldn't write on their own.
-          </div>
-          <div className="byline">
-            Avi Oberoi
-            <span className="sep">·</span>
-            <span className="affil">University of Chicago</span>
-            <span className="sep">·</span>
-            <span className="affil">2026</span>
-          </div>
+          <aside className="brief" style={{display:'flex', flexDirection:'row', gap:'5mm', alignItems:'flex-start'}}>
+            <div style={{flex:'1', display:'flex', flexDirection:'column', gap:'1.5mm', minWidth:0}}>
+              <div className="brief-eyebrow">Headline</div>
+              <p>
+                Mahalanobis search hits <b>distinct-2 = 0.73</b>, in the human-writer range
+                Ismayilzada (2024) reports at <b>0.79</b>. Baseline LLM samples land at 0.47 to 0.54.
+              </p>
+              <p>
+                LitBench BT mean <b>1.95</b>, p90 <b>2.65</b> (Fein 2025, 78% human agreement).
+              </p>
+              <p>
+                Held-out rank correlation <span className="big">0.80</span>. All five metrics
+                p &lt; 0.001 (Huh et al., 2024).
+              </p>
+            </div>
+            <div style={{display:'flex', flexDirection:'column', alignItems:'center', flexShrink:0}}>
+              <div className="qr" style={{width:'28mm', height:'28mm', border:'.2mm solid var(--rule)', padding:'1mm'}}>
+                <img src="figs/qr.png" alt="github.com/avioberoi/creative_novel_stories"
+                     style={{width:'100%', height:'100%', objectFit:'contain'}} />
+              </div>
+              <div className="qr-label" style={{fontFamily:"'JetBrains Mono', monospace", fontSize:'calc(7pt * var(--font-scale))', marginTop:'1mm', color:'var(--ink-2)', textAlign:'center', lineHeight:1.2}}>
+                github /<br/>creative_novel_stories
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
 
@@ -1082,18 +1295,10 @@ function PosterApp() {
 
       {/* === FOOTER === */}
       <div className="footer">
-        <div className="row">
-          <span><b>AI disclosure.</b>
-            Code authored with Claude Code (Opus 4.7); generation by Qwen3-32B;
-            embeddings by Qwen3-Emb-0.6B, BGE-large, E5-Mistral-7B (search-time committee),
-            EmbeddingGemma-300m (held-out transfer); quality by Gemma-2-27B CoT judge +
-            ConicCat/Litbench-Creative-Writing-RM-3B.
-          </span>
-        </div>
-        <div className="row">
-          <span className="reflection">
-            <b>Reflection.</b> The method ports cleanly, but the LLM does most of the heavy lifting — CMA-ES selects <i>across</i> observer axes; a planned prompt-instruction ablation will disentangle search- from prompt-induced novelty.
-          </span>
+        <div className="ai-disclosure" style={{fontFamily:"'JetBrains Mono', monospace", fontSize:'calc(8pt * var(--font-scale))', color:'var(--ink-2)', textAlign:'center', letterSpacing:'.04em', width:'100%'}}>
+          Code by Claude (Opus 4.7). Generation by Qwen3-32B. Embeddings: Qwen3-Embedding-0.6B,
+          BGE-large, E5-Mistral-7B (search committee), EmbeddingGemma-300m (held-out transfer).
+          Quality scoring by ConicCat Litbench BT (3B Llama-3.2 fork).
         </div>
       </div>
     </>
