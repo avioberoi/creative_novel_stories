@@ -3,6 +3,7 @@
 # We KEEP ~/.local enabled here: vllm_env has a broken sentence_transformers/numba
 # pinning that ~/.local fixes by override. The only job that needs to avoid ~/.local
 # is vllm.sbatch (for triton) — it prepends vllm_env site-packages explicitly.
+export PYTHONUNBUFFERED=1
 export NS_ROOT=/project/jevans/avi/novelty_stories
 export NS_CACHE=/project/jevans/avi/cache
 mkdir -p $NS_ROOT/logs $NS_ROOT/embs $NS_ROOT/runs $NS_ROOT/figs $NS_ROOT/expanded

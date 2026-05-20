@@ -66,7 +66,8 @@ coherence:
     - "Sorry, I cannot generate"
 
 eval:
-  litbench_repo: SAA-Lab/LitBench-rewardmodel-bradley-terry
+  litbench_repo: ConicCat/Litbench-Creative-Writing-RM-3B
+  litbench_wp: "Write a literary short story opening in the style of contemporary fiction."
   judge_model: gemma2_27b
   judge_n_per_archive: 200    # top-100 novelty + 100 random
   human_top_n: 20
