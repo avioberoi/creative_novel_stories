@@ -14,7 +14,8 @@ models:
   qwen3_emb:    /project/jevans/maxzhuyt/models/Qwen3-Embedding-0.6B
   bge:          /project/jevans/maxzhuyt/models/bge-large-en-v1.5
   e5_mistral:   /project/jevans/maxzhuyt/models/e5-mistral-7b-instruct
-  nv_embed:     /project/jevans/maxzhuyt/models/NV-Embed-v2
+  # held-out: Gemma family — structurally distinct from BERT/Mistral/Qwen observers
+  emb_gemma:    /project/jevans/maxzhuyt/models/embeddinggemma-300m
   qwen3_32b:    /project/jevans/maxzhuyt/models/Qwen3-32B
   gemma2_27b:   /project/jevans/maxzhuyt/models/gemma-2-27b-it
   qwen3_think:  /project/jevans/maxzhuyt/models/Qwen3-4B-Thinking-2507
@@ -28,7 +29,7 @@ corpus:
 search:
   encoder: qwen3_emb          # 768d, samples-per-dim ≈ 1.04 at λ=16, T=50
   observers: [bge, e5_mistral]
-  held_out: nv_embed
+  held_out: emb_gemma
   agg: mean                   # min | mean
   k: 15
   metric: euclidean           # euclidean | cosine | mahalanobis | lof | diffusion

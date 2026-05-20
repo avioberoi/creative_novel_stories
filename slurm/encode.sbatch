@@ -9,7 +9,7 @@
 #SBATCH --output=/project/jevans/avi/novelty_stories/logs/encode_%A_%a.log
 #SBATCH --array=0-3
 set -e
-ENCODERS=(qwen3_emb bge e5_mistral nv_embed)
+ENCODERS=(qwen3_emb bge e5_mistral emb_gemma)
 ENC=${ENCODERS[$SLURM_ARRAY_TASK_ID]}
 source /home/aoberoi1/novelty_stories/slurm/setenv.sh
 set +u; source ~/.bashrc; set -u
