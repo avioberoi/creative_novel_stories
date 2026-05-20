@@ -124,8 +124,10 @@ def litbench(cfg, run_dir, batch=4):
     from transformers import AutoModelForSequenceClassification, AutoTokenizer
     a = load_archive(run_dir)
     repo = cfg['eval']['litbench_repo']
+    tok_repo = cfg['eval'].get('litbench_tokenizer', repo)        # ConicCat ships no tokenizer
     wp = cfg['eval'].get('litbench_wp', 'Write a literary short story.')
-    tok = AutoTokenizer.from_pretrained(repo)
+    tok = AutoTokenizer.from_pretrained(tok_repo)
+    if tok.pad_token is None: tok.pad_token = tok.eos_token
     m = AutoModelForSequenceClassification.from_pretrained(
         repo, torch_dtype=torch.bfloat16).cuda().eval()
     texts = [f'User:\n[WP] {wp}\n\nAssistant:\n{str(t)}' for t in a['texts']]
