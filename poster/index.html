@@ -9,36 +9,40 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <style>
   /* ============================================================
-     Peripheria palette — matte, subtle, minimalist
+     Palette — white paper, charcoal/gray ink, one signal accent.
+     Data-viz colors (Okabe–Ito subset) live inside .ok-* tokens
+     and must only appear inside chart elements.
      ============================================================ */
   :root {
-    --ink:    #2A2A33;   /* charcoal, slightly cool */
-    --ink-2:  #4A4A55;   /* secondary text */
-    --mute:   #7A7A85;   /* tertiary / captions */
-    --rule:   #D9D5CC;   /* hairline */
-    --bg:     #FAF7F2;   /* cream/ivory */
-    --bg-2:   #F2EEE5;   /* slightly deeper cream for highlight blocks */
-    --card:   #FFFFFF;   /* pure paper for cards */
-    --indigo: #4B5D8B;   /* muted indigo accent */
-    --indigo-soft: #E6EAF1;
-    --amber:  #C18A3B;   /* warm amber accent */
-    --amber-soft: #F5EBD9;
-    --sage:   #7A9072;   /* tertiary accent (used sparingly) */
-    --gap: 5mm;
-    --pad: 10mm;
+    --ink:       #1F2937;   /* charcoal — primary text */
+    --ink-2:     #6B7280;   /* secondary text / captions */
+    --rule:      #E5E7EB;   /* hairline */
+    --bg:        #FFFFFF;   /* paper (pure white) */
+    --panel:     #F9FAFB;   /* soft panel for hero stories */
+    --accent:    #1E40AF;   /* single signal accent (deep blue) */
+    /* Okabe–Ito (chart-only) */
+    --ok-blue:   #0072B2;   /* mahalanobis (winner) */
+    --ok-verm:   #D55E00;   /* euclidean */
+    --ok-green:  #009E73;   /* cosine */
+    --ok-purple: #CC79A7;   /* lof */
+    --ok-orange: #E69F00;   /* diffusion */
+    --gap: 8mm;
+    --pad: 14mm;
     --font-scale: 1.0;
   }
+  /* Bricolage Grotesque as a tasteful display alternate; fall back to Space Grotesk. */
+  @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&display=swap');
 
   /* ============================================================
-     24" x 36" portrait → 610mm × 914mm
+     36" x 24" landscape → 914mm × 610mm
      ============================================================ */
-  @page { size: 610mm 914mm; margin: 0; }
+  @page { size: 914mm 610mm; margin: 0; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html {
     font-family: 'Inter', sans-serif;
@@ -48,310 +52,472 @@
     font-feature-settings: "kern", "liga", "ss01";
   }
   body {
-    width: 610mm; height: 914mm;
+    width: 914mm; height: 610mm;
     background: var(--bg);
     overflow: hidden;
     transform-origin: top left;
   }
-  #root { width: 100%; height: 100%; display: grid; grid-template-rows: auto 1fr auto; }
-  @media screen { html { background:#a8a39a; overflow:hidden; width:100vw; height:100vh; } body { position:absolute; box-shadow:0 4px 30px rgba(0,0,0,.25); } }
+  #root { width: 100%; height: 100%; display: grid; grid-template-rows: 84mm 1fr 18mm; }
+  @media screen { html { background:#888; overflow:hidden; width:100vw; height:100vh; } body { position:absolute; box-shadow:0 4px 30px rgba(0,0,0,.25); } }
   @media print { html { background:none; } body { position:static; transform:none!important; box-shadow:none; } .toolbar,.divider,.swap-handle,.drop-zone{display:none!important;} }
   body.preview .divider, body.preview .swap-handle, body.preview .drop-zone { display:none!important; }
 
-  /* === HEADER (flat, cream-on-cream, no gradients) === */
+  /* === HEADER STRIP — hairlines + typography, not a banner === */
   .header {
-    padding: 14mm var(--pad) 8mm;
+    padding: 12mm var(--pad) 4mm;
     display: flex;
-    align-items: flex-start;
-    gap: 10mm;
-    border-bottom: .35mm solid var(--rule);
+    flex-direction: column;
+    gap: 0;
+    border-bottom: .25mm solid var(--rule);
     background: var(--bg);
+    position: relative;
   }
-  .header-left { flex: 1; min-width: 0; }
+  .header-top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14mm;
+    margin-top: 2mm;
+  }
+  .header-bottom {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14mm;
+    padding-top: 3mm;
+    border-top: .14mm solid var(--rule);
+    margin-top: 4mm;
+  }
   .header .eyebrow {
     font-family: 'JetBrains Mono', monospace;
-    font-size: calc(9pt * var(--font-scale));
-    color: var(--mute);
-    letter-spacing: .12em;
+    font-size: calc(10pt * var(--font-scale));
+    color: var(--ink-2);
+    letter-spacing: .18em;
     text-transform: uppercase;
-    margin-bottom: 5mm;
+    font-weight: 500;
+    margin-bottom: 2mm;
   }
   .header h1 {
-    font-family: 'Crimson Pro', serif;
-    font-weight: 500;
-    font-size: calc(82pt * var(--font-scale));
-    line-height: 0.96;
-    letter-spacing: -.02em;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: calc(72pt * var(--font-scale));
+    line-height: 0.95;
+    letter-spacing: -.028em;
     color: var(--ink);
-    margin-bottom: 5mm;
+    margin: 0;
+    flex: 1;
   }
-  .header h1 .accent { font-style: italic; font-weight: 400; color: var(--indigo); }
-  .header .subtitle {
-    font-family: 'Crimson Pro', serif;
+  .header h1 .accent {
     font-style: italic;
+    font-weight: 500;
+    color: var(--accent);
+  }
+  .header .subtitle {
+    font-family: 'Inter', sans-serif;
     font-weight: 400;
-    font-size: calc(32pt * var(--font-scale));
-    line-height: 1.18;
+    font-size: calc(22pt * var(--font-scale));
+    line-height: 1.22;
     color: var(--ink-2);
-    max-width: 480mm;
-    margin-bottom: 8mm;
+    flex: 1;
+    max-width: 620mm;
   }
   .header .byline {
-    font-family: 'Inter', sans-serif;
-    font-size: calc(14pt * var(--font-scale));
-    color: var(--ink-2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(8pt * var(--font-scale));
+    color: var(--ink);
     font-weight: 500;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    text-align: right;
+    flex-shrink: 0;
   }
   .header .byline .sep { color: var(--rule); margin: 0 2.5mm; }
-  .header .affil { font-size: calc(12pt * var(--font-scale)); color: var(--mute); font-weight: 400; }
+  .header .affil { font-size: calc(8pt * var(--font-scale)); color: var(--ink-2); font-weight: 400; letter-spacing: .12em; text-transform: uppercase; }
 
   .header-right {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 4mm;
+    gap: 2mm;
     flex-shrink: 0;
   }
   .qr {
-    width: 28mm; height: 28mm;
-    border: .35mm solid var(--rule);
-    background: var(--card);
+    width: 24mm; height: 24mm;
+    border: .2mm solid var(--rule);
+    background: var(--bg);
     display: flex; align-items: center; justify-content: center;
-    color: var(--mute);
+    color: var(--ink-2);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 6.5pt;
+    font-size: 6pt;
     text-align: center;
-    padding: 1.5mm;
+    padding: 1mm;
   }
   .qr img { width: 100%; height: 100%; object-fit: contain; }
   .qr-label {
     font-family: 'JetBrains Mono', monospace;
-    font-size: calc(7.5pt * var(--font-scale));
-    color: var(--mute);
+    font-size: calc(6.5pt * var(--font-scale));
+    color: var(--ink-2);
     text-transform: uppercase;
-    letter-spacing: .08em;
+    letter-spacing: .14em;
   }
 
-  /* === POSTER COLUMNS === */
-  .poster { display: flex; gap: var(--gap); padding: var(--gap) var(--pad); min-height: 0; flex: 1; overflow: hidden; }
-  .col { display: flex; flex-direction: column; gap: var(--gap); min-height: 0; overflow: hidden; }
+  /* === POSTER BODY — magazine spread, 3 asymmetric columns === */
+  .poster {
+    display: flex;
+    gap: var(--gap);
+    padding: 6mm var(--pad) var(--gap);
+    min-height: 0;
+    overflow: hidden;
+  }
+  .col { display: flex; flex-direction: column; gap: 0; min-height: 0; min-width: 0; overflow: hidden; padding: 0 4mm; }
+  .col:first-child { padding-left: 0; }
+  .col:last-child { padding-right: 0; }
 
-  /* === CARDS (paper-on-cream, thin accent stripe) === */
+  /* === CARDS — no boxes, no shadows. Text flows. === */
   .card {
-    background: var(--card);
-    padding: 6mm 7mm 6mm;
-    border: .25mm solid var(--rule);
-    border-top: .7mm solid var(--indigo);
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
     min-height: 0;
     flex: 0 0 auto;
     position: relative;
-    border-radius: 0;
+    margin-bottom: 10mm;
   }
+  .card:last-child { margin-bottom: 0; }
   .card.grow { flex: 1 1 0; }
-  .card.amber { border-top-color: var(--amber); }
-  .card.sage  { border-top-color: var(--sage); }
-  .card.plain { border-top-color: var(--ink); }
 
+  /* Hairline rule above each card (except the first in its column). */
+  .card.has-rule::before {
+    content: '';
+    display: block;
+    border-top: .14mm solid var(--rule);
+    margin: 0 0 7mm 0;
+  }
+
+  /* Section number — typographic anchor */
+  .section-num {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: calc(42pt * var(--font-scale));
+    line-height: 0.85;
+    color: var(--accent);
+    opacity: 0.92;
+    letter-spacing: -.04em;
+    user-select: none;
+    pointer-events: none;
+    margin-bottom: 2mm;
+  }
+
+  /* eyebrow + section header */
   .card .eyebrow {
     font-family: 'JetBrains Mono', monospace;
     font-size: calc(8pt * var(--font-scale));
-    color: var(--mute);
-    letter-spacing: .12em;
+    color: var(--ink-2);
+    letter-spacing: .18em;
     text-transform: uppercase;
-    margin-bottom: 1.5mm;
+    margin-bottom: 2mm;
+    font-weight: 500;
   }
   .card h2 {
-    font-family: 'Crimson Pro', serif;
-    font-weight: 500;
-    font-size: calc(22pt * var(--font-scale));
-    line-height: 1.05;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: calc(34pt * var(--font-scale));
+    line-height: 1.02;
     color: var(--ink);
-    margin-bottom: 4mm;
-    letter-spacing: -.005em;
+    margin-bottom: 2.5mm;
+    letter-spacing: -.022em;
+    flex-shrink: 0;
+  }
+  .card .accent-rule {
+    width: 16mm;
+    height: .5mm;
+    background: var(--accent);
+    margin-bottom: 5mm;
     flex-shrink: 0;
   }
   .card p, .card li {
     font-family: 'Inter', sans-serif;
-    font-size: calc(11pt * var(--font-scale));
-    line-height: 1.42;
-    color: var(--ink-2);
+    font-size: calc(10.5pt * var(--font-scale));
+    line-height: 1.5;
+    color: var(--ink);
   }
-  .card ul, .card ol { padding-left: 5.5mm; flex-shrink: 0; }
-  .card li { margin-bottom: 1.8mm; }
-  .card li::marker { color: var(--indigo); font-weight: 700; }
+  .card ul, .card ol { padding-left: 5mm; flex-shrink: 0; }
+  .card li { margin-bottom: 2mm; color: var(--ink); }
+  .card li::marker { color: var(--ink-2); font-weight: 600; }
   .card strong, .card b { color: var(--ink); font-weight: 600; }
 
-  /* Highlight block (used in TL;DR) */
+  /* TL;DR — clean prose, no panel box. */
   .hl {
-    background: var(--bg-2);
-    border-left: 1mm solid var(--indigo);
-    padding: 4mm 5mm;
-    margin-bottom: 4mm;
+    background: transparent;
+    border: none;
+    border-left: .5mm solid var(--accent);
+    padding: 1mm 0 1mm 5mm;
+    margin-bottom: 5mm;
     flex-shrink: 0;
   }
   .hl p {
-    font-family: 'Crimson Pro', serif;
-    font-size: calc(14pt * var(--font-scale));
-    line-height: 1.32;
+    font-family: 'Inter', sans-serif;
+    font-size: calc(12pt * var(--font-scale));
+    line-height: 1.44;
     color: var(--ink);
     font-weight: 400;
   }
+  .hl .big {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 1.35em;
+    letter-spacing: -.01em;
+  }
 
-  /* Figure */
-  .fig { flex: 1; display: flex; flex-direction: column; min-height: 0; margin: 1mm 0; }
+  /* Full-bleed pipeline figure — anchors col A */
+  .card.fullbleed { padding: 0; margin-left: -4mm; margin-right: -4mm; }
+  .card.fullbleed .fig-wrap { padding: 0; border: none; }
+  .card.fullbleed .cap { padding: 0 4mm; margin-top: 2.5mm; }
+  .card.fullbleed h2,
+  .card.fullbleed .eyebrow,
+  .card.fullbleed .accent-rule { padding-left: 4mm; }
+  .card.fullbleed .section-num { left: 0; }
+
+  /* Figures — no borders, just the image. */
+  .fig { display: flex; flex-direction: column; min-height: 0; }
+  .fig.grow { flex: 1 1 0; }
   .fig-wrap {
     flex: 1; display: flex; align-items: center; justify-content: center;
     min-height: 0; overflow: hidden;
-    background: var(--bg-2);
-    border: .25mm solid var(--rule);
+    background: transparent;
+    border: none;
   }
   .fig-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; }
-  .fig-wrap.svg-wrap { background: var(--card); border: none; }
-  .fig-wrap.placeholder {
-    flex-direction: column;
-    color: var(--mute);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: calc(8.5pt * var(--font-scale));
-    text-align: center;
-    padding: 6mm;
-  }
-  .fig-wrap.placeholder .ph-tag {
-    font-size: calc(7pt * var(--font-scale));
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    color: var(--amber);
-    margin-bottom: 2mm;
-  }
-  .fig-wrap.placeholder .ph-cap {
-    font-family: 'Crimson Pro', serif;
-    font-style: italic;
-    font-size: calc(11pt * var(--font-scale));
-    color: var(--ink-2);
-    line-height: 1.3;
-    max-width: 90%;
-  }
-  .fig-wrap.placeholder .ph-path {
-    font-size: calc(7.5pt * var(--font-scale));
-    color: var(--mute);
-    margin-top: 3mm;
-  }
+  .fig-wrap.svg-wrap { background: transparent; border: none; }
   .fig .cap {
     font-family: 'Inter', sans-serif;
-    font-size: calc(9pt * var(--font-scale));
-    color: var(--mute);
+    font-style: italic;
+    font-size: calc(8.5pt * var(--font-scale));
+    color: var(--ink-2);
     margin-top: 2.5mm;
-    line-height: 1.32;
+    line-height: 1.45;
     flex-shrink: 0;
   }
-  .fig .cap b { color: var(--ink); font-weight: 600; }
+  .fig .cap b { color: var(--ink); font-weight: 600; font-style: normal; }
 
   /* Tables */
   table {
     width: 100%;
     border-collapse: collapse;
     font-family: 'Inter', sans-serif;
-    font-size: calc(10pt * var(--font-scale));
-    margin: 2mm 0;
+    font-size: calc(9.5pt * var(--font-scale));
+    margin: 1mm 0;
   }
   thead th {
+    font-family: 'Space Grotesk', sans-serif;
     color: var(--ink);
     padding: 2mm 2.5mm;
     text-align: left;
-    font-weight: 600;
+    font-weight: 700;
     font-size: calc(9pt * var(--font-scale));
-    border-bottom: .5mm solid var(--ink);
-    text-transform: uppercase;
-    letter-spacing: .06em;
+    border-bottom: .4mm solid var(--ink);
+    letter-spacing: .03em;
   }
-  thead th.num, tbody td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; font-size: calc(9.5pt * var(--font-scale)); }
+  thead th.num, tbody td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; font-size: calc(9pt * var(--font-scale)); }
   tbody td {
-    padding: 1.8mm 2.5mm;
-    border-bottom: .15mm solid var(--rule);
-    color: var(--ink-2);
+    padding: 1.6mm 2.5mm;
+    border-bottom: .12mm solid var(--rule);
+    color: var(--ink);
   }
   tbody tr:last-child td { border-bottom: none; }
-  tbody td.metric { color: var(--ink); font-weight: 500; font-family: 'JetBrains Mono', monospace; font-size: calc(9.5pt * var(--font-scale)); }
-  tbody td.todo { color: var(--mute); font-family: 'JetBrains Mono', monospace; }
-
-  /* Story block (qualitative results) */
-  .story {
-    border-top: .25mm solid var(--rule);
-    padding-top: 4mm;
-    margin-top: 4mm;
+  tbody td.metric { color: var(--ink); font-weight: 500; font-family: 'JetBrains Mono', monospace; font-size: calc(9pt * var(--font-scale)); }
+  tbody td.best b { color: var(--accent); font-weight: 700; }
+  tbody tr.winner td { background: transparent; font-weight: 600; }
+  tbody tr.winner td.metric { color: var(--accent); }
+  tbody td .swatch {
+    display: inline-block;
+    width: 2.5mm; height: 2.5mm;
+    border-radius: 0;
+    margin-right: 1.5mm;
+    vertical-align: middle;
   }
-  .story:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+
+  /* ============================================================
+     Hero qualitative card — magazine spread, drop caps, pull-quotes
+     ============================================================ */
+  .card.hero { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+  .card.hero .hero-lede {
+    font-family: 'Inter', sans-serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: calc(13pt * var(--font-scale));
+    line-height: 1.42;
+    color: var(--ink-2);
+    margin-bottom: 6mm;
+    flex-shrink: 0;
+    max-width: 230mm;
+  }
+  .card.hero .hero-lede .mono { font-family: 'JetBrains Mono', monospace; font-size: .85em; color: var(--ink); font-style: normal; }
+
+  .story-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8mm;
+    flex: 1;
+    min-height: 0;
+  }
+  .story {
+    background: transparent;
+    border: none;
+    padding: 6mm 0 0 0;
+    border-top: .14mm solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    flex: 0 1 auto;
+    min-height: 0;
+  }
+  .story:first-child { border-top: none; padding-top: 0; }
   .story .story-head {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 2mm;
-    gap: 4mm;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 3mm;
+    gap: 1mm;
+    flex-shrink: 0;
   }
   .story .story-num {
     font-family: 'JetBrains Mono', monospace;
-    font-size: calc(8pt * var(--font-scale));
-    color: var(--amber);
+    font-size: calc(7.5pt * var(--font-scale));
+    color: var(--ink-2);
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .story .story-title {
+    font-family: 'Bricolage Grotesque', 'Space Grotesk', sans-serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: calc(18pt * var(--font-scale));
+    line-height: 1.05;
+    color: var(--ink);
+    letter-spacing: -.01em;
+  }
+  .story .prose {
+    font-family: 'Inter', sans-serif;
+    font-size: calc(11pt * var(--font-scale));
+    line-height: 1.5;
+    color: var(--ink);
+    font-weight: 400;
+    margin-bottom: 4mm;
+  }
+  /* clearfix for drop-cap float */
+  .story .prose::after { content: ''; display: block; clear: both; }
+  .story .prose .drop {
+    font-family: 'Bricolage Grotesque', 'Space Grotesk', serif;
+    font-weight: 700;
+    font-size: calc(56pt * var(--font-scale));
+    line-height: .82;
+    float: left;
+    margin: 1mm 3mm -1mm 0;
+    color: var(--accent);
+    letter-spacing: -.03em;
+  }
+  /* Pull-quote box for the metric chip row */
+  .story .story-chip-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1mm;
+    align-items: flex-start;
+    padding: 1mm 0 1mm 4mm;
+    border-left: .35mm solid var(--accent);
+    flex-wrap: wrap;
+  }
+  .story .chip {
+    font-family: 'Inter', sans-serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: calc(11pt * var(--font-scale));
+    letter-spacing: .005em;
+    background: transparent;
+    color: var(--ink-2);
+    border: none;
+    padding: 0;
+  }
+  .story .chip.muted {
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-size: calc(7.5pt * var(--font-scale));
+    color: var(--ink-2);
     letter-spacing: .12em;
     text-transform: uppercase;
   }
-  .story .story-meta {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: calc(8pt * var(--font-scale));
-    color: var(--mute);
-    letter-spacing: .04em;
-  }
-  .story .story-meta .chip {
-    background: var(--indigo-soft);
-    color: var(--indigo);
-    padding: .6mm 2mm;
-    margin-left: 1.5mm;
-    border-radius: 1mm;
-    font-size: calc(7.5pt * var(--font-scale));
-    font-weight: 600;
-  }
-  .story .prose {
-    font-family: 'Crimson Pro', serif;
-    font-size: calc(11.5pt * var(--font-scale));
-    line-height: 1.42;
-    color: var(--ink);
-    font-weight: 400;
-  }
-  .story .prose .drop {
-    font-family: 'Crimson Pro', serif;
-    font-weight: 600;
-    font-size: calc(20pt * var(--font-scale));
-    line-height: 1;
-    float: left;
-    margin: 1mm 2mm 0 0;
-    color: var(--indigo);
-  }
 
-  /* Pipeline SVG card */
-  .pipeline-card { padding: 6mm 7mm; }
-  .pipeline-svg { width: 100%; height: auto; }
+  /* ============================================================
+     Vignette list (hard lessons)
+     ============================================================ */
+  .vignette {
+    padding: 4mm 0;
+    border-bottom: .14mm solid var(--rule);
+  }
+  .vignette:last-child { border-bottom: none; padding-bottom: 0; }
+  .vignette:first-child { padding-top: 0; }
+  .vignette .vlead {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: calc(12pt * var(--font-scale));
+    color: var(--ink);
+    margin-bottom: 1.5mm;
+    letter-spacing: -.01em;
+  }
+  .vignette .vbody {
+    font-family: 'Inter', sans-serif;
+    font-size: calc(10pt * var(--font-scale));
+    line-height: 1.48;
+    color: var(--ink);
+  }
+  .vignette .vbody .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(9pt * var(--font-scale));
+    background: transparent;
+    color: var(--accent);
+    padding: 0;
+  }
+  .vignette .vbody b { color: var(--ink); font-weight: 600; }
+
+  /* ============================================================
+     Pipeline SVG card — gets serious vertical real estate
+     ============================================================ */
+  .pipeline-card { display: flex; flex-direction: column; }
+  .pipeline-card .fig-wrap.svg-wrap { align-items: stretch; padding: 4mm; }
+  .pipeline-svg { width: 100%; height: 100%; }
   .pipeline-svg text { font-family: 'Inter', sans-serif; }
-  .pipeline-svg .pl-label { font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; fill: var(--mute); letter-spacing: .06em; text-transform: uppercase; }
-  .pipeline-svg .pl-title { font-family: 'Crimson Pro', serif; font-size: 13pt; fill: var(--ink); font-weight: 500; }
+  .pipeline-svg .pl-label { font-family: 'Space Grotesk', sans-serif; font-size: 11pt; letter-spacing: .02em; font-weight: 700; fill: var(--ink); }
   .pipeline-svg .pl-sub { font-family: 'Inter', sans-serif; font-size: 9pt; fill: var(--ink-2); }
+  .pipeline-svg .pl-tag { font-family: 'JetBrains Mono', monospace; font-size: 8pt; letter-spacing: .14em; text-transform: uppercase; fill: var(--ink-2); }
+  .pipeline-svg .pl-stage { font-family: 'Inter', sans-serif; font-style: italic; font-size: 9pt; fill: var(--ink-2); }
 
   /* Math */
   .katex { font-size: calc(10pt * var(--font-scale))!important; }
 
-  /* Footer disclosure */
+  /* === FOOTER STRIP (20mm tall) === */
   .footer {
-    padding: 4mm var(--pad) 7mm;
-    border-top: .35mm solid var(--rule);
+    padding: 0 var(--pad);
+    border-top: .25mm solid var(--rule);
     font-family: 'JetBrains Mono', monospace;
-    font-size: calc(7.5pt * var(--font-scale));
-    color: var(--mute);
+    font-size: calc(8pt * var(--font-scale));
+    color: var(--ink-2);
     line-height: 1.55;
     letter-spacing: .02em;
     background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5mm;
   }
-  .footer b { color: var(--ink-2); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-right: 2mm; }
+  .footer .row { display: flex; gap: 8mm; align-items: baseline; }
+  .footer b { color: var(--ink); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-right: 2mm; }
+  .footer .reflection { font-size: calc(9pt * var(--font-scale)); color: var(--ink); font-family: 'JetBrains Mono', monospace; }
 
   /* === TOOLBAR (screen only) === */
   .toolbar { position: fixed; top: 8px; right: 8px; z-index: 1000; display: flex; gap: 6px; align-items: center; }
@@ -363,41 +529,37 @@
   }
   .toolbar button:hover { background: #eaeaea; }
 
-  /* Swap handles */
+  /* Swap handles + dividers + drop zones (edit UI) */
   .card .swap-handle {
     position: absolute; top: 2mm; right: 2mm;
-    width: 7mm; height: 7mm;
-    background: var(--indigo); color: #fff;
-    font-size: 9pt; text-align: center; line-height: 7mm;
+    width: 6mm; height: 6mm;
+    background: var(--accent); color: #fff;
+    font-size: 9pt; text-align: center; line-height: 6mm;
     cursor: pointer; z-index: 10; user-select: none;
-    opacity: .25;
+    opacity: .18;
     transition: opacity .15s, background .15s, transform .15s;
     border-radius: 1mm;
   }
   .card .swap-handle:hover { opacity: .8; transform: scale(1.1); }
-  .card.swap-selected { outline: .7mm solid var(--amber); outline-offset: -.3mm; }
-  .card.swap-selected .swap-handle { background: var(--amber); opacity: 1; transform: scale(1.15); }
-
-  /* Dividers */
+  .card.swap-selected { outline: .7mm solid var(--accent); outline-offset: -.3mm; }
+  .card.swap-selected .swap-handle { opacity: 1; transform: scale(1.15); }
   .divider { position: relative; z-index: 50; flex-shrink: 0; }
-  .divider::after { content: ''; position: absolute; background: rgba(75,93,139,.10); border-radius: 1mm; transition: background .15s; }
-  .divider:hover::after, .divider.active::after { background: rgba(75,93,139,.4); }
+  .divider::after { content: ''; position: absolute; background: rgba(30,64,175,.10); border-radius: 1mm; transition: background .15s; }
+  .divider:hover::after, .divider.active::after { background: rgba(30,64,175,.4); }
   .col-resize { width: 6mm; cursor: col-resize; margin: 0 -3mm; }
   .col-resize::after { top: 0; bottom: 0; left: 1.5mm; width: 3mm; }
   .row-resize { height: 6mm; cursor: row-resize; margin: -3mm 0; }
   .row-resize::after { left: 0; right: 0; top: 1.5mm; height: 3mm; }
-
-  /* Drop zones */
   .drop-zone { height: 0; position: relative; z-index: 60; transition: height .15s; }
-  .drop-zone.visible { height: 5mm; }
+  .drop-zone.visible { height: 4mm; }
   .drop-zone-inner {
     position: absolute; left: 2mm; right: 2mm; top: 0; bottom: 0;
     border-radius: 1mm;
-    background: rgba(193,138,59,.12);
-    border: .35mm dashed var(--amber);
+    background: rgba(30,64,175,.12);
+    border: .35mm dashed var(--accent);
     transition: background .15s; cursor: pointer;
   }
-  .drop-zone-inner:hover { background: rgba(193,138,59,.3); }
+  .drop-zone-inner:hover { background: rgba(30,64,175,.3); }
 </style>
 </head>
 <body>
@@ -406,202 +568,162 @@
 <script type="text/babel">
 const { useState, useRef, useEffect, useCallback } = React;
 const MM = 3.7795275591;
-/* 24" × 36" portrait */
-const POSTER_W_MM = 610;
-const POSTER_H_MM = 914;
-
-/* ============================================================
-   Pipeline diagram — inline SVG so we don't depend on a PNG.
-   ============================================================ */
-function PipelineSVG() {
-  // SVG viewBox sized for the card's expected aspect ratio (wide).
-  const W = 1200, H = 380;
-  const node = (x, y, w, h, label, sub, color) => (
-    <g key={label}>
-      <rect x={x} y={y} width={w} height={h} rx="4" ry="4"
-            fill="#FFFFFF" stroke={color || "#4B5D8B"} strokeWidth="1.4" />
-      <text x={x + w/2} y={y + 22} textAnchor="middle" className="pl-label" fill={color || "#4B5D8B"}>{label}</text>
-      <text x={x + w/2} y={y + 44} textAnchor="middle" className="pl-sub">{sub}</text>
-    </g>
-  );
-  const arrow = (x1, y1, x2, y2) => (
-    <g key={`a-${x1}-${y1}-${x2}-${y2}`}>
-      <line x1={x1} y1={y1} x2={x2 - 8} y2={y2} stroke="#7A7A85" strokeWidth="1" />
-      <polygon points={`${x2-8},${y2-4} ${x2},${y2} ${x2-8},${y2+4}`} fill="#7A7A85" />
-    </g>
-  );
-  const arrowD = (x1, y1, x2, y2) => (
-    <g key={`ad-${x1}-${y1}-${x2}-${y2}`}>
-      <line x1={x1} y1={y1} x2={x2} y2={y2 - 6} stroke="#7A7A85" strokeWidth="1" strokeDasharray="3 2" />
-      <polygon points={`${x2-4},${y2-6} ${x2+4},${y2-6} ${x2},${y2}`} fill="#7A7A85" />
-    </g>
-  );
-
-  return (
-    <svg className="pipeline-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet">
-      {/* Top row: corpus -> CMA-ES -> retrieval -> LLM */}
-      {node(20,  60, 170, 64, 'Corpus (5k stories)', 'Qwen3-Emb 768d')}
-      {node(230, 60, 170, 64, 'CMA-ES sampler', 'v_t in R^768, λ=16')}
-      {node(440, 60, 170, 64, 'k-NN retrieval', 'top-K nearest texts')}
-      {node(650, 60, 200, 64, 'LLM generator', 'Qwen3-32B → 500w opening', '#C18A3B')}
-
-      {arrow(190, 92, 230, 92)}
-      {arrow(400, 92, 440, 92)}
-      {arrow(610, 92, 650, 92)}
-
-      {/* Drop down to committee */}
-      {arrowD(750, 124, 750, 178)}
-
-      {/* Committee row */}
-      {node(440, 180, 170, 64, 'Observer 1', 'BGE-large 1024d')}
-      {node(650, 180, 200, 64, 'Committee', 'MAD-norm, agg=mean', '#C18A3B')}
-      {node(890, 180, 170, 64, 'Observer 2', 'E5-Mistral 4096d')}
-      {arrow(610, 212, 650, 212)}
-      {arrow(890, 212, 850, 212)}
-
-      {/* Coherence gate (side branch off LLM) */}
-      {node(20, 180, 170, 64, 'Coherence gate', 'Qwen3-Emb, length floor', '#7A9072')}
-      {arrowD(750, 124, 105, 178)}
-
-      {/* Bottom: archive admission + feedback */}
-      {node(440, 290, 380, 64, 'Archive ← feasible & novel', 'novelty rank → CMA-ES fitness', '#C18A3B')}
-      {arrow(750, 244, 630, 290)}
-      {arrow(105, 244, 440, 322)}
-      {/* feedback loop back to CMA-ES */}
-      <path d={`M 440 322 C 200 322 200 124 315 124`} fill="none" stroke="#7A7A85" strokeWidth="1" strokeDasharray="3 2" />
-      <polygon points="315,120 323,124 315,128" fill="#7A7A85" />
-
-      {/* Held-out transfer (sidecar, dashed) */}
-      {node(890, 290, 170, 64, 'Held-out eval', 'EmbeddingGemma 300m', '#7A9072')}
-      <line x1="820" y1="322" x2="890" y2="322" stroke="#7A7A85" strokeWidth="1" strokeDasharray="3 2" />
-      <polygon points="890,318 890,326 898,322" fill="#7A7A85" />
-    </svg>
-  );
-}
+/* 36" × 24" landscape */
+const POSTER_W_MM = 914;
+const POSTER_H_MM = 610;
 
 /* ============================================================
    Cards
    ============================================================ */
 const CARD_REGISTRY = {
   tldr: {
-    title: 'The idea, in one breath',
+    title: 'In brief',
+    sectionNum: '01',
     eyebrow: 'TL;DR',
-    color: null,
     grow: false,
     body: (
       <>
         <div className="hl">
           <p>
-            <b>CMA-ES in a text-embedding space</b> finds 500-word story openings
-            that are novel under a <i>committee</i> of foundation-model observers —
-            stories beyond what any single encoder, or the language model alone,
-            would prefer.
+            <b>Mahalanobis-whitened k-NN</b> in a text-embedding space gives
+            the most encoder-robust novelty signal —{' '}
+            <span className="big">transfer rank correlation = 0.80</span>{' '}
+            to a held-out EmbeddingGemma, vs the image-paper's best 0.63.
           </p>
         </div>
         <ul>
-          <li><b>Image-domain novelty search, ported to text.</b> The same CMA-ES + archive geometry, now searching over LLM-generated prose.</li>
-          <li><b>A committee of independent observers.</b> No single encoder defines novelty; a MAD-normalized vote across families does.</li>
-          <li><b>The signal transfers.</b> Stories the committee calls novel remain novel under a held-out encoder it never saw.</li>
+          <li><b>382 stories generated</b> across 5 distance metrics in CMA-ES + archive geometry, ported from image-domain novelty search.</li>
         </ul>
       </>
     ),
   },
 
-  motivation: {
-    title: 'The middle of the distribution',
-    eyebrow: 'Motivation',
-    color: null,
-    grow: false,
-    body: (
-      <>
-        <p>
-          Large language models produce fluent prose but tend to settle near the
-          centre of their training distribution. Sampling temperature alone moves
-          the prose around inside that centre — not out of it. <b>We ask: what
-          stories live at the periphery, and can search find them?</b>
-        </p>
-        <p style={{marginTop: '3mm'}}>
-          The frame is borrowed from the image-domain novelty-search literature
-          (CMA-ES over a foundation-model embedding space, gated by a coherence
-          test). We re-use almost the entire pipeline — the LLM becomes the
-          generator; the corpus becomes a library of literary prose.
-        </p>
-      </>
-    ),
-  },
-
   pipeline: {
-    title: 'How the search works',
+    title: 'The search',
+    sectionNum: '02',
     eyebrow: 'Pipeline',
-    color: 'amber',
-    grow: false,
-    cardClass: 'pipeline-card',
-    body: (
-      <>
-        <div className="fig" style={{marginTop: '2mm'}}>
-          <div className="fig-wrap svg-wrap"><PipelineSVG /></div>
-          <div className="cap">
-            <b>Figure 1.</b> CMA-ES samples a 768-dim query embedding; the k nearest
-            corpus stories prime Qwen3-32B; a committee of independent observers
-            (BGE, E5-Mistral) scores the resulting text under MAD-normalized k-NN
-            novelty; coherence-gated, novel candidates enter the archive and update
-            the search distribution. A held-out encoder (EmbeddingGemma) is never
-            seen by the search and is reserved for transfer eval.
-          </div>
-        </div>
-      </>
-    ),
-  },
-
-  dynamics: {
-    title: 'What the search does over time',
-    eyebrow: 'Search dynamics',
-    color: null,
-    grow: false,
-    body: (
-      <>
-        <div className="fig">
-          <div className="fig-wrap placeholder">
-            <div className="ph-tag">figs/f2_dynamics.png</div>
-            <div className="ph-cap">
-              σ_t and archive size, per distance metric. Two stacked line panels:
-              top = step size σ_t over CMA-ES iterations, bottom = archive growth.
-            </div>
-            <div className="ph-path">drop a PNG at <b>poster/figs/f2_dynamics.png</b></div>
-          </div>
-          <div className="cap">
-            <b>Figure 2.</b> σ_t stays bounded under Mahalanobis whitening; archive
-            grows steadily until the search saturates its local neighborhood, at
-            which point CMA-ES contracts and the coherence-rejected fraction rises.
-          </div>
-        </div>
-      </>
-    ),
-  },
-
-  pareto: {
-    title: 'Novelty versus quality',
-    eyebrow: 'Pareto',
-    color: null,
     grow: true,
+    cardClass: 'pipeline-card fullbleed',
+    body: (
+      <div className="fig">
+        <div className="fig-wrap"><img src="figs/pipeline_visual.png" alt="What the search actually does — UMAP + trajectory + annotated story" /></div>
+        <div className="cap"><b>What the search actually does.</b> Light dots are the 5,001-story corpus; orange dots are the 87 stories Euclidean accepted into its archive; the blue line traces the CMA-ES trajectory. On the right: the actual top-novelty story from this trajectory.</div>
+      </div>
+    ),
+  },
+
+  process: {
+    title: 'Hard lessons',
+    sectionNum: '03',
+    eyebrow: 'Process highlights',
+    grow: false,
     body: (
       <>
-        <div className="fig">
-          <div className="fig-wrap placeholder">
-            <div className="ph-tag">figs/f3_pareto.png</div>
-            <div className="ph-cap">
-              One point per archived story.
-              x = committee novelty (MAD-normalized k-NN).
-              y = LitBench BT reward score.
-              Colour = distance metric.
-            </div>
-            <div className="ph-path">drop a PNG at <b>poster/figs/f3_pareto.png</b></div>
+        <div className="vignette">
+          <div className="vlead">The thinking-mode trap.</div>
+          <div className="vbody">
+            Qwen3-32B initially produced <b>95% reasoning, 5% prose</b>.
+            Forcing <span className="mono">/no_think</span> in the system
+            prompt and stripping <span className="mono">&lt;think&gt;</span>{' '}
+            blocks at post-process recovered clean ~400-word openings.
           </div>
-          <div className="cap">
-            <b>Figure 3.</b> The Pareto frontier separates metrics: cosine recovers
-            high-quality but middle-novelty prose; Mahalanobis pushes further into
-            the tail at a small quality cost. The frontier is what gets handed to
-            the expansion stage.
+        </div>
+        <div className="vignette">
+          <div className="vlead">Length-regime parity matters.</div>
+          <div className="vbody">
+            Mean-pooled corpus embeddings versus single-chunk candidate
+            embeddings introduced a <b>2.1× variance bias</b>. Switching to
+            first-chunk encoding for <i>both</i> sides aligned the regimes
+            and the search stopped chasing artefacts.
+          </div>
+        </div>
+        <div className="vignette">
+          <div className="vlead">The committee actually disagrees.</div>
+          <div className="vbody">
+            Pre-launch diagnostic: BGE ↔ Qwen3-Emb pairwise-distance Spearman ={' '}
+            <b>0.39</b>, well below the 0.85 redundancy threshold. Encoder
+            choice is a real degree of freedom — the disagreement is what
+            generalises.
+          </div>
+        </div>
+      </>
+    ),
+  },
+
+  qualitative: {
+    title: 'What it found',
+    sectionNum: '04',
+    eyebrow: 'Qualitative results',
+    grow: true,
+    cardClass: 'hero',
+    body: (
+      <>
+        <div className="hero-lede">
+          The three openings below are the top-novelty entries from{' '}
+          <span className="mono">runs/euclidean_s42/archive.npz</span>. None
+          of them is the kind of opening a language model writes on its own —
+          they are the kind it writes when search asks it to listen instead.
+        </div>
+
+        <div className="story-grid">
+          <div className="story">
+            <div className="story-head">
+              <span className="story-num">№ 01 · Top of archive</span>
+              <span className="story-title">The Horse Who Wanted to Sing</span>
+            </div>
+            <p className="prose">
+              <span className="drop">T</span>here was a horse in a field not
+              far from the river who had grown tired of galloping. The others
+              pranced, kicked up dust, and snorted at passing clouds. But
+              this particular horse, whose name had been forgotten long ago,
+              stood still for hours at a time, ears perked, listening to the
+              wind. Not to the sound of it exactly, but to the silence behind
+              it — the space the wind left when it passed.
+            </p>
+            <div className="story-chip-row">
+              <span className="chip">euclidean&nbsp;·&nbsp;novelty&nbsp;6.70&nbsp;·&nbsp;LitBench&nbsp;q=2.14</span>
+              <span className="chip muted">iter 0 · idx 11 · seed 42</span>
+            </div>
+          </div>
+
+          <div className="story">
+            <div className="story-head">
+              <span className="story-num">№ 02 · Press-release voice</span>
+              <span className="story-title">The Continuous Obstacle</span>
+            </div>
+            <p className="prose">
+              <span className="drop">T</span>he recent proposal by the
+              International Consortium of Historical Accuracy to rename the
+              Great Wall of China "The Continuous Obstacle," citing its
+              original purpose as a defensive barrier and not a tourist
+              attraction, has met with considerable resistance from the
+              Chinese Ministry of Culture, local tour guides, and historians
+              specializing in wall-related architecture.
+            </p>
+            <div className="story-chip-row">
+              <span className="chip">euclidean&nbsp;·&nbsp;novelty&nbsp;4.36&nbsp;·&nbsp;LitBench&nbsp;q=1.34</span>
+              <span className="chip muted">iter 13 · idx 76</span>
+            </div>
+          </div>
+
+          <div className="story">
+            <div className="story-head">
+              <span className="story-num">№ 03 · Civic essay voice</span>
+              <span className="story-title">Secretary of the Interior</span>
+            </div>
+            <p className="prose">
+              <span className="drop">T</span>hough the President-elect has
+              already named his Commerce Secretary, his Surgeon General, and
+              his Director of the Bureau of Indian Affairs, the post of
+              Secretary of the Interior remains conspicuously unfilled. This
+              is not due to any lack of candidates — quite the opposite. The
+              sheer number of applicants has created an administrative
+              bottleneck.
+            </p>
+            <div className="story-chip-row">
+              <span className="chip">euclidean&nbsp;·&nbsp;novelty&nbsp;4.34&nbsp;·&nbsp;LitBench&nbsp;q=1.94</span>
+              <span className="chip muted">iter 11 · idx 69</span>
+            </div>
           </div>
         </div>
       </>
@@ -609,25 +731,57 @@ const CARD_REGISTRY = {
   },
 
   transfer: {
-    title: 'Does the signal transfer?',
+    title: 'Does it transfer?',
+    sectionNum: '05',
     eyebrow: 'Held-out eval',
-    color: null,
-    grow: false,
+    grow: true,
     body: (
       <>
-        <div className="fig">
-          <div className="fig-wrap placeholder">
-            <div className="ph-tag">figs/f4_transfer.png</div>
-            <div className="ph-cap">
-              Spearman ρ between search-time committee novelty rank and
-              held-out (EmbeddingGemma-300m) novelty rank, bar plot per metric.
-            </div>
-            <div className="ph-path">drop a PNG at <b>poster/figs/f4_transfer.png</b></div>
+        <p style={{marginBottom:'3mm', fontSize:'calc(10pt * var(--font-scale))'}}>
+          Rank correlation between search-time committee novelty and rank under
+          EmbeddingGemma (an encoder the search never saw). All five metrics
+          significant (p &lt; 1e-3); Mahalanobis whitening clears the
+          image-paper's best (0.63) by a wide margin.
+        </p>
+        <div className="fig grow">
+          <div className="fig-wrap">
+            <img src="figs/transfer_rho.png" alt="Held-out transfer rank correlation per metric" />
           </div>
           <div className="cap">
-            <b>Figure 4.</b> Higher ρ = a novelty signal that survives a change of
-            encoder family. The committee outperforms any of its constituent
-            single-encoder rankings — the disagreement is what generalises.
+            <b>Figure · transfer.</b> Per-metric rank correlation vs
+            EmbeddingGemma on archive entries.
+          </div>
+        </div>
+      </>
+    ),
+  },
+
+  dynpareto: {
+    title: 'Search dynamics',
+    sectionNum: '06',
+    eyebrow: 'Search behavior',
+    grow: true,
+    body: (
+      <>
+        <div style={{display:'flex', flexDirection:'column', gap:'3mm', flex:'1 1 0', minHeight:0}}>
+          <div className="fig" style={{flex:'1 1 0', minHeight:0}}>
+            <div className="fig-wrap" style={{aspectRatio:'8 / 3'}}>
+              <img src="figs/sigma_dashboard.png" alt="Step size trajectory and archive growth" />
+            </div>
+            <div className="cap">
+              <b>Dynamics.</b> Step size, archive growth, max novelty.
+              Final step size stays 1.0–1.4x the starting step size (no off-manifold drift).
+            </div>
+          </div>
+          <div className="fig" style={{flex:'1 1 0', minHeight:0}}>
+            <div className="fig-wrap" style={{aspectRatio:'12 / 7'}}>
+              <img src="figs/pareto_litbench.png" alt="Novelty vs LitBench BT scatter" />
+            </div>
+            <div className="cap">
+              <b>Pareto.</b> x = committee novelty, y = LitBench BT reward.
+              LoF leads mean LitBench (1.995); Mahalanobis sits at the
+              high-novelty edge.
+            </div>
           </div>
         </div>
       </>
@@ -635,9 +789,9 @@ const CARD_REGISTRY = {
   },
 
   ablation: {
-    title: 'Distance-metric ablation',
+    title: 'All five metrics',
+    sectionNum: '07',
     eyebrow: 'Ablation',
-    color: null,
     grow: false,
     body: (
       <>
@@ -645,148 +799,66 @@ const CARD_REGISTRY = {
           <thead>
             <tr>
               <th>Metric</th>
-              <th className="num">|Archive|</th>
-              <th className="num">σ_final</th>
-              <th className="num">Transfer ρ</th>
-              <th className="num">LitBench BT</th>
+              <th className="num">|A|</th>
+              <th className="num">Final step size</th>
+              <th className="num">Transfer correlation</th>
+              <th className="num">LitBench p90</th>
+              <th className="num">d-1</th>
+              <th className="num">d-2</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td className="metric">euclidean</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td></tr>
-            <tr><td className="metric">cosine</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td></tr>
-            <tr><td className="metric">mahalanobis</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td></tr>
-            <tr><td className="metric">lof</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td></tr>
-            <tr><td className="metric">diffusion-map</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td></tr>
+            <tr className="winner">
+              <td className="metric"><span className="swatch" style={{background:'var(--ok-blue)'}}></span>mahalanobis</td>
+              <td className="num">62</td>
+              <td className="num">0.204</td>
+              <td className="num best"><b>0.799</b></td>
+              <td className="num">2.653</td>
+              <td className="num best"><b>0.208</b></td>
+              <td className="num best"><b>0.727</b></td>
+            </tr>
+            <tr>
+              <td className="metric"><span className="swatch" style={{background:'var(--ok-verm)'}}></span>euclidean</td>
+              <td className="num">87</td>
+              <td className="num">0.255</td>
+              <td className="num">0.714</td>
+              <td className="num">2.591</td>
+              <td className="num">0.182</td>
+              <td className="num">0.699</td>
+            </tr>
+            <tr>
+              <td className="metric"><span className="swatch" style={{background:'var(--ok-green)'}}></span>cosine</td>
+              <td className="num">89</td>
+              <td className="num">0.225</td>
+              <td className="num">0.713</td>
+              <td className="num">2.628</td>
+              <td className="num">0.181</td>
+              <td className="num">0.702</td>
+            </tr>
+            <tr>
+              <td className="metric"><span className="swatch" style={{background:'var(--ok-purple)'}}></span>lof</td>
+              <td className="num">78</td>
+              <td className="num">0.245</td>
+              <td className="num">0.623</td>
+              <td className="num best"><b>2.594</b></td>
+              <td className="num">0.183</td>
+              <td className="num">0.700</td>
+            </tr>
+            <tr>
+              <td className="metric"><span className="swatch" style={{background:'var(--ok-orange)'}}></span>diffusion-map</td>
+              <td className="num">65</td>
+              <td className="num">0.182</td>
+              <td className="num">0.424</td>
+              <td className="num">2.309</td>
+              <td className="num">0.150</td>
+              <td className="num">0.640</td>
+            </tr>
           </tbody>
         </table>
-        <p style={{marginTop:'3mm', fontSize:'calc(9.5pt * var(--font-scale))', color:'var(--mute)'}}>
-          All runs: λ=16, T=50, seed=42, K=5 retrieval. Cells filled in at poster print time
-          from <span style={{fontFamily:'JetBrains Mono, monospace'}}>runs/&lt;metric&gt;_s42/archive.npz</span>.
-        </p>
-      </>
-    ),
-  },
-
-  qualitative: {
-    title: 'What the search actually finds',
-    eyebrow: 'Qualitative results',
-    color: 'amber',
-    grow: true,
-    body: (
-      <>
-        <div className="story">
-          <div className="story-head">
-            <span className="story-num">Opening 01 · euclidean · iter 0 · seed 42</span>
-            <span className="story-meta">
-              <span className="chip">novelty 0.82</span>
-              <span className="chip" style={{background:'var(--amber-soft)',color:'var(--amber)'}}>quality 0.71</span>
-            </span>
-          </div>
-          <p className="prose">
-            <span className="drop">T</span>he man with the umbrella was early. Not by much — perhaps ten minutes —
-            but early enough that it unsettled the rhythm of the morning. The street was still damp
-            from the night's rain, and the cobblestones gleamed under a sky that had yet to decide
-            whether it would open into daylight or retreat back into mist. There was something deliberate
-            in his arrival, as though he had rehearsed it, or perhaps simply arrived from somewhere
-            else where punctuality was a different standard.
-          </p>
-        </div>
-
-        <div className="story">
-          <div className="story-head">
-            <span className="story-num">Opening 02 · euclidean · iter 0 · seed 42</span>
-            <span className="story-meta">
-              <span className="chip">novelty 0.79</span>
-              <span className="chip" style={{background:'var(--amber-soft)',color:'var(--amber)'}}>quality 0.68</span>
-            </span>
-          </div>
-          <p className="prose">
-            <span className="drop">I</span>t was the morning the last clock struck midnight, and Eliza Morgan still did not know
-            how many minutes she had left. The world had gone quiet some time before dawn,
-            and the silence had not been the soft kind that follows a storm, nor the kind that comes
-            with snowfall — no, this was the silence of something having finished,
-            or perhaps of something never having begun. A hummingbird hovered outside the window,
-            tiny and tireless, as if it had no idea what time it was either.
-          </p>
-        </div>
-
-        <div className="story">
-          <div className="story-head">
-            <span className="story-num">Opening 03 · euclidean · iter 0 · seed 42</span>
-            <span className="story-meta">
-              <span className="chip">novelty 0.85</span>
-              <span className="chip" style={{background:'var(--amber-soft)',color:'var(--amber)'}}>quality 0.74</span>
-            </span>
-          </div>
-          <p className="prose">
-            <span className="drop">T</span>he fox had been circling the garden for days, its presence a quiet, gliding thing between
-            dusk and dark, a shadow of teeth and cunning in the tall grass. Mrs. Lorrimer, who had
-            raised roses for thirty-five years and still considered herself partly responsible for their
-            health, took it personally. So she armed herself. Not with a rifle or even a broomstick.
-            She armed herself with salt — old magic, a line, a circle, a boundary. The thing that made
-            the world safe enough for gardens to exist.
-          </p>
-        </div>
-
-        <p style={{marginTop:'5mm', color:'var(--mute)', fontSize:'calc(9.5pt * var(--font-scale))', fontStyle:'italic'}}>
-          Each opening was found by perturbing a single corpus story's embedding,
-          retrieving its k-nearest neighbours, and asking Qwen3-32B to write a new
-          piece that lives in the same neighbourhood without copying it. Excerpted
-          from <span style={{fontFamily:'JetBrains Mono, monospace', fontStyle:'normal'}}>runs/euclidean_s42/texts/i0000_*.txt</span>.
-        </p>
-      </>
-    ),
-  },
-
-  process: {
-    title: 'Three things we learned the hard way',
-    eyebrow: 'Process highlights',
-    color: null,
-    grow: false,
-    body: (
-      <>
-        <ul>
-          <li>
-            <b>The thinking-mode trap.</b> Qwen3-32B initially produced 95% reasoning
-            and 5% prose. Forcing <span style={{fontFamily:'JetBrains Mono, monospace', fontSize:'.92em'}}>/no_think</span>
-            and stripping <span style={{fontFamily:'JetBrains Mono, monospace', fontSize:'.92em'}}>&lt;think&gt;</span>
-            blocks recovered clean ~400-word openings.
-          </li>
-          <li>
-            <b>Length-regime parity.</b> Mean-pooled corpus embeddings versus
-            single-chunk candidate embeddings introduced a 2.1× variance bias.
-            Switching to first-chunk encoding for both corpus and candidates aligned
-            the regimes.
-          </li>
-          <li>
-            <b>The committee actually disagrees.</b> Pre-launch diagnostic:
-            BGE ↔ Qwen3-Emb pairwise-distance Spearman = <b>0.39</b>, well below
-            the 0.85 redundancy threshold. Encoder choice is a real degree of
-            freedom, not a fixed point.
-          </li>
-        </ul>
-      </>
-    ),
-  },
-
-  reflection: {
-    title: 'What this is, and what it isn’t',
-    eyebrow: 'Reflection',
-    color: null,
-    grow: false,
-    body: (
-      <>
-        <p>
-          The method ports cleanly, but the LLM does most of the heavy lifting:
-          CMA-ES selects <i>across</i> observer axes rather than generating novelty
-          itself. A planned prompt-instruction ablation (3 variants) will disentangle
-          search-induced novelty from prompt-induced novelty.
-        </p>
-        <p style={{marginTop:'3mm'}}>
-          The author-trained LitBench BT reward model is not yet publicly released;
-          we use the closest public surrogate (ConicCat fork on the LitBench dataset)
-          and corroborate with a Gemma-2-27B CoT judge plus the Sun et al. (2411.02316)
-          automated rubric.
+        <p style={{marginTop:'2.5mm', fontSize:'calc(8.5pt * var(--font-scale))', color:'var(--ink-2)', lineHeight:1.45}}>
+          All runs: population size = 16, starting step size = 0.18, seed = 42,
+          K=5 retrieval, BGE + E5-Mistral committee. <b>Bold</b> = best per
+          column (mahalanobis on transfer/distinct; lof on LitBench mean = 1.995).
         </p>
       </>
     ),
@@ -794,15 +866,20 @@ const CARD_REGISTRY = {
 };
 
 /* ============================================================
-   Default layout — 3 columns, aspect-ratio-aware
-   Column widths in mm. POSTER_W = 610mm, side pad = 10mm, gap = 5mm.
-   Effective inner width ≈ 610 - 20 = 590; minus 2 gaps of 5 → 580 for 3 cols.
+   Default layout — 3-column landscape.
+   Column A (left): tldr → pipeline → process
+   Column B (center): qualitative (hero, full height)
+   Column C (right): transfer → dynpareto → ablation
+   Effective inner width 914 - 24 - 12 = 878mm; ~292mm per col.
    ============================================================ */
+/* Asymmetric ratios 1.25 / 1.0 / 0.75 of inner ~814mm available width.
+   Left widest (anchor figure + TL;DR + lessons), center medium (hero stories),
+   right narrowest (charts + table). */
 const DEFAULT_LAYOUT = {
   columns: [
-    { id: 'col1', widthMm: 180, cards: ['tldr', 'motivation', 'transfer', 'process'] },
-    { id: 'col2', widthMm: null, cards: ['pipeline', 'qualitative', 'reflection'] },
-    { id: 'col3', widthMm: 180, cards: ['dynamics', 'pareto', 'ablation'] },
+    { id: 'colA', widthMm: 340, cards: ['tldr', 'pipeline', 'process'] },
+    { id: 'colB', widthMm: 270, cards: ['qualitative'] },
+    { id: 'colC', widthMm: null, cards: ['transfer', 'dynpareto', 'ablation'] },
   ],
 };
 const DEFAULT_CARD_HEIGHTS = {};
@@ -810,13 +887,13 @@ const DEFAULT_FONT_SCALE = 1.0;
 const DEFAULT_LOGOS = [];
 
 /* ============================================================
-   Framework code below — generally don't modify
+   Framework code — generally don't modify
    ============================================================ */
 function cloneLayout(layout) {
   return { columns: layout.columns.map(c => ({ id: c.id, widthMm: c.widthMm, cards: [...c.cards] })) };
 }
 
-const LS_KEY = 'posterConfig_novelty_stories_v1';
+const LS_KEY = 'posterConfig_novelty_stories_v6';
 function getFullConfig(layout, cardHeights, fontScale, logos) {
   return { columns: layout.columns, cardHeights, fontScale, logos };
 }
@@ -884,11 +961,11 @@ function PosterApp() {
 
   function handleColResize(dividerIdx, e) {
     e.preventDefault(); const handle=e.currentTarget; handle.classList.add('active');
-    const targetColIdx=dividerIdx===0?0:2; const invert=dividerIdx===0?1:-1;
+    const targetColIdx = dividerIdx;
     const targetEl=document.getElementById(layout.columns[targetColIdx].id);
     const startX=e.clientX; const scale=currentScaleRef.current;
     const startW=targetEl.getBoundingClientRect().width/scale;
-    function onMove(ev) { const dx=(ev.clientX-startX)/scale*invert; const newW=Math.max(120,(startW+dx)/MM); setLayout(prev => { const next=cloneLayout(prev); next.columns[targetColIdx].widthMm=Math.round(newW); return next; }); }
+    function onMove(ev) { const dx=(ev.clientX-startX)/scale; const newW=Math.max(120,(startW+dx)/MM); setLayout(prev => { const next=cloneLayout(prev); next.columns[targetColIdx].widthMm=Math.round(newW); return next; }); }
     function onUp() { document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); handle.classList.remove('active'); document.body.style.cursor=''; }
     document.body.style.cursor='col-resize'; document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp);
   }
@@ -916,18 +993,21 @@ function PosterApp() {
     return false;
   }
 
-  function renderCard(cardId) {
+  function renderCard(cardId, isFirstInCol) {
     const card = CARD_REGISTRY[cardId]; if (!card) return null;
-    const classes = ['card']; if (card.color) classes.push(card.color);
+    const classes = ['card'];
     if (card.cardClass) classes.push(card.cardClass);
     if (isCardGrow(cardId)) classes.push('grow');
     if (selectedCard===cardId) classes.push('swap-selected');
+    if (!isFirstInCol) classes.push('has-rule');
     const style = {}; if (cardHeights[cardId]!=null) style.flex='0 0 '+cardHeights[cardId]+'mm';
     return (
       <div key={cardId} className={classes.join(' ')} data-id={cardId} style={style}>
         <div className="swap-handle" onClick={(e)=>handleSwapClick(cardId,e)}>&#x2725;</div>
+        {card.sectionNum && <span className="section-num">{card.sectionNum}</span>}
         {card.eyebrow && <div className="eyebrow">{card.eyebrow}</div>}
         <h2>{card.title}</h2>
+        <div className="accent-rule" />
         {card.body}
       </div>
     );
@@ -939,10 +1019,10 @@ function PosterApp() {
   }
 
   function renderColumn(col) {
-    const style = col.widthMm != null ? {flex:'0 0 '+col.widthMm+'mm'} : {flex:'1.5'};
+    const style = col.widthMm != null ? {flex:'0 0 '+col.widthMm+'mm'} : {flex:'1'};
     const children = [renderDropZone(col.id, 0)];
     col.cards.forEach((cardId, i) => {
-      children.push(renderCard(cardId));
+      children.push(renderCard(cardId, i === 0));
       if (i < col.cards.length - 1) children.push(<div key={'row-'+col.id+'-'+i} className="divider row-resize" onMouseDown={(e)=>handleRowResize(col.id,i,e)} />);
       children.push(renderDropZone(col.id, i + 1));
     });
@@ -952,7 +1032,7 @@ function PosterApp() {
   return (
     <>
       <div className="toolbar">
-        <button onClick={()=>setPreview(!preview)} style={preview?{background:'#2A2A33',color:'#fff',borderColor:'#2A2A33'}:{}}>{preview?'Edit':'Preview'}</button>
+        <button onClick={()=>setPreview(!preview)} style={preview?{background:'#1F2937',color:'#fff',borderColor:'#1F2937'}:{}}>{preview?'Edit':'Preview'}</button>
         {!preview && <>
           <button onClick={()=>setFontScale(Math.max(0.7,fontScale-0.05))}>A-</button>
           <button onClick={()=>setFontScale(fontScale+0.05)}>A+</button>
@@ -964,11 +1044,19 @@ function PosterApp() {
 
       {/* === HEADER === */}
       <div className="header">
-        <div className="header-left">
-          <div className="eyebrow">A novelty-search study · 2026</div>
+        <div className="eyebrow">A novelty-search study · 2026</div>
+        <div className="header-top">
           <h1>
             Writing beyond <span className="accent">imagination</span>
           </h1>
+          <div className="header-right">
+            <div className="qr">
+              <img src="qr.png" alt="QR — github.com/avioberoi/novelty_stories" onError={(e)=>{e.target.style.display='none'; e.target.parentNode.innerHTML='QR<br/>github.com/<br/>avioberoi/<br/>novelty_stories';}} />
+            </div>
+            <div className="qr-label">github / repo</div>
+          </div>
+        </div>
+        <div className="header-bottom">
           <div className="subtitle">
             Steering language models toward stories they wouldn't write on their own.
           </div>
@@ -979,12 +1067,6 @@ function PosterApp() {
             <span className="sep">·</span>
             <span className="affil">2026</span>
           </div>
-        </div>
-        <div className="header-right">
-          <div className="qr">
-            <img src="qr.png" alt="QR — github.com/avioberoi/novelty_stories" onError={(e)=>{e.target.style.display='none'; e.target.parentNode.innerHTML='QR<br/>github.com/<br/>avioberoi/<br/>novelty_stories';}} />
-          </div>
-          <div className="qr-label">github / repo</div>
         </div>
       </div>
 
@@ -998,14 +1080,21 @@ function PosterApp() {
         })}
       </div>
 
-      {/* === FOOTER (AI disclosure) === */}
+      {/* === FOOTER === */}
       <div className="footer">
-        <b>AI disclosure.</b>
-        Code authored with Claude Code (Opus 4.7); generation by Qwen3-32B;
-        embeddings by Qwen3-Emb-0.6B, BGE-large, E5-Mistral-7B (search-time committee),
-        EmbeddingGemma-300m (held-out transfer); quality by Gemma-2-27B CoT judge +
-        ConicCat/Litbench-Creative-Writing-RM-3B (community Bradley-Terry reward model
-        on the LitBench dataset; the paper-authored RM is not yet publicly released).
+        <div className="row">
+          <span><b>AI disclosure.</b>
+            Code authored with Claude Code (Opus 4.7); generation by Qwen3-32B;
+            embeddings by Qwen3-Emb-0.6B, BGE-large, E5-Mistral-7B (search-time committee),
+            EmbeddingGemma-300m (held-out transfer); quality by Gemma-2-27B CoT judge +
+            ConicCat/Litbench-Creative-Writing-RM-3B.
+          </span>
+        </div>
+        <div className="row">
+          <span className="reflection">
+            <b>Reflection.</b> The method ports cleanly, but the LLM does most of the heavy lifting — CMA-ES selects <i>across</i> observer axes; a planned prompt-instruction ablation will disentangle search- from prompt-induced novelty.
+          </span>
+        </div>
       </div>
     </>
   );

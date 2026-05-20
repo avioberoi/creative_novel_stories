@@ -1,19 +1,19 @@
 {
   "columns": [
     {
-      "id": "col1",
-      "widthMm": 180,
-      "cards": ["tldr", "motivation", "transfer", "process"]
+      "id": "colA",
+      "widthMm": 290,
+      "cards": ["tldr", "pipeline", "process"]
     },
     {
-      "id": "col2",
+      "id": "colB",
+      "widthMm": 296,
+      "cards": ["qualitative"]
+    },
+    {
+      "id": "colC",
       "widthMm": null,
-      "cards": ["pipeline", "qualitative", "reflection"]
-    },
-    {
-      "id": "col3",
-      "widthMm": 180,
-      "cards": ["dynamics", "pareto", "ablation"]
+      "cards": ["transfer", "dynpareto", "ablation"]
     }
   ],
   "cardHeights": {},

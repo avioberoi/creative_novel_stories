@@ -116,7 +116,12 @@ class DiffusionScorer:
 
     def _embed(self, x):
         d, ii = self._nn.kneighbors(x.reshape(1, -1).astype('f4'))
-        w = np.exp(-d[0] ** 2 / self.ε)
+        d2 = d[0] ** 2
+        # adaptive bandwidth: keep global ε for in-distribution queries; for OOD
+        # queries (median local distance >> global ε) widen the kernel so weights
+        # don't collapse to ~uniform around zero. Audit bug fix 2026-05-20.
+        εx = max(self.ε, float(np.median(d2)))
+        w = np.exp(-d2 / εx)
         w /= w.sum() + 1e-9
         return (w @ self.ψ[ii[0]]) * self.λ                                      # Nyström
 
