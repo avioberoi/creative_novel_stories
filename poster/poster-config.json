@@ -1,0 +1,22 @@
+{
+  "columns": [
+    {
+      "id": "col1",
+      "widthMm": 180,
+      "cards": ["tldr", "motivation", "transfer", "process"]
+    },
+    {
+      "id": "col2",
+      "widthMm": null,
+      "cards": ["pipeline", "qualitative", "reflection"]
+    },
+    {
+      "id": "col3",
+      "widthMm": 180,
+      "cards": ["dynamics", "pareto", "ablation"]
+    }
+  ],
+  "cardHeights": {},
+  "fontScale": 1.0,
+  "logos": []
+}

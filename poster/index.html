@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing Beyond Imagination — Novelty Search for Stories</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  /* ============================================================
+     Peripheria palette — matte, subtle, minimalist
+     ============================================================ */
+  :root {
+    --ink:    #2A2A33;   /* charcoal, slightly cool */
+    --ink-2:  #4A4A55;   /* secondary text */
+    --mute:   #7A7A85;   /* tertiary / captions */
+    --rule:   #D9D5CC;   /* hairline */
+    --bg:     #FAF7F2;   /* cream/ivory */
+    --bg-2:   #F2EEE5;   /* slightly deeper cream for highlight blocks */
+    --card:   #FFFFFF;   /* pure paper for cards */
+    --indigo: #4B5D8B;   /* muted indigo accent */
+    --indigo-soft: #E6EAF1;
+    --amber:  #C18A3B;   /* warm amber accent */
+    --amber-soft: #F5EBD9;
+    --sage:   #7A9072;   /* tertiary accent (used sparingly) */
+    --gap: 5mm;
+    --pad: 10mm;
+    --font-scale: 1.0;
+  }
+
+  /* ============================================================
+     24" x 36" portrait → 610mm × 914mm
+     ============================================================ */
+  @page { size: 610mm 914mm; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html {
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-feature-settings: "kern", "liga", "ss01";
+  }
+  body {
+    width: 610mm; height: 914mm;
+    background: var(--bg);
+    overflow: hidden;
+    transform-origin: top left;
+  }
+  #root { width: 100%; height: 100%; display: grid; grid-template-rows: auto 1fr auto; }
+  @media screen { html { background:#a8a39a; overflow:hidden; width:100vw; height:100vh; } body { position:absolute; box-shadow:0 4px 30px rgba(0,0,0,.25); } }
+  @media print { html { background:none; } body { position:static; transform:none!important; box-shadow:none; } .toolbar,.divider,.swap-handle,.drop-zone{display:none!important;} }
+  body.preview .divider, body.preview .swap-handle, body.preview .drop-zone { display:none!important; }
+
+  /* === HEADER (flat, cream-on-cream, no gradients) === */
+  .header {
+    padding: 14mm var(--pad) 8mm;
+    display: flex;
+    align-items: flex-start;
+    gap: 10mm;
+    border-bottom: .35mm solid var(--rule);
+    background: var(--bg);
+  }
+  .header-left { flex: 1; min-width: 0; }
+  .header .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(9pt * var(--font-scale));
+    color: var(--mute);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 5mm;
+  }
+  .header h1 {
+    font-family: 'Crimson Pro', serif;
+    font-weight: 500;
+    font-size: calc(82pt * var(--font-scale));
+    line-height: 0.96;
+    letter-spacing: -.02em;
+    color: var(--ink);
+    margin-bottom: 5mm;
+  }
+  .header h1 .accent { font-style: italic; font-weight: 400; color: var(--indigo); }
+  .header .subtitle {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: calc(32pt * var(--font-scale));
+    line-height: 1.18;
+    color: var(--ink-2);
+    max-width: 480mm;
+    margin-bottom: 8mm;
+  }
+  .header .byline {
+    font-family: 'Inter', sans-serif;
+    font-size: calc(14pt * var(--font-scale));
+    color: var(--ink-2);
+    font-weight: 500;
+  }
+  .header .byline .sep { color: var(--rule); margin: 0 2.5mm; }
+  .header .affil { font-size: calc(12pt * var(--font-scale)); color: var(--mute); font-weight: 400; }
+
+  .header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4mm;
+    flex-shrink: 0;
+  }
+  .qr {
+    width: 28mm; height: 28mm;
+    border: .35mm solid var(--rule);
+    background: var(--card);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--mute);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 6.5pt;
+    text-align: center;
+    padding: 1.5mm;
+  }
+  .qr img { width: 100%; height: 100%; object-fit: contain; }
+  .qr-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(7.5pt * var(--font-scale));
+    color: var(--mute);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  /* === POSTER COLUMNS === */
+  .poster { display: flex; gap: var(--gap); padding: var(--gap) var(--pad); min-height: 0; flex: 1; overflow: hidden; }
+  .col { display: flex; flex-direction: column; gap: var(--gap); min-height: 0; overflow: hidden; }
+
+  /* === CARDS (paper-on-cream, thin accent stripe) === */
+  .card {
+    background: var(--card);
+    padding: 6mm 7mm 6mm;
+    border: .25mm solid var(--rule);
+    border-top: .7mm solid var(--indigo);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+    flex: 0 0 auto;
+    position: relative;
+    border-radius: 0;
+  }
+  .card.grow { flex: 1 1 0; }
+  .card.amber { border-top-color: var(--amber); }
+  .card.sage  { border-top-color: var(--sage); }
+  .card.plain { border-top-color: var(--ink); }
+
+  .card .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(8pt * var(--font-scale));
+    color: var(--mute);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 1.5mm;
+  }
+  .card h2 {
+    font-family: 'Crimson Pro', serif;
+    font-weight: 500;
+    font-size: calc(22pt * var(--font-scale));
+    line-height: 1.05;
+    color: var(--ink);
+    margin-bottom: 4mm;
+    letter-spacing: -.005em;
+    flex-shrink: 0;
+  }
+  .card p, .card li {
+    font-family: 'Inter', sans-serif;
+    font-size: calc(11pt * var(--font-scale));
+    line-height: 1.42;
+    color: var(--ink-2);
+  }
+  .card ul, .card ol { padding-left: 5.5mm; flex-shrink: 0; }
+  .card li { margin-bottom: 1.8mm; }
+  .card li::marker { color: var(--indigo); font-weight: 700; }
+  .card strong, .card b { color: var(--ink); font-weight: 600; }
+
+  /* Highlight block (used in TL;DR) */
+  .hl {
+    background: var(--bg-2);
+    border-left: 1mm solid var(--indigo);
+    padding: 4mm 5mm;
+    margin-bottom: 4mm;
+    flex-shrink: 0;
+  }
+  .hl p {
+    font-family: 'Crimson Pro', serif;
+    font-size: calc(14pt * var(--font-scale));
+    line-height: 1.32;
+    color: var(--ink);
+    font-weight: 400;
+  }
+
+  /* Figure */
+  .fig { flex: 1; display: flex; flex-direction: column; min-height: 0; margin: 1mm 0; }
+  .fig-wrap {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    min-height: 0; overflow: hidden;
+    background: var(--bg-2);
+    border: .25mm solid var(--rule);
+  }
+  .fig-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .fig-wrap.svg-wrap { background: var(--card); border: none; }
+  .fig-wrap.placeholder {
+    flex-direction: column;
+    color: var(--mute);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(8.5pt * var(--font-scale));
+    text-align: center;
+    padding: 6mm;
+  }
+  .fig-wrap.placeholder .ph-tag {
+    font-size: calc(7pt * var(--font-scale));
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 2mm;
+  }
+  .fig-wrap.placeholder .ph-cap {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: calc(11pt * var(--font-scale));
+    color: var(--ink-2);
+    line-height: 1.3;
+    max-width: 90%;
+  }
+  .fig-wrap.placeholder .ph-path {
+    font-size: calc(7.5pt * var(--font-scale));
+    color: var(--mute);
+    margin-top: 3mm;
+  }
+  .fig .cap {
+    font-family: 'Inter', sans-serif;
+    font-size: calc(9pt * var(--font-scale));
+    color: var(--mute);
+    margin-top: 2.5mm;
+    line-height: 1.32;
+    flex-shrink: 0;
+  }
+  .fig .cap b { color: var(--ink); font-weight: 600; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Inter', sans-serif;
+    font-size: calc(10pt * var(--font-scale));
+    margin: 2mm 0;
+  }
+  thead th {
+    color: var(--ink);
+    padding: 2mm 2.5mm;
+    text-align: left;
+    font-weight: 600;
+    font-size: calc(9pt * var(--font-scale));
+    border-bottom: .5mm solid var(--ink);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  thead th.num, tbody td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; font-size: calc(9.5pt * var(--font-scale)); }
+  tbody td {
+    padding: 1.8mm 2.5mm;
+    border-bottom: .15mm solid var(--rule);
+    color: var(--ink-2);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody td.metric { color: var(--ink); font-weight: 500; font-family: 'JetBrains Mono', monospace; font-size: calc(9.5pt * var(--font-scale)); }
+  tbody td.todo { color: var(--mute); font-family: 'JetBrains Mono', monospace; }
+
+  /* Story block (qualitative results) */
+  .story {
+    border-top: .25mm solid var(--rule);
+    padding-top: 4mm;
+    margin-top: 4mm;
+  }
+  .story:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .story .story-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 2mm;
+    gap: 4mm;
+  }
+  .story .story-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(8pt * var(--font-scale));
+    color: var(--amber);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .story .story-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(8pt * var(--font-scale));
+    color: var(--mute);
+    letter-spacing: .04em;
+  }
+  .story .story-meta .chip {
+    background: var(--indigo-soft);
+    color: var(--indigo);
+    padding: .6mm 2mm;
+    margin-left: 1.5mm;
+    border-radius: 1mm;
+    font-size: calc(7.5pt * var(--font-scale));
+    font-weight: 600;
+  }
+  .story .prose {
+    font-family: 'Crimson Pro', serif;
+    font-size: calc(11.5pt * var(--font-scale));
+    line-height: 1.42;
+    color: var(--ink);
+    font-weight: 400;
+  }
+  .story .prose .drop {
+    font-family: 'Crimson Pro', serif;
+    font-weight: 600;
+    font-size: calc(20pt * var(--font-scale));
+    line-height: 1;
+    float: left;
+    margin: 1mm 2mm 0 0;
+    color: var(--indigo);
+  }
+
+  /* Pipeline SVG card */
+  .pipeline-card { padding: 6mm 7mm; }
+  .pipeline-svg { width: 100%; height: auto; }
+  .pipeline-svg text { font-family: 'Inter', sans-serif; }
+  .pipeline-svg .pl-label { font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; fill: var(--mute); letter-spacing: .06em; text-transform: uppercase; }
+  .pipeline-svg .pl-title { font-family: 'Crimson Pro', serif; font-size: 13pt; fill: var(--ink); font-weight: 500; }
+  .pipeline-svg .pl-sub { font-family: 'Inter', sans-serif; font-size: 9pt; fill: var(--ink-2); }
+
+  /* Math */
+  .katex { font-size: calc(10pt * var(--font-scale))!important; }
+
+  /* Footer disclosure */
+  .footer {
+    padding: 4mm var(--pad) 7mm;
+    border-top: .35mm solid var(--rule);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(7.5pt * var(--font-scale));
+    color: var(--mute);
+    line-height: 1.55;
+    letter-spacing: .02em;
+    background: var(--bg);
+  }
+  .footer b { color: var(--ink-2); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-right: 2mm; }
+
+  /* === TOOLBAR (screen only) === */
+  .toolbar { position: fixed; top: 8px; right: 8px; z-index: 1000; display: flex; gap: 6px; align-items: center; }
+  .toolbar button {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px; font-weight: 600;
+    padding: 5px 12px; border-radius: 4px; border: 1px solid #ccc;
+    cursor: pointer; background: #f8f8f8; color: #444;
+  }
+  .toolbar button:hover { background: #eaeaea; }
+
+  /* Swap handles */
+  .card .swap-handle {
+    position: absolute; top: 2mm; right: 2mm;
+    width: 7mm; height: 7mm;
+    background: var(--indigo); color: #fff;
+    font-size: 9pt; text-align: center; line-height: 7mm;
+    cursor: pointer; z-index: 10; user-select: none;
+    opacity: .25;
+    transition: opacity .15s, background .15s, transform .15s;
+    border-radius: 1mm;
+  }
+  .card .swap-handle:hover { opacity: .8; transform: scale(1.1); }
+  .card.swap-selected { outline: .7mm solid var(--amber); outline-offset: -.3mm; }
+  .card.swap-selected .swap-handle { background: var(--amber); opacity: 1; transform: scale(1.15); }
+
+  /* Dividers */
+  .divider { position: relative; z-index: 50; flex-shrink: 0; }
+  .divider::after { content: ''; position: absolute; background: rgba(75,93,139,.10); border-radius: 1mm; transition: background .15s; }
+  .divider:hover::after, .divider.active::after { background: rgba(75,93,139,.4); }
+  .col-resize { width: 6mm; cursor: col-resize; margin: 0 -3mm; }
+  .col-resize::after { top: 0; bottom: 0; left: 1.5mm; width: 3mm; }
+  .row-resize { height: 6mm; cursor: row-resize; margin: -3mm 0; }
+  .row-resize::after { left: 0; right: 0; top: 1.5mm; height: 3mm; }
+
+  /* Drop zones */
+  .drop-zone { height: 0; position: relative; z-index: 60; transition: height .15s; }
+  .drop-zone.visible { height: 5mm; }
+  .drop-zone-inner {
+    position: absolute; left: 2mm; right: 2mm; top: 0; bottom: 0;
+    border-radius: 1mm;
+    background: rgba(193,138,59,.12);
+    border: .35mm dashed var(--amber);
+    transition: background .15s; cursor: pointer;
+  }
+  .drop-zone-inner:hover { background: rgba(193,138,59,.3); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useRef, useEffect, useCallback } = React;
+const MM = 3.7795275591;
+/* 24" × 36" portrait */
+const POSTER_W_MM = 610;
+const POSTER_H_MM = 914;
+
+/* ============================================================
+   Pipeline diagram — inline SVG so we don't depend on a PNG.
+   ============================================================ */
+function PipelineSVG() {
+  // SVG viewBox sized for the card's expected aspect ratio (wide).
+  const W = 1200, H = 380;
+  const node = (x, y, w, h, label, sub, color) => (
+    <g key={label}>
+      <rect x={x} y={y} width={w} height={h} rx="4" ry="4"
+            fill="#FFFFFF" stroke={color || "#4B5D8B"} strokeWidth="1.4" />
+      <text x={x + w/2} y={y + 22} textAnchor="middle" className="pl-label" fill={color || "#4B5D8B"}>{label}</text>
+      <text x={x + w/2} y={y + 44} textAnchor="middle" className="pl-sub">{sub}</text>
+    </g>
+  );
+  const arrow = (x1, y1, x2, y2) => (
+    <g key={`a-${x1}-${y1}-${x2}-${y2}`}>
+      <line x1={x1} y1={y1} x2={x2 - 8} y2={y2} stroke="#7A7A85" strokeWidth="1" />
+      <polygon points={`${x2-8},${y2-4} ${x2},${y2} ${x2-8},${y2+4}`} fill="#7A7A85" />
+    </g>
+  );
+  const arrowD = (x1, y1, x2, y2) => (
+    <g key={`ad-${x1}-${y1}-${x2}-${y2}`}>
+      <line x1={x1} y1={y1} x2={x2} y2={y2 - 6} stroke="#7A7A85" strokeWidth="1" strokeDasharray="3 2" />
+      <polygon points={`${x2-4},${y2-6} ${x2+4},${y2-6} ${x2},${y2}`} fill="#7A7A85" />
+    </g>
+  );
+
+  return (
+    <svg className="pipeline-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet">
+      {/* Top row: corpus -> CMA-ES -> retrieval -> LLM */}
+      {node(20,  60, 170, 64, 'Corpus (5k stories)', 'Qwen3-Emb 768d')}
+      {node(230, 60, 170, 64, 'CMA-ES sampler', 'v_t in R^768, λ=16')}
+      {node(440, 60, 170, 64, 'k-NN retrieval', 'top-K nearest texts')}
+      {node(650, 60, 200, 64, 'LLM generator', 'Qwen3-32B → 500w opening', '#C18A3B')}
+
+      {arrow(190, 92, 230, 92)}
+      {arrow(400, 92, 440, 92)}
+      {arrow(610, 92, 650, 92)}
+
+      {/* Drop down to committee */}
+      {arrowD(750, 124, 750, 178)}
+
+      {/* Committee row */}
+      {node(440, 180, 170, 64, 'Observer 1', 'BGE-large 1024d')}
+      {node(650, 180, 200, 64, 'Committee', 'MAD-norm, agg=mean', '#C18A3B')}
+      {node(890, 180, 170, 64, 'Observer 2', 'E5-Mistral 4096d')}
+      {arrow(610, 212, 650, 212)}
+      {arrow(890, 212, 850, 212)}
+
+      {/* Coherence gate (side branch off LLM) */}
+      {node(20, 180, 170, 64, 'Coherence gate', 'Qwen3-Emb, length floor', '#7A9072')}
+      {arrowD(750, 124, 105, 178)}
+
+      {/* Bottom: archive admission + feedback */}
+      {node(440, 290, 380, 64, 'Archive ← feasible & novel', 'novelty rank → CMA-ES fitness', '#C18A3B')}
+      {arrow(750, 244, 630, 290)}
+      {arrow(105, 244, 440, 322)}
+      {/* feedback loop back to CMA-ES */}
+      <path d={`M 440 322 C 200 322 200 124 315 124`} fill="none" stroke="#7A7A85" strokeWidth="1" strokeDasharray="3 2" />
+      <polygon points="315,120 323,124 315,128" fill="#7A7A85" />
+
+      {/* Held-out transfer (sidecar, dashed) */}
+      {node(890, 290, 170, 64, 'Held-out eval', 'EmbeddingGemma 300m', '#7A9072')}
+      <line x1="820" y1="322" x2="890" y2="322" stroke="#7A7A85" strokeWidth="1" strokeDasharray="3 2" />
+      <polygon points="890,318 890,326 898,322" fill="#7A7A85" />
+    </svg>
+  );
+}
+
+/* ============================================================
+   Cards
+   ============================================================ */
+const CARD_REGISTRY = {
+  tldr: {
+    title: 'The idea, in one breath',
+    eyebrow: 'TL;DR',
+    color: null,
+    grow: false,
+    body: (
+      <>
+        <div className="hl">
+          <p>
+            <b>CMA-ES in a text-embedding space</b> finds 500-word story openings
+            that are novel under a <i>committee</i> of foundation-model observers —
+            stories beyond what any single encoder, or the language model alone,
+            would prefer.
+          </p>
+        </div>
+        <ul>
+          <li><b>Image-domain novelty search, ported to text.</b> The same CMA-ES + archive geometry, now searching over LLM-generated prose.</li>
+          <li><b>A committee of independent observers.</b> No single encoder defines novelty; a MAD-normalized vote across families does.</li>
+          <li><b>The signal transfers.</b> Stories the committee calls novel remain novel under a held-out encoder it never saw.</li>
+        </ul>
+      </>
+    ),
+  },
+
+  motivation: {
+    title: 'The middle of the distribution',
+    eyebrow: 'Motivation',
+    color: null,
+    grow: false,
+    body: (
+      <>
+        <p>
+          Large language models produce fluent prose but tend to settle near the
+          centre of their training distribution. Sampling temperature alone moves
+          the prose around inside that centre — not out of it. <b>We ask: what
+          stories live at the periphery, and can search find them?</b>
+        </p>
+        <p style={{marginTop: '3mm'}}>
+          The frame is borrowed from the image-domain novelty-search literature
+          (CMA-ES over a foundation-model embedding space, gated by a coherence
+          test). We re-use almost the entire pipeline — the LLM becomes the
+          generator; the corpus becomes a library of literary prose.
+        </p>
+      </>
+    ),
+  },
+
+  pipeline: {
+    title: 'How the search works',
+    eyebrow: 'Pipeline',
+    color: 'amber',
+    grow: false,
+    cardClass: 'pipeline-card',
+    body: (
+      <>
+        <div className="fig" style={{marginTop: '2mm'}}>
+          <div className="fig-wrap svg-wrap"><PipelineSVG /></div>
+          <div className="cap">
+            <b>Figure 1.</b> CMA-ES samples a 768-dim query embedding; the k nearest
+            corpus stories prime Qwen3-32B; a committee of independent observers
+            (BGE, E5-Mistral) scores the resulting text under MAD-normalized k-NN
+            novelty; coherence-gated, novel candidates enter the archive and update
+            the search distribution. A held-out encoder (EmbeddingGemma) is never
+            seen by the search and is reserved for transfer eval.
+          </div>
+        </div>
+      </>
+    ),
+  },
+
+  dynamics: {
+    title: 'What the search does over time',
+    eyebrow: 'Search dynamics',
+    color: null,
+    grow: false,
+    body: (
+      <>
+        <div className="fig">
+          <div className="fig-wrap placeholder">
+            <div className="ph-tag">figs/f2_dynamics.png</div>
+            <div className="ph-cap">
+              σ_t and archive size, per distance metric. Two stacked line panels:
+              top = step size σ_t over CMA-ES iterations, bottom = archive growth.
+            </div>
+            <div className="ph-path">drop a PNG at <b>poster/figs/f2_dynamics.png</b></div>
+          </div>
+          <div className="cap">
+            <b>Figure 2.</b> σ_t stays bounded under Mahalanobis whitening; archive
+            grows steadily until the search saturates its local neighborhood, at
+            which point CMA-ES contracts and the coherence-rejected fraction rises.
+          </div>
+        </div>
+      </>
+    ),
+  },
+
+  pareto: {
+    title: 'Novelty versus quality',
+    eyebrow: 'Pareto',
+    color: null,
+    grow: true,
+    body: (
+      <>
+        <div className="fig">
+          <div className="fig-wrap placeholder">
+            <div className="ph-tag">figs/f3_pareto.png</div>
+            <div className="ph-cap">
+              One point per archived story.
+              x = committee novelty (MAD-normalized k-NN).
+              y = LitBench BT reward score.
+              Colour = distance metric.
+            </div>
+            <div className="ph-path">drop a PNG at <b>poster/figs/f3_pareto.png</b></div>
+          </div>
+          <div className="cap">
+            <b>Figure 3.</b> The Pareto frontier separates metrics: cosine recovers
+            high-quality but middle-novelty prose; Mahalanobis pushes further into
+            the tail at a small quality cost. The frontier is what gets handed to
+            the expansion stage.
+          </div>
+        </div>
+      </>
+    ),
+  },
+
+  transfer: {
+    title: 'Does the signal transfer?',
+    eyebrow: 'Held-out eval',
+    color: null,
+    grow: false,
+    body: (
+      <>
+        <div className="fig">
+          <div className="fig-wrap placeholder">
+            <div className="ph-tag">figs/f4_transfer.png</div>
+            <div className="ph-cap">
+              Spearman ρ between search-time committee novelty rank and
+              held-out (EmbeddingGemma-300m) novelty rank, bar plot per metric.
+            </div>
+            <div className="ph-path">drop a PNG at <b>poster/figs/f4_transfer.png</b></div>
+          </div>
+          <div className="cap">
+            <b>Figure 4.</b> Higher ρ = a novelty signal that survives a change of
+            encoder family. The committee outperforms any of its constituent
+            single-encoder rankings — the disagreement is what generalises.
+          </div>
+        </div>
+      </>
+    ),
+  },
+
+  ablation: {
+    title: 'Distance-metric ablation',
+    eyebrow: 'Ablation',
+    color: null,
+    grow: false,
+    body: (
+      <>
+        <table>
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th className="num">|Archive|</th>
+              <th className="num">σ_final</th>
+              <th className="num">Transfer ρ</th>
+              <th className="num">LitBench BT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td className="metric">euclidean</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td></tr>
+            <tr><td className="metric">cosine</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td></tr>
+            <tr><td className="metric">mahalanobis</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td></tr>
+            <tr><td className="metric">lof</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td></tr>
+            <tr><td className="metric">diffusion-map</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td><td className="num todo">—</td></tr>
+          </tbody>
+        </table>
+        <p style={{marginTop:'3mm', fontSize:'calc(9.5pt * var(--font-scale))', color:'var(--mute)'}}>
+          All runs: λ=16, T=50, seed=42, K=5 retrieval. Cells filled in at poster print time
+          from <span style={{fontFamily:'JetBrains Mono, monospace'}}>runs/&lt;metric&gt;_s42/archive.npz</span>.
+        </p>
+      </>
+    ),
+  },
+
+  qualitative: {
+    title: 'What the search actually finds',
+    eyebrow: 'Qualitative results',
+    color: 'amber',
+    grow: true,
+    body: (
+      <>
+        <div className="story">
+          <div className="story-head">
+            <span className="story-num">Opening 01 · euclidean · iter 0 · seed 42</span>
+            <span className="story-meta">
+              <span className="chip">novelty 0.82</span>
+              <span className="chip" style={{background:'var(--amber-soft)',color:'var(--amber)'}}>quality 0.71</span>
+            </span>
+          </div>
+          <p className="prose">
+            <span className="drop">T</span>he man with the umbrella was early. Not by much — perhaps ten minutes —
+            but early enough that it unsettled the rhythm of the morning. The street was still damp
+            from the night's rain, and the cobblestones gleamed under a sky that had yet to decide
+            whether it would open into daylight or retreat back into mist. There was something deliberate
+            in his arrival, as though he had rehearsed it, or perhaps simply arrived from somewhere
+            else where punctuality was a different standard.
+          </p>
+        </div>
+
+        <div className="story">
+          <div className="story-head">
+            <span className="story-num">Opening 02 · euclidean · iter 0 · seed 42</span>
+            <span className="story-meta">
+              <span className="chip">novelty 0.79</span>
+              <span className="chip" style={{background:'var(--amber-soft)',color:'var(--amber)'}}>quality 0.68</span>
+            </span>
+          </div>
+          <p className="prose">
+            <span className="drop">I</span>t was the morning the last clock struck midnight, and Eliza Morgan still did not know
+            how many minutes she had left. The world had gone quiet some time before dawn,
+            and the silence had not been the soft kind that follows a storm, nor the kind that comes
+            with snowfall — no, this was the silence of something having finished,
+            or perhaps of something never having begun. A hummingbird hovered outside the window,
+            tiny and tireless, as if it had no idea what time it was either.
+          </p>
+        </div>
+
+        <div className="story">
+          <div className="story-head">
+            <span className="story-num">Opening 03 · euclidean · iter 0 · seed 42</span>
+            <span className="story-meta">
+              <span className="chip">novelty 0.85</span>
+              <span className="chip" style={{background:'var(--amber-soft)',color:'var(--amber)'}}>quality 0.74</span>
+            </span>
+          </div>
+          <p className="prose">
+            <span className="drop">T</span>he fox had been circling the garden for days, its presence a quiet, gliding thing between
+            dusk and dark, a shadow of teeth and cunning in the tall grass. Mrs. Lorrimer, who had
+            raised roses for thirty-five years and still considered herself partly responsible for their
+            health, took it personally. So she armed herself. Not with a rifle or even a broomstick.
+            She armed herself with salt — old magic, a line, a circle, a boundary. The thing that made
+            the world safe enough for gardens to exist.
+          </p>
+        </div>
+
+        <p style={{marginTop:'5mm', color:'var(--mute)', fontSize:'calc(9.5pt * var(--font-scale))', fontStyle:'italic'}}>
+          Each opening was found by perturbing a single corpus story's embedding,
+          retrieving its k-nearest neighbours, and asking Qwen3-32B to write a new
+          piece that lives in the same neighbourhood without copying it. Excerpted
+          from <span style={{fontFamily:'JetBrains Mono, monospace', fontStyle:'normal'}}>runs/euclidean_s42/texts/i0000_*.txt</span>.
+        </p>
+      </>
+    ),
+  },
+
+  process: {
+    title: 'Three things we learned the hard way',
+    eyebrow: 'Process highlights',
+    color: null,
+    grow: false,
+    body: (
+      <>
+        <ul>
+          <li>
+            <b>The thinking-mode trap.</b> Qwen3-32B initially produced 95% reasoning
+            and 5% prose. Forcing <span style={{fontFamily:'JetBrains Mono, monospace', fontSize:'.92em'}}>/no_think</span>
+            and stripping <span style={{fontFamily:'JetBrains Mono, monospace', fontSize:'.92em'}}>&lt;think&gt;</span>
+            blocks recovered clean ~400-word openings.
+          </li>
+          <li>
+            <b>Length-regime parity.</b> Mean-pooled corpus embeddings versus
+            single-chunk candidate embeddings introduced a 2.1× variance bias.
+            Switching to first-chunk encoding for both corpus and candidates aligned
+            the regimes.
+          </li>
+          <li>
+            <b>The committee actually disagrees.</b> Pre-launch diagnostic:
+            BGE ↔ Qwen3-Emb pairwise-distance Spearman = <b>0.39</b>, well below
+            the 0.85 redundancy threshold. Encoder choice is a real degree of
+            freedom, not a fixed point.
+          </li>
+        </ul>
+      </>
+    ),
+  },
+
+  reflection: {
+    title: 'What this is, and what it isn’t',
+    eyebrow: 'Reflection',
+    color: null,
+    grow: false,
+    body: (
+      <>
+        <p>
+          The method ports cleanly, but the LLM does most of the heavy lifting:
+          CMA-ES selects <i>across</i> observer axes rather than generating novelty
+          itself. A planned prompt-instruction ablation (3 variants) will disentangle
+          search-induced novelty from prompt-induced novelty.
+        </p>
+        <p style={{marginTop:'3mm'}}>
+          The author-trained LitBench BT reward model is not yet publicly released;
+          we use the closest public surrogate (ConicCat fork on the LitBench dataset)
+          and corroborate with a Gemma-2-27B CoT judge plus the Sun et al. (2411.02316)
+          automated rubric.
+        </p>
+      </>
+    ),
+  },
+};
+
+/* ============================================================
+   Default layout — 3 columns, aspect-ratio-aware
+   Column widths in mm. POSTER_W = 610mm, side pad = 10mm, gap = 5mm.
+   Effective inner width ≈ 610 - 20 = 590; minus 2 gaps of 5 → 580 for 3 cols.
+   ============================================================ */
+const DEFAULT_LAYOUT = {
+  columns: [
+    { id: 'col1', widthMm: 180, cards: ['tldr', 'motivation', 'transfer', 'process'] },
+    { id: 'col2', widthMm: null, cards: ['pipeline', 'qualitative', 'reflection'] },
+    { id: 'col3', widthMm: 180, cards: ['dynamics', 'pareto', 'ablation'] },
+  ],
+};
+const DEFAULT_CARD_HEIGHTS = {};
+const DEFAULT_FONT_SCALE = 1.0;
+const DEFAULT_LOGOS = [];
+
+/* ============================================================
+   Framework code below — generally don't modify
+   ============================================================ */
+function cloneLayout(layout) {
+  return { columns: layout.columns.map(c => ({ id: c.id, widthMm: c.widthMm, cards: [...c.cards] })) };
+}
+
+const LS_KEY = 'posterConfig_novelty_stories_v1';
+function getFullConfig(layout, cardHeights, fontScale, logos) {
+  return { columns: layout.columns, cardHeights, fontScale, logos };
+}
+function loadInitialConfig() {
+  try { const s = localStorage.getItem(LS_KEY); if (s) return JSON.parse(s); } catch(e) {}
+  return null;
+}
+const INIT_CONFIG = loadInitialConfig();
+
+function PosterApp() {
+  const [layout, setLayout] = useState(INIT_CONFIG ? cloneLayout({columns: INIT_CONFIG.columns}) : cloneLayout(DEFAULT_LAYOUT));
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [cardHeights, setCardHeights] = useState(INIT_CONFIG?.cardHeights || {...DEFAULT_CARD_HEIGHTS});
+  const [preview, setPreview] = useState(false);
+  const [logos] = useState(INIT_CONFIG?.logos || DEFAULT_LOGOS);
+  const [fontScale, setFontScaleState] = useState(INIT_CONFIG?.fontScale || DEFAULT_FONT_SCALE);
+  const currentScaleRef = useRef(1);
+
+  useEffect(() => { localStorage.setItem(LS_KEY, JSON.stringify(getFullConfig(layout, cardHeights, fontScale, logos))); }, [layout, cardHeights, fontScale, logos]);
+  useEffect(() => { document.documentElement.style.setProperty('--font-scale', fontScale); }, [fontScale]);
+  useEffect(() => { document.body.classList.toggle('preview', preview); }, [preview]);
+
+  const fit = useCallback(() => {
+    if (window.matchMedia('print').matches) return;
+    const pW = POSTER_W_MM * MM, pH = POSTER_H_MM * MM;
+    const scale = Math.min(window.innerWidth / pW, window.innerHeight / pH);
+    currentScaleRef.current = scale;
+    const left = (window.innerWidth - pW * scale) / 2;
+    const top = (window.innerHeight - pH * scale) / 2;
+    document.body.style.transform = 'translate(' + left + 'px,' + top + 'px) scale(' + scale + ')';
+  }, []);
+  useEffect(() => { fit(); window.addEventListener('resize', fit); return () => window.removeEventListener('resize', fit); }, [fit]);
+
+  useEffect(() => { if (typeof renderMathInElement === 'function') renderMathInElement(document.body, {delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]}); });
+
+  useEffect(() => {
+    function handler(e) { if (selectedCard && !e.target.closest('.swap-handle') && !e.target.closest('.drop-zone')) setSelectedCard(null); }
+    document.addEventListener('click', handler); return () => document.removeEventListener('click', handler);
+  }, [selectedCard]);
+
+  function swapCards(id1, id2) {
+    if (id1 === id2) return false;
+    setLayout(prev => { const next = cloneLayout(prev); let l1, l2; for (const c of next.columns) { const i1 = c.cards.indexOf(id1); if (i1!==-1) l1={col:c,idx:i1}; const i2 = c.cards.indexOf(id2); if (i2!==-1) l2={col:c,idx:i2}; } if (!l1||!l2) return prev; l1.col.cards[l1.idx]=id2; l2.col.cards[l2.idx]=id1; return next; });
+    setCardHeights(prev => { const n={...prev}; delete n[id1]; delete n[id2]; return n; });
+    return true;
+  }
+  function moveCard(cardId, targetColId, position) {
+    setLayout(prev => { const next = cloneLayout(prev); for (const c of next.columns) { const i = c.cards.indexOf(cardId); if (i!==-1) { c.cards.splice(i,1); break; } } const tc = next.columns.find(c=>c.id===targetColId); if (!tc) return prev; tc.cards.splice(Math.max(0,Math.min(position,tc.cards.length)),0,cardId); return next; });
+    setCardHeights(prev => { const n={...prev}; delete n[cardId]; return n; });
+  }
+  function setColumnWidth(colId, widthMm) { setLayout(prev => { const next = cloneLayout(prev); const c = next.columns.find(c=>c.id===colId); if (!c) return prev; c.widthMm = widthMm; return next; }); }
+  function setCardHeight(cardId, heightMm) { setCardHeights(prev => ({...prev, [cardId]: heightMm})); }
+  function getWaste() { let total=0; const details=[]; document.querySelectorAll('.fig-wrap').forEach(fw => { const img=fw.querySelector('img'); if(!img)return; const fr=fw.getBoundingClientRect(),ir=img.getBoundingClientRect(); const wH=Math.abs(fr.height-ir.height),wW=Math.abs(fr.width-ir.width); total+=wH+wW; details.push({card:fw.closest('.card')?.dataset.id,wasteH:Math.round(wH),wasteW:Math.round(wW),pct:Math.round((wH+wW)/(fr.height+fr.width)*100)}); }); return {total:Math.round(total),details}; }
+  function getLayout() { const s=currentScaleRef.current; const r=[]; document.querySelectorAll('#poster > .col').forEach(col => { const cards=[]; col.querySelectorAll('.card').forEach(c => { const b=c.getBoundingClientRect(); cards.push({id:c.dataset.id,height:Math.round(b.height/s),heightMm:Math.round(b.height/s/MM),grow:c.classList.contains('grow')}); }); r.push({colId:col.id,widthPx:Math.round(col.getBoundingClientRect().width/s),widthMm:Math.round(col.getBoundingClientRect().width/s/MM),cards}); }); return r; }
+
+  function resetLayout() { setLayout(cloneLayout(DEFAULT_LAYOUT)); setCardHeights({...DEFAULT_CARD_HEIGHTS}); setFontScaleState(DEFAULT_FONT_SCALE); setSelectedCard(null); localStorage.removeItem(LS_KEY); }
+  function saveConfig() { const cfg=getFullConfig(layout,cardHeights,fontScale,logos); const b=new Blob([JSON.stringify(cfg,null,2)+'\n'],{type:'application/json'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='poster-config.json'; a.click(); URL.revokeObjectURL(u); }
+  function copyConfig() { navigator.clipboard.writeText(JSON.stringify(getFullConfig(layout,cardHeights,fontScale,logos),null,2)).then(()=>alert('Config copied! Paste it to Claude.')); }
+  function setFontScale(s) { setFontScaleState(parseFloat(s)||1.0); }
+
+  useEffect(() => { window.posterAPI = { swapCards, moveCard, setColumnWidth, setCardHeight, setFontScale, getWaste, getLayout, getConfig:()=>getFullConfig(layout,cardHeights,fontScale,logos), resetLayout, saveConfig, copyConfig, fit }; });
+
+  function handleSwapClick(cardId, e) { e.stopPropagation(); if (!selectedCard) setSelectedCard(cardId); else if (selectedCard===cardId) setSelectedCard(null); else { swapCards(selectedCard, cardId); setSelectedCard(null); } }
+  function handleDropZone(targetColId, position, e) { e.stopPropagation(); if (!selectedCard) return; moveCard(selectedCard, targetColId, position); setSelectedCard(null); }
+
+  function handleColResize(dividerIdx, e) {
+    e.preventDefault(); const handle=e.currentTarget; handle.classList.add('active');
+    const targetColIdx=dividerIdx===0?0:2; const invert=dividerIdx===0?1:-1;
+    const targetEl=document.getElementById(layout.columns[targetColIdx].id);
+    const startX=e.clientX; const scale=currentScaleRef.current;
+    const startW=targetEl.getBoundingClientRect().width/scale;
+    function onMove(ev) { const dx=(ev.clientX-startX)/scale*invert; const newW=Math.max(120,(startW+dx)/MM); setLayout(prev => { const next=cloneLayout(prev); next.columns[targetColIdx].widthMm=Math.round(newW); return next; }); }
+    function onUp() { document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); handle.classList.remove('active'); document.body.style.cursor=''; }
+    document.body.style.cursor='col-resize'; document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp);
+  }
+
+  function handleRowResize(colId, cardAboveIdx, e) {
+    e.preventDefault(); const handle=e.currentTarget; handle.classList.add('active');
+    const col=layout.columns.find(c=>c.id===colId); const aboveId=col.cards[cardAboveIdx];
+    const aboveEl=document.querySelector('[data-id="'+aboveId+'"]'); if(!aboveEl)return;
+    const startY=e.clientY; const scale=currentScaleRef.current; const startH=aboveEl.getBoundingClientRect().height/scale;
+    setCardHeights(prev=>({...prev,[aboveId]:startH/MM}));
+    function onMove(ev) { const dy=(ev.clientY-startY)/scale; setCardHeights(prev=>({...prev,[aboveId]:Math.max(20,(startH+dy)/MM)})); }
+    function onUp() { document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); handle.classList.remove('active'); document.body.style.cursor=''; }
+    document.body.style.cursor='row-resize'; document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp);
+  }
+
+  function isCardGrow(cardId) {
+    if (cardHeights[cardId] != null) return false;
+    for (const col of layout.columns) {
+      const idx = col.cards.indexOf(cardId); if (idx===-1) continue;
+      const hasGrower = col.cards.some(cid => CARD_REGISTRY[cid]?.grow && cardHeights[cid]==null);
+      if (hasGrower) return CARD_REGISTRY[cardId]?.grow || false;
+      const lastFlexible = [...col.cards].reverse().find(cid => cardHeights[cid]==null);
+      return cardId === lastFlexible;
+    }
+    return false;
+  }
+
+  function renderCard(cardId) {
+    const card = CARD_REGISTRY[cardId]; if (!card) return null;
+    const classes = ['card']; if (card.color) classes.push(card.color);
+    if (card.cardClass) classes.push(card.cardClass);
+    if (isCardGrow(cardId)) classes.push('grow');
+    if (selectedCard===cardId) classes.push('swap-selected');
+    const style = {}; if (cardHeights[cardId]!=null) style.flex='0 0 '+cardHeights[cardId]+'mm';
+    return (
+      <div key={cardId} className={classes.join(' ')} data-id={cardId} style={style}>
+        <div className="swap-handle" onClick={(e)=>handleSwapClick(cardId,e)}>&#x2725;</div>
+        {card.eyebrow && <div className="eyebrow">{card.eyebrow}</div>}
+        <h2>{card.title}</h2>
+        {card.body}
+      </div>
+    );
+  }
+
+  function renderDropZone(colId, position) {
+    const visible = selectedCard !== null;
+    return (<div key={'dz-'+colId+'-'+position} className={'drop-zone'+(visible?' visible':'')} onClick={(e)=>handleDropZone(colId,position,e)}>{visible && <div className="drop-zone-inner" />}</div>);
+  }
+
+  function renderColumn(col) {
+    const style = col.widthMm != null ? {flex:'0 0 '+col.widthMm+'mm'} : {flex:'1.5'};
+    const children = [renderDropZone(col.id, 0)];
+    col.cards.forEach((cardId, i) => {
+      children.push(renderCard(cardId));
+      if (i < col.cards.length - 1) children.push(<div key={'row-'+col.id+'-'+i} className="divider row-resize" onMouseDown={(e)=>handleRowResize(col.id,i,e)} />);
+      children.push(renderDropZone(col.id, i + 1));
+    });
+    return (<div key={col.id} className="col" id={col.id} style={style}>{children}</div>);
+  }
+
+  return (
+    <>
+      <div className="toolbar">
+        <button onClick={()=>setPreview(!preview)} style={preview?{background:'#2A2A33',color:'#fff',borderColor:'#2A2A33'}:{}}>{preview?'Edit':'Preview'}</button>
+        {!preview && <>
+          <button onClick={()=>setFontScale(Math.max(0.7,fontScale-0.05))}>A-</button>
+          <button onClick={()=>setFontScale(fontScale+0.05)}>A+</button>
+          <button onClick={saveConfig} title="Download poster-config.json">Save</button>
+          <button onClick={copyConfig} title="Copy config JSON to clipboard">Copy Config</button>
+          <button onClick={resetLayout}>Reset</button>
+        </>}
+      </div>
+
+      {/* === HEADER === */}
+      <div className="header">
+        <div className="header-left">
+          <div className="eyebrow">A novelty-search study · 2026</div>
+          <h1>
+            Writing beyond <span className="accent">imagination</span>
+          </h1>
+          <div className="subtitle">
+            Steering language models toward stories they wouldn't write on their own.
+          </div>
+          <div className="byline">
+            Avi Oberoi
+            <span className="sep">·</span>
+            <span className="affil">University of Chicago</span>
+            <span className="sep">·</span>
+            <span className="affil">2026</span>
+          </div>
+        </div>
+        <div className="header-right">
+          <div className="qr">
+            <img src="qr.png" alt="QR — github.com/avioberoi/novelty_stories" onError={(e)=>{e.target.style.display='none'; e.target.parentNode.innerHTML='QR<br/>github.com/<br/>avioberoi/<br/>novelty_stories';}} />
+          </div>
+          <div className="qr-label">github / repo</div>
+        </div>
+      </div>
+
+      {/* === BODY (3 columns) === */}
+      <div className="poster" id="poster">
+        {layout.columns.map((col, colIdx) => {
+          const elements = [];
+          if (colIdx > 0) elements.push(<div key={'col-div-'+colIdx} className="divider col-resize" onMouseDown={(e)=>handleColResize(colIdx-1,e)} />);
+          elements.push(renderColumn(col));
+          return elements;
+        })}
+      </div>
+
+      {/* === FOOTER (AI disclosure) === */}
+      <div className="footer">
+        <b>AI disclosure.</b>
+        Code authored with Claude Code (Opus 4.7); generation by Qwen3-32B;
+        embeddings by Qwen3-Emb-0.6B, BGE-large, E5-Mistral-7B (search-time committee),
+        EmbeddingGemma-300m (held-out transfer); quality by Gemma-2-27B CoT judge +
+        ConicCat/Litbench-Creative-Writing-RM-3B (community Bradley-Terry reward model
+        on the LitBench dataset; the paper-authored RM is not yet publicly released).
+      </div>
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<PosterApp />);
+</script>
+</body>
+</html>

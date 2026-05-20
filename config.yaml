@@ -67,6 +67,8 @@ coherence:
 
 eval:
   litbench_repo: ConicCat/Litbench-Creative-Writing-RM-3B
+  # ConicCat's repo ships only model weights; tokenizer lives on the (un-gated) Unsloth mirror
+  litbench_tokenizer: unsloth/Llama-3.2-3B-Instruct
   litbench_wp: "Write a literary short story opening in the style of contemporary fiction."
   judge_model: gemma2_27b
   judge_n_per_archive: 200    # top-100 novelty + 100 random
