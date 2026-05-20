@@ -1,6 +1,7 @@
 """Retrieval-conditioned story generator. v ∈ R^768 → kNN(corpus) → vLLM Qwen3-32B → .txt.
-Stable seed = base + iter*1000 + j keeps G(v) deterministic in (it, j), not in random md5(v)."""
-import os, json
+Stable seed = base + iter*1000 + j keeps G(v) deterministic in (it, j), not in random md5(v).
+Qwen3 thinking-mode is disabled via /no_think + we strip any <think>…</think> defensively."""
+import os, re, json
 from pathlib import Path
 import numpy as np
 import faiss
@@ -13,7 +14,13 @@ SYS = ("You are a literary fiction writer. You will be shown several short "
        "neighborhood — same emotional register, comparable prose style, related "
        "(but not identical) subject matter — while being clearly its OWN piece, "
        "not a pastiche of any single example. Do not mention or refer to the "
-       "examples. Just write the story.")
+       "examples. Just write the story. /no_think")
+
+_THINK = re.compile(r'<think>.*?</think>', re.DOTALL)
+
+
+def _clean(txt):
+    return _THINK.sub('', txt).strip()
 
 
 def build(cfg):
@@ -47,7 +54,7 @@ def build(cfg):
         user = ("Here are {} story openings from the neighborhood:\n\n{}\n\n"
                 "Now write a new ~500-word story opening in this neighborhood. "
                 "Begin immediately with the story prose — no title, no preamble, "
-                "no commentary.").format(K, "\n\n".join(ex))
+                "no commentary. /no_think").format(K, "\n\n".join(ex))
         r = client.chat.completions.create(
             model=model,
             messages=[{"role": "system", "content": SYS},
@@ -58,7 +65,7 @@ def build(cfg):
         if not r.choices:
             txt = ''
         else:
-            txt = (r.choices[0].message.content or '').strip()
+            txt = _clean(r.choices[0].message.content or '')
         p = Path(out_path)
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(txt)

@@ -11,7 +11,10 @@ def load(name, cfg):
     if name in _cache:
         return _cache[name]
     path = cfg['models'][name]
-    if name == 'nv_embed':
+    if name == 'emb_gemma':
+        # SentenceTransformer wrapper handles EmbeddingGemma directly
+        out = _load_st(path, prefix="task: search result | query: ", bs=32)
+    elif name == 'nv_embed':
         out = _load_nv_embed(path)
     elif name == 'e5_mistral':
         out = _load_st(path, prefix=("Instruct: Represent this short story passage "

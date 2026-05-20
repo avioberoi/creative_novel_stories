@@ -55,5 +55,5 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--config', default='config.yaml')
     ap.add_argument('--encoder', required=True,
-                    choices=['qwen3_emb', 'bge', 'e5_mistral', 'nv_embed'])
+                    choices=['qwen3_emb', 'bge', 'e5_mistral', 'nv_embed', 'emb_gemma'])
     main(ap.parse_args())

@@ -1,5 +1,7 @@
 """Plots: UMAP, σ-trajectory + archive growth, Pareto novelty-vs-quality.
-Run after eval.py — reads archive.npz, transfer.npz, litbench.npz."""
+Run after eval.py — reads archive.npz, transfer.npz, litbench.npz.
+Every panel also writes its exact plotted arrays to figs_data/<panel>.npz
+so the figure is reproducible from the data alone."""
 import argparse
 from pathlib import Path
 import numpy as np
@@ -7,19 +9,32 @@ import matplotlib.pyplot as plt
 import yaml
 
 
+def _save_panel_data(out_dir, name, **arrays):
+    """Persist the exact arrays a panel plots. Loadable via np.load(...)."""
+    d = Path(out_dir) / 'figs_data'
+    d.mkdir(parents=True, exist_ok=True)
+    np.savez(d / f'{name}.npz', **arrays)
+
+
 def σ_dashboard(run_dirs, out_path):
     fig, axes = plt.subplots(1, 3, figsize=(14, 4), constrained_layout=True)
+    data = {}
     for d in run_dirs:
         a = np.load(Path(d) / 'archive.npz', allow_pickle=True)
         label = Path(d).name
         axes[0].plot(a['log_iter'], a['log_σ'], label=label)
         axes[1].plot(a['log_iter'], a['log_archive'], label=label)
         axes[2].plot(a['log_iter'], a['log_nov'], label=label)
+        data[f'{label}__iter'] = np.asarray(a['log_iter'])
+        data[f'{label}__sigma'] = np.asarray(a['log_σ'])
+        data[f'{label}__archive_size'] = np.asarray(a['log_archive'])
+        data[f'{label}__max_nov'] = np.asarray(a['log_nov'])
     axes[0].set(xlabel='iter', ylabel='σ', title='step size')
     axes[1].set(xlabel='iter', ylabel='archive size', title='growth')
     axes[2].set(xlabel='iter', ylabel='max novelty (feasible)', title='novelty')
     for ax in axes: ax.legend(fontsize=7); ax.grid(alpha=0.3)
     fig.savefig(out_path, dpi=140); plt.close(fig)
+    _save_panel_data(Path(out_path).parent, 'sigma_dashboard', **data)
     print(f'wrote {out_path}')
 
 
@@ -31,35 +46,43 @@ def umap_archive(cfg, run_dirs, out_path, observer='bge'):
     fig, ax = plt.subplots(figsize=(7, 7))
     ax.scatter(u_obs[:, 0], u_obs[:, 1], s=3, c='lightgray', label='corpus')
     cmap = plt.get_cmap('tab10')
+    data = {'corpus_xy': u_obs.astype('f4')}
     for k, d in enumerate(run_dirs):
         a = np.load(Path(d) / 'archive.npz', allow_pickle=True)
         e = a[f'emb_{observer}']
-        u_a = reducer.transform(e)
+        u_a = reducer.transform(e).astype('f4')
         ax.scatter(u_a[:, 0], u_a[:, 1], s=14, c=[cmap(k)],
                    label=Path(d).name, alpha=0.85, edgecolors='black', linewidths=0.3)
+        data[f'{Path(d).name}__xy'] = u_a
     ax.legend(fontsize=8); ax.set_title(f'UMAP in {observer} space')
     fig.savefig(out_path, dpi=140); plt.close(fig)
+    _save_panel_data(Path(out_path).parent, f'umap_{observer}', **data)
     print(f'wrote {out_path}')
 
 
 def pareto(run_dirs, out_path, quality_key='litbench'):
     fig, ax = plt.subplots(figsize=(7, 5))
     cmap = plt.get_cmap('tab10')
+    data = {}
     for k, d in enumerate(run_dirs):
         a = np.load(Path(d) / 'archive.npz', allow_pickle=True)
-        nov = a['novelties']
+        nov = np.asarray(a['novelties'])
         qpath = Path(d) / f'{quality_key}.npz'
         if not qpath.exists():
             print(f'skip {d} (no {qpath.name})'); continue
-        q = np.load(qpath)['scores']
+        q = np.asarray(np.load(qpath)['scores'])
         ax.scatter(nov, q, s=12, c=[cmap(k)], label=Path(d).name, alpha=0.7)
-        # mark non-dominated points
         idx = _pareto_front(np.stack([nov, q], 1))
         ax.scatter(nov[idx], q[idx], s=40, facecolors='none',
                    edgecolors=cmap(k), linewidths=1.2)
+        name = Path(d).name
+        data[f'{name}__nov'] = nov.astype('f4')
+        data[f'{name}__quality'] = q.astype('f4')
+        data[f'{name}__pareto_idx'] = idx.astype('i4')
     ax.set(xlabel='novelty (committee mean)', ylabel=f'{quality_key} score')
     ax.legend(fontsize=8); ax.grid(alpha=0.3)
     fig.savefig(out_path, dpi=140); plt.close(fig)
+    _save_panel_data(Path(out_path).parent, f'pareto_{quality_key}', **data)
     print(f'wrote {out_path}')
 
 
