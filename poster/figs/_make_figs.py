@@ -36,6 +36,10 @@ DISPLAY_FAM = "Bricolage Grotesque"   # display / titles (Space Grotesk fallback
 BODY_FAM    = "Work Sans"             # body (Inter fallback)
 MONO_FAM    = "JetBrains Mono"
 
+# UChicago Maroon accent — used for title highlights, reference lines,
+# winner / "best" callouts. NOT for the Okabe-Ito data palette.
+MAROON = "#800000"
+
 mpl.rcParams.update({
     "font.family": BODY_FAM,
     "axes.unicode_minus": False,
@@ -142,12 +146,21 @@ def style_axes(ax):
 # Figure 1: transfer rank correlation bar chart
 # -----------------------------------------------------------------------------
 def make_transfer_rho():
-    rho = {run: load_transfer_rho(run) for run in ORDER}
-    # Order: best at top -> worst at bottom
-    runs_sorted = sorted(rho, key=lambda r: rho[r], reverse=True)
-    values = [rho[r] for r in runs_sorted]
-    colors = [COLOR[r] for r in runs_sorted]
-    labels = [LABEL[r] for r in runs_sorted]
+    # Prefer cached values from figs_data (fallback to live run files).
+    cache = DATA_DIR / "transfer_rho.npz"
+    if cache.exists():
+        z = np.load(cache, allow_pickle=False)
+        runs_sorted = [str(r) for r in z["runs"]]
+        labels = [str(l) for l in z["labels"]]
+        values = list(map(float, z["rho"]))
+        colors = [str(c) for c in z["colors"]]
+    else:
+        rho = {run: load_transfer_rho(run) for run in ORDER}
+        # Order: best at top -> worst at bottom
+        runs_sorted = sorted(rho, key=lambda r: rho[r], reverse=True)
+        values = [rho[r] for r in runs_sorted]
+        colors = [COLOR[r] for r in runs_sorted]
+        labels = [LABEL[r] for r in runs_sorted]
 
     fig, ax = plt.subplots(figsize=(12, 7), dpi=200)
     fig.subplots_adjust(left=0.20, right=0.93, top=0.82, bottom=0.18)
@@ -156,17 +169,25 @@ def make_transfer_rho():
     # Highest on top -> reverse y order
     ax.barh(y[::-1], values, color=colors, edgecolor="#1F2937", linewidth=0.8, height=0.62)
 
-    # Value annotations to the right of each bar
-    for yi, v in zip(y[::-1], values):
-        ax.text(v + 0.012, yi, f"{v:.2f}", va="center", ha="left",
-                fontsize=20, fontfamily=MONO_FAM, color="#1F2937")
+    # Value annotations to the right of each bar.
+    # Top bar (the winner) gets the maroon highlight + bold.
+    for rank, (yi, v) in enumerate(zip(y[::-1], values)):
+        is_best = (rank == 0)
+        ax.text(
+            v + 0.012, yi, f"{v:.2f}",
+            va="center", ha="left",
+            fontsize=22 if is_best else 20,
+            fontfamily=MONO_FAM,
+            color=MAROON if is_best else "#1F2937",
+            fontweight="bold" if is_best else "normal",
+        )
 
-    # Reference line at 0.629 (image-paper best)
+    # Reference line at 0.629 (image-paper best) — promoted to maroon accent
     REF = 0.629
-    ax.axvline(REF, color="#6B7280", linestyle="--", linewidth=1.5)
+    ax.axvline(REF, color=MAROON, linestyle="--", linewidth=1.6)
     ax.text(REF + 0.008, len(runs_sorted) - 0.5 + 0.05,
             "image-paper best: 0.63",
-            fontsize=16, fontfamily=MONO_FAM, color="#6B7280",
+            fontsize=16, fontfamily=MONO_FAM, color=MAROON,
             ha="left", va="bottom")
 
     # Y-axis: metric names
@@ -192,7 +213,7 @@ def make_transfer_rho():
              fontsize=28, fontfamily=DISPLAY_FAM, fontweight="bold", color="#1F2937")
     fig.text(0.04, 0.875,
              "Mahalanobis-whitened k-NN gives the strongest signal (0.80)",
-             fontsize=18, fontfamily=BODY_FAM, color="#6B7280")
+             fontsize=18, fontfamily=BODY_FAM, fontweight="bold", color=MAROON)
 
     style_axes(ax)
     ax.spines["left"].set_visible(False)
@@ -221,11 +242,24 @@ def make_transfer_rho():
 # -----------------------------------------------------------------------------
 def make_sigma_dashboard():
     fig, axes = plt.subplots(1, 3, figsize=(18, 6), dpi=200)
-    fig.subplots_adjust(left=0.05, right=0.97, top=0.78, bottom=0.16, wspace=0.28)
+    # Leave headroom for suptitle + subtitle and right margin for shared legend.
+    fig.subplots_adjust(left=0.05, right=0.88, top=0.74, bottom=0.18, wspace=0.34)
+
+    cache = DATA_DIR / "sigma_dashboard.npz"
+    cached = None
+    if cache.exists():
+        z = np.load(cache, allow_pickle=False)
+        cached = {k: z[k] for k in z.files}
 
     data = {}
     for run in ORDER:
-        iters, sig, arch, nov = load_log_iter_sigma_archive_nov(run)
+        if cached is not None and f"{run}__iter" in cached:
+            iters = cached[f"{run}__iter"]
+            sig   = cached[f"{run}__sigma"]
+            arch  = cached[f"{run}__archive"]
+            nov   = cached[f"{run}__max_nov"]
+        else:
+            iters, sig, arch, nov = load_log_iter_sigma_archive_nov(run)
         c = COLOR[run]
         axes[0].plot(iters, sig, color=c, linewidth=2.2, label=LABEL[run])
         axes[1].plot(iters, arch, color=c, linewidth=2.2, label=LABEL[run])
@@ -241,23 +275,12 @@ def make_sigma_dashboard():
                   fontweight="bold", color="#1F2937", pad=12, loc="left")
     ax0.set_xlabel("Search iteration", fontsize=18, fontfamily=DISPLAY_FAM, fontweight="bold", color="#1F2937", labelpad=10)
     ax0.set_ylabel("Step size (starting value 0.18)", fontsize=18, fontfamily=DISPLAY_FAM, fontweight="bold", color="#1F2937", labelpad=10)
-    # Reference line at 0.18
-    ax0.axhline(0.18, color="#6B7280", linestyle="--", linewidth=1.3)
+    # Reference line at 0.18 (promoted to maroon accent)
+    ax0.axhline(0.18, color=MAROON, linestyle="--", linewidth=1.4)
     xlim = ax0.get_xlim()
     ax0.text(xlim[1], 0.18 + 0.005, "starting step size",
-             fontsize=14, fontfamily=BODY_FAM, color="#6B7280",
+             fontsize=14, fontfamily=BODY_FAM, color=MAROON,
              ha="right", va="bottom")
-    # Legend in panel 1 upper-right
-    leg = ax0.legend(
-        loc="upper right",
-        fontsize=14,
-        frameon=False,
-        labelspacing=0.4,
-        handlelength=1.6,
-    )
-    for txt in leg.get_texts():
-        txt.set_fontfamily(BODY_FAM)
-        txt.set_color("#1F2937")
 
     # Panel 2: archive growth
     ax1 = axes[1]
@@ -279,9 +302,27 @@ def make_sigma_dashboard():
         for lbl in ax.get_xticklabels() + ax.get_yticklabels():
             lbl.set_fontfamily(BODY_FAM)
 
-    # Suptitle
+    # Shared legend in right margin (out of the data area to avoid overlap)
+    handles, labels = axes[0].get_legend_handles_labels()
+    leg = fig.legend(
+        handles, labels,
+        loc="center right",
+        bbox_to_anchor=(0.995, 0.46),
+        fontsize=14,
+        frameon=False,
+        labelspacing=0.55,
+        handlelength=1.8,
+    )
+    for txt in leg.get_texts():
+        txt.set_fontfamily(BODY_FAM)
+        txt.set_color("#1F2937")
+
+    # Suptitle + subtitle
     fig.text(0.02, 0.93, "What the search does over iterations",
              fontsize=28, fontfamily=DISPLAY_FAM, fontweight="bold", color="#1F2937")
+    fig.text(0.02, 0.875,
+             "CMA-ES adapts modestly, archive saturates, novelty plateaus",
+             fontsize=16, fontfamily=BODY_FAM, fontweight="bold", color=MAROON)
 
     out_png = OUT_DIR / "sigma_dashboard.png"
     fig.savefig(out_png, dpi=200)
@@ -310,11 +351,21 @@ def make_pareto_litbench():
     fig, ax = plt.subplots(figsize=(12, 7), dpi=200)
     fig.subplots_adjust(left=0.10, right=0.97, top=0.84, bottom=0.16)
 
+    cache = DATA_DIR / "pareto_litbench.npz"
+    cached = None
+    if cache.exists():
+        z = np.load(cache, allow_pickle=False)
+        cached = {k: z[k] for k in z.files}
+
     data = {}
     total = 0
     for run in ORDER:
-        nov = load_novelties(run)
-        q   = load_litbench_scores(run)
+        if cached is not None and f"{run}__novelty" in cached:
+            nov = cached[f"{run}__novelty"]
+            q   = cached[f"{run}__litbench"]
+        else:
+            nov = load_novelties(run)
+            q   = load_litbench_scores(run)
         c   = COLOR[run]
         ax.scatter(nov, q, s=80, c=c, alpha=0.7,
                    edgecolors="#1F2937", linewidths=0.4,
@@ -357,8 +408,9 @@ def make_pareto_litbench():
     # Title + subtitle
     fig.text(0.06, 0.93, "Are novel stories also good stories?",
              fontsize=28, fontfamily=DISPLAY_FAM, fontweight="bold", color="#1F2937")
-    fig.text(0.06, 0.885, f"Each point is one of {total} generated stories",
-             fontsize=16, fontfamily=BODY_FAM, color="#6B7280")
+    fig.text(0.06, 0.885,
+             f"Each point is one of {total} generated stories — novel stories are not penalized on quality",
+             fontsize=16, fontfamily=BODY_FAM, fontweight="bold", color=MAROON)
 
     out_png = OUT_DIR / "pareto_litbench.png"
     fig.savefig(out_png, dpi=200)

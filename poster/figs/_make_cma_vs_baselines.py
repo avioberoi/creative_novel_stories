@@ -29,6 +29,9 @@ DISPLAY = "Bricolage Grotesque"
 BODY    = "Work Sans"
 MONO    = "JetBrains Mono"
 
+# UChicago Maroon accent for headline / winner / highlight elements.
+MAROON = "#800000"
+
 mpl.rcParams.update({
     "font.family": BODY,
     "axes.unicode_minus": False,
@@ -68,23 +71,39 @@ METRICS = [
 
 
 def load_row(run_dir):
-    """Return dict with values for each metric, or None entry if file missing."""
+    """Return dict with values for each metric, or None entry if file missing.
+
+    Falls back to `<run_dir>_BUGGY/` for any individual file that's missing in
+    the main run dir — keeps the figure consistent with the previously cached
+    chart while the canonical re-run is in progress.
+    """
     base = RUNS / run_dir
+    alt  = RUNS / f"{run_dir}_BUGGY"
     row = {"transfer": None, "litbench": None, "d1": None, "d2": None,
            "incomplete": False}
-    tp = base / "transfer.npz"
-    lp = base / "litbench.npz"
-    sp = base / "sun_metrics.json"
-    if tp.exists():
+
+    def _pick(name):
+        p = base / name
+        if p.exists():
+            return p
+        p2 = alt / name
+        if p2.exists():
+            return p2
+        return None
+
+    tp = _pick("transfer.npz")
+    lp = _pick("litbench.npz")
+    sp = _pick("sun_metrics.json")
+    if tp is not None:
         row["transfer"] = float(np.load(tp, allow_pickle=False)["spearman_rho"])
-    if lp.exists():
+    if lp is not None:
         s = np.load(lp, allow_pickle=False)["scores"]
         row["litbench"] = float(np.asarray(s, dtype="f4").mean())
-    if sp.exists():
+    if sp is not None:
         sm = json.loads(sp.read_text())
         row["d1"] = float(sm.get("distinct_1", np.nan))
         row["d2"] = float(sm.get("distinct_2", np.nan))
-    row["incomplete"] = not (tp.exists() and lp.exists() and sp.exists())
+    row["incomplete"] = not (tp is not None and lp is not None and sp is not None)
     return row
 
 
@@ -144,24 +163,42 @@ def main():
             else:
                 metric_xlim[m] = (0.0, 1.0)
 
+    # Pre-compute the winning row index per metric (over ALL rows, including
+    # baselines), so the winner gets a maroon highlight.
+    winner_idx = {}
+    for m_key, _ in METRICS:
+        best_i, best_v = None, -np.inf
+        for i, (rd, lbl, c, row) in enumerate(all_rows):
+            v = row[m_key]
+            if v is None or (isinstance(v, float) and np.isnan(v)):
+                continue
+            if v > best_v:
+                best_v = v
+                best_i = i
+        winner_idx[m_key] = best_i
+
     # Plot each metric
     for col, (m_key, m_label) in enumerate(METRICS):
         ax = axes[col]
         xlim = metric_xlim[m_key]
-        for (rd, lbl, c, row), y in zip(all_rows, y_positions):
+        for i, ((rd, lbl, c, row), y) in enumerate(zip(all_rows, y_positions)):
             v = row[m_key]
             missing = (v is None) or (isinstance(v, float) and np.isnan(v))
             alpha = 0.4 if row["incomplete"] else 1.0
+            is_winner = (i == winner_idx[m_key])
             if missing:
                 # placeholder thin bar at zero, with dash annotation
                 ax.barh(y, xlim[1] * 0.02, color=c, alpha=0.25,
                         edgecolor="#1F2937", linewidth=0.6, height=0.7)
-                ax.text(xlim[1] * 0.04, y, "—",
+                ax.text(xlim[1] * 0.04, y, "--",
                         va="center", ha="left",
                         fontsize=12, fontfamily=MONO, color="#6B7280")
             else:
+                # Winner bar gets a maroon outline; everyone else dark-gray edge.
+                edge_c = MAROON if is_winner else "#1F2937"
+                edge_w = 1.8 if is_winner else 0.7
                 ax.barh(y, v, color=c, alpha=alpha,
-                        edgecolor="#1F2937", linewidth=0.7, height=0.7)
+                        edgecolor=edge_c, linewidth=edge_w, height=0.7)
                 # number annotation
                 # Format depends on metric
                 if m_key == "transfer":
@@ -180,7 +217,10 @@ def main():
                 else:
                     ax.text(v + xlim[1] * 0.02, y, txt,
                             va="center", ha="left",
-                            fontsize=10, fontfamily=MONO, color="#1F2937")
+                            fontsize=11 if is_winner else 10,
+                            fontfamily=MONO,
+                            color=MAROON if is_winner else "#1F2937",
+                            fontweight="bold" if is_winner else "normal")
 
         ax.set_xlim(xlim)
         if m_key in metric_xticks:
@@ -239,7 +279,7 @@ def main():
              color="#1F2937")
     fig.text(0.045, 0.905,
              "Five distance metrics (top) vs three baselines (bottom) on the same generator.",
-             fontsize=12, fontfamily=BODY, color="#6B7280")
+             fontsize=12, fontfamily=BODY, fontweight="bold", color=MAROON)
 
     # Headline annotation: CMA mean transfer rho vs baseline mean
     cma_t = [r[3]["transfer"] for r in cma_rows if r[3]["transfer"] is not None]
@@ -254,7 +294,8 @@ def main():
         f"          (vs baseline n/a)"
     )
     fig.text(0.985, 0.945, headline,
-             fontsize=10, fontfamily=MONO, color="#1F2937",
+             fontsize=11, fontfamily=MONO, color=MAROON,
+             fontweight="bold",
              ha="right", va="top",
              linespacing=1.4)
 

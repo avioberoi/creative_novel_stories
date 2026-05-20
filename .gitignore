@@ -3,3 +3,12 @@ __pycache__/
 *.pyo
 *.egg-info/
 .ipynb_checkpoints/
+
+# Cleanup additions (Wave 10)
+__pycache__/
+*.pyc
+dconf/
+report/data/corpus_umap_reducer.pkl
+report/data/corpus_umap.npy
+# heavy outputs live in /project/jevans/avi, never tracked
+*.log
