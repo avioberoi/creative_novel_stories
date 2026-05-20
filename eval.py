@@ -117,23 +117,25 @@ def gemma_judge(cfg, run_dir, n_top=100, n_rand=100):
     print(f'{run_dir}  judge_mean={np.mean(means):.2f}  n={len(means)}')
 
 
-def litbench(cfg, run_dir, batch=8):
-    """Load LitBench BT reward model and score each archive item in batches."""
+def litbench(cfg, run_dir, batch=4):
+    """LitBench Bradley-Terry reward (ConicCat/Litbench-Creative-Writing-RM-3B).
+    Input format expected by the RM: 'User:\\n[WP] {prompt}\\n\\nAssistant:\\n{story}'."""
     import torch
     from transformers import AutoModelForSequenceClassification, AutoTokenizer
     a = load_archive(run_dir)
     repo = cfg['eval']['litbench_repo']
+    wp = cfg['eval'].get('litbench_wp', 'Write a literary short story.')
     tok = AutoTokenizer.from_pretrained(repo)
     m = AutoModelForSequenceClassification.from_pretrained(
         repo, torch_dtype=torch.bfloat16).cuda().eval()
-    texts = [str(t) for t in a['texts']]
+    texts = [f'User:\n[WP] {wp}\n\nAssistant:\n{str(t)}' for t in a['texts']]
     scores = []
     for i in range(0, len(texts), batch):
         b = texts[i:i + batch]
         inp = tok(b, return_tensors='pt', padding=True, truncation=True,
                   max_length=2048).to('cuda')
         with torch.inference_mode():
-            s = m(**inp).logits.float().cpu().numpy().ravel()
+            s = m(**inp).logits[:, 0].float().cpu().numpy()
         scores.extend(s.tolist())
     out = Path(run_dir) / 'litbench.npz'
     np.savez(out, scores=np.array(scores, 'f4'))
