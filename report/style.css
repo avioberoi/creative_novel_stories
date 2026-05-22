@@ -11,11 +11,11 @@
   --ink:        #111418;
   --ink-2:      #5b6068;
   --ink-3:      #8a8e95;
-  --rule:       #e3e2dd;
-  --rule-2:     #d9d8d3;
-  --bg:         #fffdf9;        /* very warm white, not pure */
-  --bg-block:   #f6f3ec;        /* parchment inset */
-  --bg-fig:     #ffffff;        /* pure white for figures */
+  --rule:       #e5e7eb;
+  --rule-2:     #d1d5db;
+  --bg:         #ffffff;
+  --bg-block:   #f6f7f9;        /* cool neutral inset */
+  --bg-fig:     #ffffff;
   --accent:     #800000;
   --accent-2:   #b25a5a;
   --accent-fade:#f3e3e3;

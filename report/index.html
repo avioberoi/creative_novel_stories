@@ -18,9 +18,8 @@
 <!-- ============================================================ -->
 <div class="top-strip">
   <div class="logo"><img src="figs/logo-background.svg" alt="The University of Chicago"></div>
-  <div class="center-mark">Project B &middot; Research proposal with pilot</div>
+  <div class="center-mark"></div>
   <div class="meta">
-    Mina Lee&rsquo;s course &middot; Spring 2026<br>
     <a href="https://github.com/avioberoi/creative_novel_stories" target="_blank" rel="noopener">github.com/avioberoi/creative_novel_stories</a>
   </div>
 </div>
@@ -55,7 +54,6 @@
   <div class="section-head">
     <div class="tomb">01</div>
     <h2>What this is and why it matters</h2>
-    <div class="lede-sub">A short paragraph a non-specialist can follow.</div>
   </div>
   <p class="lede">Foundation models compress how stories tend to be told.</p>
   <p class="section-first">
@@ -73,7 +71,6 @@
   <div class="section-head">
     <div class="tomb">02</div>
     <h2>How AI was used in this project</h2>
-    <div class="lede-sub">Disclosure approach + brief justification.</div>
   </div>
   <p>
     This project is collaborative work between a human author and several AI systems. The disclosure below uses the <a href="https://aiattribution.github.io/" target="_blank" rel="noopener">aiattribution.github.io</a> framework, which tags each AI use along four axes: <i>proportion</i> (how much of the artifact is AI), <i>contribution</i> (what the AI added), <i>initiative</i> (who started the action), and <i>review</i> (whether a human checked the output).
@@ -108,10 +105,6 @@
     </div>
   </div>
 
-  <h3>Why this disclosure approach</h3>
-  <p>
-    The aiattribution schema separates volume from authorship, which matters in a project where the LLM does the writing-act but the search procedure decides which writings count. A single &ldquo;made with Claude&rdquo; sticker would conflate those two roles. The four-axis breakdown lets the reader see that the report&rsquo;s code is human-AI blended, while the 385 story openings that populate the search archive are <i>entirely AI</i> output that I curated only through the choice of distance metric, observer committee, and coherence gate. The disclosure reveals that asymmetry. What it does not capture: which specific design decisions were mine versus accepted from Claude after pushback. That is what the Process section is for.
-  </p>
 </section>
 
 <!-- ============================================================ -->
@@ -121,7 +114,6 @@
   <div class="section-head">
     <div class="tomb">03</div>
     <h2>Why look at the periphery of a foundation model</h2>
-    <div class="lede-sub">The gap that creative-AI evaluation has exposed and not closed.</div>
   </div>
   <p class="lede">Novelty is not a property of a story in isolation. It is a relational claim.</p>
   <p class="section-first">
@@ -153,7 +145,6 @@
   <div class="section-head">
     <div class="tomb">04</div>
     <h2>What others have tried</h2>
-    <div class="lede-sub">A focused related-work section, leaning on the prior thesis but with the creative-AI thread added.</div>
   </div>
 
   <h3>Novelty search and quality-diversity</h3>
@@ -184,7 +175,6 @@
   <div class="section-head">
     <div class="tomb">05</div>
     <h2>Research questions and methods</h2>
-    <div class="lede-sub">Three questions, one pilot configuration, and the verbatim prompts.</div>
   </div>
 
   <h3>Three research questions</h3>
@@ -267,7 +257,6 @@ no commentary. /no_think</pre>
   <div class="section-head">
     <div class="tomb">06</div>
     <h2>What the pilot found</h2>
-    <div class="lede-sub">Eight conditions, seed 42, same coherence gate, same generator.</div>
   </div>
 
   <p class="section-first">
@@ -400,7 +389,6 @@ no commentary. /no_think</pre>
   <div class="section-head">
     <div class="tomb">07</div>
     <h2>The pivots, in order</h2>
-    <div class="lede-sub">The heart of the report. Six course-corrections during the project window, with what each one cost and what each one taught.</div>
   </div>
 
   <p class="section-first">
@@ -538,7 +526,6 @@ def _clean(txt): return _THINK.sub('', txt).strip()</pre>
   <div class="section-head">
     <div class="tomb">08</div>
     <h2>Reflection, limits, and continuation</h2>
-    <div class="lede-sub">What I learned, where the pilot stops, and what a paper-version would do.</div>
   </div>
 
   <h3>What I learned about the task</h3>
@@ -581,7 +568,7 @@ def _clean(txt): return _THINK.sub('', txt).strip()</pre>
 
   <h3>Closing</h3>
   <p>
-    This project is the text-domain extension of my thesis (DURooM, 2026), and it is the one I have found more interesting because the discoveries live in language and a non-specialist reader can read them directly. If Professor Lee finds the direction worth pursuing, I would be honored to collaborate on a paper-version with appropriate revisions, additional experiments (RQ2 and RQ3 above), and a TTCW human-rater study. Anything that helps move from a course pilot toward a paper that could go to EMNLP, CHI, or a similar venue for creative-AI work, I am here for.
+    This project is the text-domain extension of my thesis (DURooM, 2026), and it is the one I have found more interesting because the discoveries live in language. The natural next steps are RQ2 and RQ3 above and a TTCW-style human-rater study on the curated top stories.
   </p>
 </section>
 
@@ -592,7 +579,6 @@ def _clean(txt): return _THINK.sub('', txt).strip()</pre>
   <div class="section-head">
     <div class="tomb">09</div>
     <h2>References</h2>
-    <div class="lede-sub">APA-style, verified against arxiv and DOI sources. Machine-readable bibliography at <code>data/references.json</code>.</div>
   </div>
   <ol class="references" id="refs-list">
   <li id="ref-oberoi2026">Oberoi, A. (2026). Discovering unexplored regions: On/off the manifold (DURooM). <em>Course project, University of Chicago</em>.</li>
@@ -746,7 +732,6 @@ def _clean(txt): return _THINK.sub('', txt).strip()</pre>
   <div class="section-head">
     <div class="tomb">A</div>
     <h2>Appendix</h2>
-    <div class="lede-sub">Supporting material, full stories, prompts, geometry.</div>
   </div>
 
   <h3>A. Curated top stories</h3>
@@ -776,7 +761,7 @@ def _clean(txt): return _THINK.sub('', txt).strip()</pre>
 
 <footer class="report-footer">
   <div class="colophon-line">
-    Set in Crimson Pro, Bricolage Grotesque, Inter, and JetBrains Mono. UChicago Maroon as the single signal accent. Built with Claude (Opus 4.7) and shipped from <code>/home/aoberoi1/novelty_stories/report/</code>.
+    Set in Crimson Pro, Bricolage Grotesque, Inter, and JetBrains Mono. UChicago Maroon as the single signal accent.
   </div>
   <div class="colophon-line">
     Code: Claude (Opus 4.7). Generation: Qwen3-32B. Embeddings: Qwen3-Embedding-0.6B, BGE-large-en-v1.5, E5-Mistral-7B-instruct (search committee); EmbeddingGemma-300m (held-out). Quality scoring: ConicCat Litbench BT (3B Llama-3.2 fork of Fein et al., 2025).

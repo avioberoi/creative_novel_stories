@@ -1,107 +1,131 @@
-"""Build UMAP + per-metric archive projections for the umap_explorer.html page.
+"""Build UMAP + per-metric archive projections + trajectory data for umap_explorer.html.
 
-Caches:
+Strategy:
+  - Reuse the poster's already-fit UMAP cache (poster/figs/figs_data/umap_bge.npz)
+    so the interactive view is pixel-aligned with the static figure.
+  - Inline FULL generated-story text for every archive entry (read from disk).
+  - Derive a per-iteration CMA-ES-mean proxy: parse iteration index from each
+    archive entry's saved path (filenames look like iNNNN_JJ.txt), group archive
+    points by iteration, and emit the per-iter UMAP centroid as a polyline.
+
+Outputs:
   /home/aoberoi1/novelty_stories/report/data/corpus_umap.npy
   /home/aoberoi1/novelty_stories/report/data/corpus_titles.json
   /home/aoberoi1/novelty_stories/report/data/archive_<metric>.json
 """
-import json, os
+import json, os, re
 import numpy as np
 
-CORPUS_EMB = '/project/jevans/avi/novelty_stories/embs/qwen3_emb_nyer.npz'
+POSTER_UMAP = '/home/aoberoi1/novelty_stories/poster/figs/figs_data/umap_bge.npz'
 CORPUS_TEXTS = '/project/jevans/avi/novelty_stories/nyer_texts.jsonl'
 RUNS = '/project/jevans/avi/novelty_stories/runs'
 OUT = '/home/aoberoi1/novelty_stories/report/data'
 METRICS = ['euclidean', 'cosine', 'mahalanobis', 'lof', 'diffusion']
 
 os.makedirs(OUT, exist_ok=True)
+ITER_RE = re.compile(r'i(\d+)_\d+\.txt$')
 
-# --- 1) load corpus, compute UMAP (cache) -------------------------------------
-d = np.load(CORPUS_EMB, allow_pickle=True)
-X = d['first_chunk_embeddings']     # (5001, 1024) — first-chunk for visual locality
-ids = d['ids']                      # ('00001', '00002', ...)
-print(f'[corpus] embeddings {X.shape} encoder={d["encoder"]}')
 
-umap_path = os.path.join(OUT, 'corpus_umap.npy')
-if os.path.exists(umap_path):
-    XY = np.load(umap_path)
-    print(f'[umap] cached -> {XY.shape}')
-else:
-    print('[umap] fitting (this will take a minute)...')
-    import umap
-    reducer = umap.UMAP(n_components=2, n_neighbors=30, min_dist=0.15,
-                        metric='cosine', random_state=42, verbose=False)
-    XY = reducer.fit_transform(X).astype('f4')
-    np.save(umap_path, XY)
-    # also save the fitted reducer's training data for downstream transform
-    import pickle
-    with open(os.path.join(OUT, 'corpus_umap_reducer.pkl'), 'wb') as f:
-        pickle.dump(reducer, f)
-    print(f'[umap] fit -> {XY.shape}')
+def parse_iter(path):
+    # start.txt is the seed (iter 0 baseline); iNNNN_JJ.txt encodes iter NNNN.
+    m = ITER_RE.search(str(path))
+    if m: return int(m.group(1))
+    return 0  # start.txt and any fallback
 
-# --- 2) corpus titles ---------------------------------------------------------
+
+def read_text(path):
+    try:
+        with open(path, encoding='utf-8') as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return ''
+
+
+# 1) corpus UMAP from poster cache --------------------------------------------
+d = np.load(POSTER_UMAP, allow_pickle=True)
+corpus_xy = d['corpus_xy']  # (5001, 2) float32
+print(f'[corpus] poster cache xy {corpus_xy.shape}')
+np.save(os.path.join(OUT, 'corpus_umap.npy'), corpus_xy)
+with open(os.path.join(OUT, 'corpus_xy.json'), 'w') as f:
+    json.dump(corpus_xy.tolist(), f)
+
+# 2) corpus titles (first line, ~80 chars) ------------------------------------
 titles_path = os.path.join(OUT, 'corpus_titles.json')
+ids_in_order = None
 if not os.path.exists(titles_path):
-    # build id -> first-80-chars index from the jsonl
-    id_to_title = {}
+    titles = []
     with open(CORPUS_TEXTS) as f:
         for line in f:
             r = json.loads(line)
             txt = r['text'].replace('﻿', '').strip()
-            # first line, first 80 chars
             first = txt.split('\n', 1)[0]
-            id_to_title[r['id']] = first[:80]
-    titles = [id_to_title.get(str(i), str(i)) for i in ids]
+            titles.append(first[:80])
     with open(titles_path, 'w') as f:
         json.dump(titles, f)
     print(f'[titles] wrote {len(titles)}')
 else:
     print('[titles] cached')
 
-# --- 3) per-metric archive: transform style_embs into the same UMAP ----------
-# Use the fitted reducer to transform new points. If reducer pkl not cached,
-# refit (this only happens on a clean rebuild).
-import pickle
-reducer_pkl = os.path.join(OUT, 'corpus_umap_reducer.pkl')
-if os.path.exists(reducer_pkl):
-    with open(reducer_pkl, 'rb') as f:
-        reducer = pickle.load(f)
-else:
-    print('[umap] refitting for transform...')
-    import umap
-    reducer = umap.UMAP(n_components=2, n_neighbors=30, min_dist=0.15,
-                        metric='cosine', random_state=42, verbose=False)
-    reducer.fit(X)
-    with open(reducer_pkl, 'wb') as f:
-        pickle.dump(reducer, f)
-
+# 3) per-metric archives ------------------------------------------------------
 for metric in METRICS:
     arch_path = os.path.join(RUNS, f'{metric}_s42', 'archive.npz')
     if not os.path.exists(arch_path):
         print(f'[skip] {metric}: no archive')
         continue
     a = np.load(arch_path, allow_pickle=True)
-    # IMPORTANT: search ran in style space (1024d) which equals the corpus encoder.
-    # Archive has both style_embs (search-space, 1024d Qwen3) and emb_bge/e5_mistral.
-    style = a['style_embs']
-    if style.shape[1] != X.shape[1]:
-        # fall back to emb_bge if dims mismatch
-        style = a['emb_bge']
-    xy = reducer.transform(style).astype('f4')
-    texts_full = [str(t) for t in a['texts']]
-    texts_trunc = [t[:600] for t in texts_full]
-    novelty = a['novelties'].astype(float).tolist()
-    coherence = a['coherences'].astype(float).tolist()
+
+    # poster-cached UMAP xy for THIS metric's archive — pixel-matches the figure
+    xy_key = f'{metric}_s42__xy'
+    if xy_key not in d.files:
+        print(f'[skip] {metric}: no xy in poster cache')
+        continue
+    xy = d[xy_key].astype('f4')  # (N, 2)
+
+    paths = [str(p) for p in a['paths']]
+    n = xy.shape[0]
+    if len(paths) != n:
+        print(f'[warn] {metric}: paths {len(paths)} != xy {n}; truncating to xy length')
+        paths = paths[:n]
+
+    # Read full story text from each path
+    texts_full = [read_text(p) for p in paths]
+
+    # Parse iteration per entry
+    iters = np.array([parse_iter(p) for p in paths], dtype=int)
+
+    # Per-iteration centroid in UMAP space → trajectory polyline
+    uniq_iters = sorted(set(iters.tolist()))
+    traj = []
+    for it in uniq_iters:
+        mask = iters == it
+        cx, cy = xy[mask].mean(axis=0)
+        traj.append({'iter': int(it), 'x': float(cx), 'y': float(cy), 'n': int(mask.sum())})
+
+    # Optional metadata — keep what's safe to inline (no embeddings)
+    novelty = a['novelties'].astype(float).tolist() if 'novelties' in a.files else [0.0] * n
+    coherence = a['coherences'].astype(float).tolist() if 'coherences' in a.files else [0.0] * n
+    novelty = novelty[:n]
+    coherence = coherence[:n]
+
+    # short titles for hover labels
+    titles = []
+    for t in texts_full:
+        first = t.split('\n', 1)[0] if t else ''
+        titles.append(first[:80] if first else '(no text)')
+
     out = {
         'metric': metric,
         'xy': xy.tolist(),
-        'texts': texts_trunc,
+        'titles': titles,
+        'texts': texts_full,
+        'iters': iters.tolist(),
         'novelty': novelty,
         'coherence': coherence,
+        'trajectory': traj,
     }
     p = os.path.join(OUT, f'archive_{metric}.json')
     with open(p, 'w') as f:
         json.dump(out, f)
-    print(f'[archive] {metric}: {len(texts_trunc)} entries -> {p}')
+    print(f'[archive] {metric}: {n} entries, {len(uniq_iters)} iters, traj points {len(traj)}')
 
 print('done')
