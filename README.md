@@ -4,6 +4,10 @@ Novelty search via CMA-ES in foundation-model embedding space, applied to creati
 
 **Poster / project page:** https://avioberoi.github.io/creative_novel_stories/
 
+[![Poster preview](report/figs/poster_thumb.png)](poster/AviOberoi_0520.pdf)
+
+*Click the thumbnail for the full 24×36 PDF.*
+
 ## Key results
 
 - Mahalanobis archive reaches **distinct-2 = 0.73** and **transfer correlation = 0.80** to held-out NV-Embed-v2; baseline LLM samples in the same pipeline land at 0.47–0.54.

@@ -17,5 +17,3 @@ dconf/
 report/data/corpus_umap_reducer.pkl
 report/data/corpus_umap.npy
 
-# Local PDF builds, etc.
-poster/*.pdf
