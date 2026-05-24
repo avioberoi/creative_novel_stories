@@ -1,0 +1,78 @@
+# All hyperparameters live here. Copy to `config.yaml` and fill in the paths
+# for your environment. The local `config.yaml` is gitignored.
+
+paths:
+  # Project working area for runs, embeddings, caches.
+  root:    ${PROJECT_ROOT}/novelty_stories
+  cache:   ${PROJECT_ROOT}/cache
+  # The next four are exported as env vars by slurm/*.sbatch:
+  hf:      ${PROJECT_ROOT}/cache/huggingface
+  torch:   ${PROJECT_ROOT}/cache/torch
+  vllm:    ${PROJECT_ROOT}/cache/vllm
+  triton:  ${PROJECT_ROOT}/cache/triton
+
+models:
+  # Local snapshot paths or HF repo ids — encoders.load() accepts either.
+  qwen3_emb:    Qwen/Qwen3-Embedding-0.6B
+  bge:          BAAI/bge-large-en-v1.5
+  e5_mistral:   intfloat/e5-mistral-7b-instruct
+  # Held-out: Gemma family — structurally distinct from BERT/Mistral/Qwen observers
+  emb_gemma:    google/embeddinggemma-300m
+  qwen3_32b:    Qwen/Qwen3-32B
+  gemma2_27b:   google/gemma-2-27b-it
+  qwen3_think:  Qwen/Qwen3-4B-Thinking-2507
+
+corpus:
+  text_dir:    ${PROJECT_ROOT}/corpus/cleaned   # raw .txt files
+  texts_jsonl: ${PROJECT_ROOT}/novelty_stories/nyer_texts.jsonl
+  emb_dir:     ${PROJECT_ROOT}/novelty_stories/embs
+  out_dir:     ${PROJECT_ROOT}/novelty_stories/runs
+
+search:
+  encoder: qwen3_emb          # 768d, samples-per-dim ≈ 1.04 at λ=16, T=50
+  observers: [bge, e5_mistral]
+  held_out: emb_gemma
+  agg: mean                   # min | mean
+  k: 15
+  metric: euclidean           # euclidean | cosine | mahalanobis | lof | diffusion
+  threshold_percentile: 50
+  whitening_rank: 256
+
+cma:
+  σ0: 0.18
+  λ: 16
+  maxiter: 50
+  diagonal: true
+  patience: 15
+  min_accept: 0.25
+
+gen:
+  vllm_url:  http://${VLLM_HOST}:30000/v1
+  model:     qwen3_32b
+  K:         5                # retrieval neighbors as in-context examples
+  ctx_words: 600              # words per neighbor shown to LLM
+  temperature: 0.85
+  top_p: 0.95
+  max_tokens: 900
+  min_tokens: 350
+
+coherence:
+  encoder: qwen3_emb
+  threshold: 0.55
+  length_floor_words: 200
+  negatives:
+    - "I cannot help with that request"
+    - "As an AI language model"
+    - "Generic, repetitive prose"
+    - "Random words strung together"
+    - "Sorry, I cannot generate"
+
+eval:
+  litbench_repo: ConicCat/Litbench-Creative-Writing-RM-3B
+  # ConicCat's repo ships only model weights; tokenizer lives on the (un-gated) Unsloth mirror
+  litbench_tokenizer: unsloth/Llama-3.2-3B-Instruct
+  litbench_wp: "Write a literary short story opening in the style of contemporary fiction."
+  judge_model: gemma2_27b
+  judge_n_per_archive: 200    # top-100 novelty + 100 random
+  human_top_n: 20
+  expand_max_tokens: 5000

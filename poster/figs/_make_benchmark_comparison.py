@@ -5,18 +5,21 @@ Two stacked panels:
   Panel B — "Our search, in context" text callout with key numbers
 
 NO Greek letters or unicode arrows in titles, axis labels, or annotations.
-Output: <REPO_ROOT>/poster/figs/benchmark_comparison.png
+Output: poster/figs/benchmark_comparison.png
 """
+import os
 from pathlib import Path
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm
 from matplotlib.gridspec import GridSpec
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
 # -----------------------------------------------------------------------------
 # Fonts
 # -----------------------------------------------------------------------------
-FONT_DIR = Path("<FONT_DIR>")
+FONT_DIR = Path(os.environ.get("FONT_DIR", REPO_ROOT / "fonts"))
 for ff in [
     "BricolageGrotesque-Bold.ttf",
     "BricolageGrotesque-Regular.ttf",
@@ -51,7 +54,7 @@ mpl.rcParams.update({
     "savefig.facecolor": WHITE,
 })
 
-OUT = Path("<REPO_ROOT>/poster/figs/benchmark_comparison.png")
+OUT = REPO_ROOT / "poster" / "figs" / "benchmark_comparison.png"
 
 
 # -----------------------------------------------------------------------------

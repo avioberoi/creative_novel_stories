@@ -103,5 +103,5 @@ def main(args):
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--config', default='config.yaml')
-    ap.add_argument('--out', default='<PROJECT_ROOT>/novelty_stories/pilot.json')
+    ap.add_argument('--out', default='pilot.json')
     main(ap.parse_args())

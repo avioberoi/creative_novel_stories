@@ -1,14 +1,18 @@
 """Three iteration GIFs for the report website.
 
-Outputs (final):
-  <REPO_ROOT>/report/figs/sigma_evolution.gif
-  <REPO_ROOT>/report/figs/archive_growth.gif
-  <REPO_ROOT>/report/figs/acceptance_dropoff.gif
+Outputs (relative to repo root):
+  report/figs/sigma_evolution.gif
+  report/figs/archive_growth.gif
+  report/figs/acceptance_dropoff.gif
 
 All English labels — NO Greek letters.
 Style locked to poster aesthetic: white bg, Okabe-Ito series colors,
 UChicago Maroon accents, Bricolage / Work Sans / JetBrains Mono fonts.
+
+Set FONT_DIR (env var) to a directory containing the TTF files listed below,
+or fall back to whatever matplotlib finds installed.
 """
+import os
 from pathlib import Path
 import numpy as np
 import matplotlib as mpl
@@ -16,10 +20,12 @@ import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm
 from matplotlib.animation import FuncAnimation, PillowWriter
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
 # ---------------------------------------------------------------------------
 # Fonts
 # ---------------------------------------------------------------------------
-FONT_DIR = Path("<FONT_DIR>")
+FONT_DIR = Path(os.environ.get("FONT_DIR", REPO_ROOT / "fonts"))
 for ff in [
     "BricolageGrotesque-Bold.ttf",
     "BricolageGrotesque-Regular.ttf",
@@ -63,8 +69,8 @@ mpl.rcParams.update({
 # ---------------------------------------------------------------------------
 # Runs
 # ---------------------------------------------------------------------------
-RUNS_DIR = Path("<PROJECT_ROOT>/novelty_stories/runs")
-OUT_DIR  = Path("<REPO_ROOT>/report/figs")
+RUNS_DIR = Path(os.environ.get("NS_RUNS", REPO_ROOT / "runs"))
+OUT_DIR  = REPO_ROOT / "report" / "figs"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # (key, label, color) — same order as the CMA-ES group in the poster.

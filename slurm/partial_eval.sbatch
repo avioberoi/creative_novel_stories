@@ -1,20 +1,16 @@
 #!/bin/bash
 #SBATCH --job-name=ns-eval-partial
 #SBATCH --partition=gpu
-#SBATCH --account=<account>
-#SBATCH --qos=gpu
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
 #SBATCH --time=01:00:00
-#SBATCH --output=<PROJECT_ROOT>/novelty_stories/logs/eval_partial_%j.log
+#SBATCH --output=logs/eval_partial_%j.log
 set -e
-source <REPO_ROOT>/slurm/setenv.sh
-set +u; source ~/.bashrc; set -u
-export PYTHONPATH="${PYTHONPATH:-}:<PROJECT_ROOT>/envs"
+source "$(dirname "$0")/setenv.sh"
 
-cd <REPO_ROOT>
-for d in $NS_ROOT/runs/*_s42; do
+cd "$(dirname "$0")/.."
+for d in "$NS_ROOT"/runs/*_s42; do
   [ -f "$d/archive.npz" ] || continue
   bn=$(basename "$d")
   echo "=== $bn ==="

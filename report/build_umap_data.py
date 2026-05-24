@@ -8,18 +8,22 @@ Strategy:
     archive entry's saved path (filenames look like iNNNN_JJ.txt), group archive
     points by iteration, and emit the per-iter UMAP centroid as a polyline.
 
-Outputs:
-  <REPO_ROOT>/report/data/corpus_umap.npy
-  <REPO_ROOT>/report/data/corpus_titles.json
-  <REPO_ROOT>/report/data/archive_<metric>.json
+Outputs (relative to repo root):
+  report/data/corpus_umap.npy
+  report/data/corpus_titles.json
+  report/data/archive_<metric>.json
+
+Override CORPUS_TEXTS / RUNS via env vars if your data lives outside the repo.
 """
 import json, os, re
 import numpy as np
+from pathlib import Path
 
-POSTER_UMAP = '<REPO_ROOT>/poster/figs/figs_data/umap_bge.npz'
-CORPUS_TEXTS = '<PROJECT_ROOT>/novelty_stories/nyer_texts.jsonl'
-RUNS = '<PROJECT_ROOT>/novelty_stories/runs'
-OUT = '<REPO_ROOT>/report/data'
+REPO_ROOT = Path(__file__).resolve().parents[1]
+POSTER_UMAP = REPO_ROOT / 'poster' / 'figs' / 'figs_data' / 'umap_bge.npz'
+CORPUS_TEXTS = os.environ.get('CORPUS_TEXTS', str(REPO_ROOT / 'nyer_texts.jsonl'))
+RUNS = os.environ.get('NS_RUNS', str(REPO_ROOT / 'runs'))
+OUT = str(REPO_ROOT / 'report' / 'data')
 METRICS = ['euclidean', 'cosine', 'mahalanobis', 'lof', 'diffusion']
 
 os.makedirs(OUT, exist_ok=True)

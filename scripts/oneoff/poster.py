@@ -316,9 +316,9 @@ def main(args):
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--config', default='config.yaml')
-    ap.add_argument('--runs_root', default='<PROJECT_ROOT>/novelty_stories/runs')
+    ap.add_argument('--runs_root', default='runs')
     ap.add_argument('--runs', nargs='*', help='explicit run dirs (overrides --runs_root)')
     ap.add_argument('--qr', default=None, help='optional QR code PNG to embed')
-    ap.add_argument('--out', default='<PROJECT_ROOT>/novelty_stories/poster.pdf')
+    ap.add_argument('--out', default='poster.pdf')
     ap.add_argument('--dpi', type=int, default=200)
     main(ap.parse_args())

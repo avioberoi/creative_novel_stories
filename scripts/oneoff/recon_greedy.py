@@ -1,16 +1,22 @@
 """Reconstruct baseline_greedy archive.npz from the timed-out run's text files,
-then proceed to eval (transfer + litbench + sun)."""
-import json, sys
+then proceed to eval (transfer + litbench + sun).
+
+Reads paths from config.yaml — set `corpus.emb_dir` and `corpus.out_dir` there.
+"""
+import os, sys
 from pathlib import Path
 import numpy as np
-sys.path.insert(0, '<REPO_ROOT>')
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
 
 import yaml
 import encoders
 import scorers
 
-CFG = yaml.safe_load(open('<REPO_ROOT>/config.yaml'))
-RUN = Path('<PROJECT_ROOT>/novelty_stories/runs/baseline_greedy')
+CFG = yaml.safe_load(open(REPO_ROOT / 'config.yaml'))
+RUN = Path(CFG['corpus']['out_dir']) / 'baseline_greedy'
+EMB_DIR = Path(CFG['corpus']['emb_dir'])
 TEXTS = sorted((RUN / 'texts').glob('*.txt'))
 print(f'found {len(TEXTS)} story files')
 
@@ -37,7 +43,7 @@ e5_e   = emb_e5(keep_texts)
 style_embs = bge_e.copy()
 
 # compute novelties: mean of MAD-normalized observer kNN distances over the corpus
-obs_corpora = {n: np.load(f'<PROJECT_ROOT>/novelty_stories/embs/{n}_nyer.npz')['embeddings']
+obs_corpora = {n: np.load(EMB_DIR / f'{n}_nyer.npz')['embeddings']
                for n in ('bge', 'e5_mistral')}
 obs_embs = {'bge': bge_e, 'e5_mistral': e5_e}
 

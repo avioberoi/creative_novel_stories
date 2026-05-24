@@ -65,5 +65,5 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--config', default='config.yaml')
     ap.add_argument('--runs', nargs='+', required=True)
-    ap.add_argument('--out', default='<PROJECT_ROOT>/novelty_stories/expanded')
+    ap.add_argument('--out', default='expanded')
     main(ap.parse_args())

@@ -1,8 +1,9 @@
 """Comparison plot: CMA-ES (5 metrics) vs baselines (random / divbeam / greedy).
 
 NO unicode / Greek letters anywhere.
-Outputs: <REPO_ROOT>/poster/figs/cma_vs_baselines.png
+Outputs: poster/figs/cma_vs_baselines.png
 """
+import os
 from pathlib import Path
 import json
 import numpy as np
@@ -11,8 +12,10 @@ import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm
 from matplotlib.patches import Rectangle
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
 # Fonts
-FONT_DIR = Path("<FONT_DIR>")
+FONT_DIR = Path(os.environ.get("FONT_DIR", REPO_ROOT / "fonts"))
 for ff in [
     "BricolageGrotesque-Bold.ttf",
     "BricolageGrotesque-Regular.ttf",
@@ -44,8 +47,8 @@ mpl.rcParams.update({
     "savefig.facecolor": "#FFFFFF",
 })
 
-RUNS = Path("<PROJECT_ROOT>/novelty_stories/runs")
-OUT  = Path("<REPO_ROOT>/poster/figs/cma_vs_baselines.png")
+RUNS = Path(os.environ.get("NS_RUNS", REPO_ROOT / "runs"))
+OUT  = REPO_ROOT / "poster" / "figs" / "cma_vs_baselines.png"
 
 # CMA-ES (top group) — Okabe-Ito
 CMA = [

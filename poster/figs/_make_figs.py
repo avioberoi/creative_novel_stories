@@ -15,10 +15,13 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
 # -----------------------------------------------------------------------------
 # Font registration
 # -----------------------------------------------------------------------------
-FONT_DIR = Path("<FONT_DIR>")
+import os
+FONT_DIR = Path(os.environ.get("FONT_DIR", REPO_ROOT / "fonts"))
 FONT_FILES = [
     "BricolageGrotesque-Bold.ttf",
     "BricolageGrotesque-Regular.ttf",
@@ -65,8 +68,8 @@ mpl.rcParams.update({
 # -----------------------------------------------------------------------------
 # Constants
 # -----------------------------------------------------------------------------
-RUNS_BASE = Path("<PROJECT_ROOT>/novelty_stories/runs")
-OUT_DIR   = Path("<REPO_ROOT>/poster/figs")
+RUNS_BASE = Path(os.environ.get("NS_RUNS", REPO_ROOT / "runs"))
+OUT_DIR   = REPO_ROOT / "poster" / "figs"
 DATA_DIR  = OUT_DIR / "figs_data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 

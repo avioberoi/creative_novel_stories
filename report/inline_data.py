@@ -1,8 +1,10 @@
 """Inline JSON data blocks into umap_explorer.html for a self-contained file."""
 import json, re, os
+from pathlib import Path
 
-HTML = '<REPO_ROOT>/report/umap_explorer.html'
-DATA = '<REPO_ROOT>/report/data'
+HERE = Path(__file__).resolve().parent
+HTML = str(HERE / 'umap_explorer.html')
+DATA = str(HERE / 'data')
 
 files = {
     'corpus-xy':       'corpus_xy.json',

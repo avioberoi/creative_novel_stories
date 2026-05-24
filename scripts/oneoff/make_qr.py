@@ -4,7 +4,7 @@ try:
     import qrcode
 except ModuleNotFoundError:
     # fall back to a tiny pure-python QR if not installed (qrcode is in ns_deps via deps)
-    print('install qrcode: pip install --target <PROJECT_ROOT>/envs qrcode pillow')
+    print('install qrcode: pip install qrcode pillow')
     sys.exit(1)
 
 url, out = sys.argv[1], sys.argv[2]
