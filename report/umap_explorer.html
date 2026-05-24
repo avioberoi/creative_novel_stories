@@ -386,16 +386,37 @@ body {
         '<span class="chip"><b>novelty</b> ' + nov + '</span>' +
         '<span class="chip"><b>coherence</b> ' + coh + '</span>' +
         '<span class="chip"><b>idx</b> ' + idx + '</span>';
-    document.getElementById('side-body').innerHTML = paras || '<p>(no text)</p>';
+    var bodyEl = document.getElementById('side-body');
+    var bodyHTML = paras || '<p>(no text)</p>';
+    var wasOpen = sideEl.classList.contains('open');
+    // Clear stale body so the old story doesn't flash while the panel is
+    // re-opening on a fresh click.
+    bodyEl.innerHTML = '';
     sideEl.classList.add('open');
-    // Belt-and-suspenders: after the panel finishes opening, fire a resize
-    // event so Plotly recomputes its container size and the body's prose
-    // gets a fresh layout pass.
-    sideEl.addEventListener('transitionend', function onOpen(ev) {
-      if (ev.propertyName !== 'width') return;
-      sideEl.removeEventListener('transitionend', onOpen);
-      window.dispatchEvent(new Event('resize'));
-    });
+    // Defer writing the body until the panel has finished transitioning to
+    // its full 440px width — otherwise the prose gets laid out at the
+    // intermediate widths (0..440) and stays stuck blank until something
+    // (e.g. opening devtools) forces a window-resize reflow.
+    function fillBody() {
+      bodyEl.innerHTML = bodyHTML;
+      bodyEl.scrollTop = 0;
+      window.dispatchEvent(new Event('resize'));   // also nudges Plotly to fit the new plot width
+    }
+    if (wasOpen) {
+      fillBody();
+    } else {
+      sideEl.addEventListener('transitionend', function onOpen(ev) {
+        if (ev.propertyName !== 'width') return;
+        sideEl.removeEventListener('transitionend', onOpen);
+        fillBody();
+      });
+      // Safety: transitionend can be skipped if the user's browser has
+      // animations disabled (prefers-reduced-motion) or if the transition
+      // is interrupted. Fall back to filling the body after .25s + a beat.
+      setTimeout(function () {
+        if (!bodyEl.innerHTML) fillBody();
+      }, 320);
+    }
   }
   function closeSide() { sideEl.classList.remove('open'); }
   document.getElementById('side-close').addEventListener('click', closeSide);
