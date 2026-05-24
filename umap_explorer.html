@@ -91,11 +91,19 @@ body {
   display: flex; flex-direction: column;
 }
 .side.open { width: 440px; }
+/* Pin children to a fixed 440px so their layout doesn't depend on the
+   parent's transitioning width. Otherwise the body's prose gets reflowed
+   at intermediate widths during the 0→440 transition and stays stuck
+   blank until a window resize (or devtools open) triggers a fresh layout. */
+.side .head, .side .body {
+  width: 440px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
 .side .head {
   padding: 22px 24px 14px;
   border-bottom: 1px solid var(--rule);
   position: relative;
-  flex-shrink: 0;
 }
 .side .close {
   position: absolute; top: 14px; right: 14px;
@@ -143,7 +151,8 @@ body {
   line-height: 1.6;
   color: var(--ink);
   overflow-y: auto;
-  flex: 1;
+  flex-grow: 1;
+  min-height: 0;
 }
 .side .body p { margin-bottom: 14px; }
 
@@ -379,6 +388,14 @@ body {
         '<span class="chip"><b>idx</b> ' + idx + '</span>';
     document.getElementById('side-body').innerHTML = paras || '<p>(no text)</p>';
     sideEl.classList.add('open');
+    // Belt-and-suspenders: after the panel finishes opening, fire a resize
+    // event so Plotly recomputes its container size and the body's prose
+    // gets a fresh layout pass.
+    sideEl.addEventListener('transitionend', function onOpen(ev) {
+      if (ev.propertyName !== 'width') return;
+      sideEl.removeEventListener('transitionend', onOpen);
+      window.dispatchEvent(new Event('resize'));
+    });
   }
   function closeSide() { sideEl.classList.remove('open'); }
   document.getElementById('side-close').addEventListener('click', closeSide);
